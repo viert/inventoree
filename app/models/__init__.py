@@ -1,0 +1,1 @@
+from album import Album
