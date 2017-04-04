@@ -6,7 +6,7 @@ ROUTES = [
         "controller": "main"
     },
     {
-        "prefix": "/api/v1/albums",
-        "controller": "api.v1.albums"
+        "prefix": "/api/v1/projects",
+        "controller": "api.v1.projects"
     }
 ]
