@@ -85,7 +85,25 @@ class Datacenter(StorableModel):
             raise ChildDoesNotExist("Child with id %s doesn't exist" % child_id)
         child.unset_parent()
 
-
     @property
     def parent(self):
         return Datacenter.find_one({ "_id": self.parent_id })
+
+    @save_required
+    def detect_root_id(self):
+        if self.parent_id is None:
+            return self._id
+        else:
+            return self.parent.detect_root_id()
+
+    def _before_save(self):
+        if not self.is_new:
+            root_id = self.detect_root_id
+            if root_id == self._id:
+                root_id = None
+            self.root_id = root_id
+
+    @property
+    @save_required
+    def is_root(self):
+        return self.root_id is None
