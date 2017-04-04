@@ -26,6 +26,10 @@ class GroupNotEmpty(Exception):
     pass
 
 
+class InvalidProjectId(Exception):
+    pass
+
+
 class Group(StorableModel):
 
     _collection = 'groups'
@@ -56,8 +60,8 @@ class Group(StorableModel):
     )
 
     INDEXES = (
-        "%parents",
-        "%children",
+        "parents",
+        "children",
         "name"
     )
 
@@ -123,10 +127,19 @@ class Group(StorableModel):
     def empty(self):
         return len(self.children) + len(self.hosts()) == 0
 
+    @property
+    def project(self):
+        from app.models import Project
+        return Project.find_one({ "_id": self.project_id })
+
     def touch(self):
         self.updated_at = now()
 
     def _before_save(self):
+        from app.models import Project
+        p = Project.find_one({ "_id": self.project_id })
+        if p is None:
+            raise InvalidProjectId("Project with id %s doesn't exist" % self.project_id)
         self.touch()
 
     def _before_delete(self):
