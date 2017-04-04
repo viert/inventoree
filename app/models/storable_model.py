@@ -41,13 +41,16 @@ class StorableModel(object):
 
     __metaclass__ = ModelMeta
     FIELDS = []
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = set()
     DEFAULTS = {}
     INDEXES = {}
 
+    __hash__ = None
     __slots__ = FIELDS
 
     def __init__(self, **kwargs):
+        if "_id" not in kwargs:
+            self._id = None
         for field, value in kwargs.iteritems():
             setattr(self, field, value)
         for field in self.FIELDS:
@@ -82,7 +85,7 @@ class StorableModel(object):
 
     def __repr__(self):
         attributes = ["%s=%r" % (a, getattr(self, a))
-                      for a in self.FIELDS
+                      for a in list(self.FIELDS) + [ "_id" ]
                       if hasattr(self, a) and getattr(self, a) is not None]
         return '%s(\n    %s\n)' % (self.__class__.__name__, ',\n    '.join(attributes))
 
@@ -119,7 +122,7 @@ class StorableModel(object):
     @property
     def is_new(self):
         from bson.objectid import ObjectId
-        return hasattr(self, "_id") and type(self._id) == ObjectId.__class__
+        return not (hasattr(self, "_id") and type(self._id) == ObjectId)
 
     @property
     def missing_fields(self):

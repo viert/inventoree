@@ -1,1 +1,1 @@
-from album import Album
+from project import Project
