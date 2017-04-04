@@ -43,7 +43,7 @@ class StorableModel(object):
     FIELDS = []
     REQUIRED_FIELDS = set()
     DEFAULTS = {}
-    INDEXES = {}
+    INDEXES = []
 
     __hash__ = None
     __slots__ = FIELDS
@@ -142,8 +142,13 @@ class StorableModel(object):
 
     @classmethod
     def ensure_indexes(cls):
+
+        if type(cls.INDEXES) != list and type(cls.INDEXES) != tuple:
+            raise TypeError("INDEXES field must be of type list or tuple")
+
         import pymongo
         from app import app
+
         def parse(key):
             if key.startswith("-"):
                 key = key[1:]
@@ -157,12 +162,12 @@ class StorableModel(object):
                     key = key[1:]
             return (key, order)
 
-
         for index in cls.INDEXES:
             if type(index) == str:
                 index = [index]
             keys = []
             options = { "sparse": False }
+
             for subindex in index:
                 if type(subindex) == str:
                     keys.append(parse(subindex))

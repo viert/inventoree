@@ -19,9 +19,9 @@ class Project(StorableModel):
         "updated_at": now
     }
 
-    INDEXES = (
-        "name"
-    )
+    INDEXES = [
+        [ "name", { "unique": True } ]
+    ]
 
     __slots__ = FIELDS
 

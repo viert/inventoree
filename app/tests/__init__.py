@@ -1,1 +1,2 @@
 from test_storable_model import TestStorableModel
+from test_project_model import TestProjectModel

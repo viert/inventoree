@@ -29,6 +29,11 @@ class TestModel(StorableModel):
         'field3',
     )
 
+    # Incorrect: not a tuple!!!
+    INDEXES = (
+        "field1"
+    )
+
     __slots__ = FIELDS
 
 class TestStorableModel(TestCase):
@@ -37,7 +42,6 @@ class TestStorableModel(TestCase):
         model = TestModel(field1='value')
         self.assertFalse(hasattr(model, '__dict__'), msg='StorableModel is not a slots class')
         self.assertEqual(model.field1, 'value')
-        # Defaults should not be set in __init__
         model._before_delete()
         model._before_save()
 
@@ -45,3 +49,7 @@ class TestStorableModel(TestCase):
     def test_incomplete(self):
         model = TestModel(field1='value')
         self.assertRaises(FieldRequired, model.save)
+
+    def test_incorrect_index(self):
+        model = TestModel()
+        self.assertRaises(TypeError, model.ensure_indexes)
