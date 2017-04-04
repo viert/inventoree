@@ -1,24 +1,11 @@
-from app.models.storable_model import StorableModel, now
+from app.models.storable_model import StorableModel, \
+    ParentDoesNotExist, ParentAlreadyExists,\
+    ChildAlreadyExists, ChildDoesNotExist, now, save_required
+
 from bson.objectid import ObjectId
 
 
 class GroupNotFound(Exception):
-    pass
-
-
-class ParentAlreadyExists(Exception):
-    pass
-
-
-class ParentDoesNotExist(Exception):
-    pass
-
-
-class ChildAlreadyExists(Exception):
-    pass
-
-
-class ChildDoesNotExist(Exception):
     pass
 
 
@@ -41,27 +28,27 @@ class Group(StorableModel):
         "created_at",
         "updated_at",
         "project_id",
-        "parents",
-        "children",
+        "parent_ids",
+        "child_ids",
     )
 
     DEFAULTS = {
         "created_at": now,
         "updated_at": now,
-        "parents": [],
-        "children": []
+        "parent_ids": [],
+        "child_ids": []
     }
 
     REQUIRED_FIELDS = (
         "project_id",
-        "parents",
-        "children",
+        "parent_ids",
+        "child_ids",
         "name"
     )
 
     INDEXES = (
-        "parents",
-        "children",
+        "parent_ids",
+        "child_ids",
         "name"
     )
 
@@ -83,39 +70,43 @@ class Group(StorableModel):
             raise GroupNotFound("Group %s not found" % group_id)
         return group, group_id
 
+    @save_required
     def add_parent(self, parent):
         parent, parent_id = self._resolve_group(parent)
-        if parent_id in self.parents:
+        if parent_id in self.parent_ids:
             raise ParentAlreadyExists("Group %s is already a parent of group %s" % (parent.name, self.name))
-        parent.children.append(self._id)
-        self.parents.append(parent._id)
+        parent.child_ids.append(self._id)
+        self.parent_ids.append(parent._id)
         parent.save()
         self.save()
 
+    @save_required
     def remove_parent(self, parent):
         parent, parent_id = self._resolve_group(parent)
-        if parent_id not in self.parents:
+        if parent_id not in self.parent_ids:
             raise ParentDoesNotExist("Group %s is not a parent of group %s" % (parent.name, self.name))
-        parent.children.remove(self._id)
-        self.parents.remove(parent._id)
+        parent.child_ids.remove(self._id)
+        self.parent_ids.remove(parent._id)
         parent.save()
         self.save()
 
+    @save_required
     def add_child(self, child):
         child, child_id = self._resolve_group(child)
-        if child_id in self.children:
+        if child_id in self.child_ids:
             raise ChildAlreadyExists("Group %s is already a child of group %s" % (child.name, self.name))
-        child.parents.append(self._id)
-        self.children.append(child._id)
+        child.parent_ids.append(self._id)
+        self.child_ids.append(child._id)
         child.save()
         self.save()
 
+    @save_required
     def remove_child(self, child):
         child, child_id = self._resolve_group(child)
-        if child_id not in self.children:
+        if child_id not in self.child_ids:
             raise ChildDoesNotExist("Group %s is not a child of group %s" % (child.name, self.name))
-        child.parents.remove(self._id)
-        self.children.remove(child._id)
+        child.parent_ids.remove(self._id)
+        self.child_ids.remove(child._id)
         child.save()
         self.save()
 
@@ -125,7 +116,15 @@ class Group(StorableModel):
 
     @property
     def empty(self):
-        return len(self.children) + len(self.hosts()) == 0
+        return len(self.child_ids) + len(self.hosts()) == 0
+
+    @property
+    def parents(self):
+        return Group.find({ "_id": { "$in": self.parent_ids }})
+
+    @property
+    def children(self):
+        return Group.find({ "_id": { "$in": self.child_ids }})
 
     @property
     def project(self):

@@ -1,6 +1,6 @@
 from library.db import db
 from datetime import datetime
-
+from functools import wraps
 
 def hungarian(name):
     result = ""
@@ -21,6 +21,26 @@ def now():
     dt = datetime.utcnow()
     dt = dt.replace(microsecond=dt.microsecond//1000*1000)
     return dt
+
+
+class ParentAlreadyExists(Exception):
+    pass
+
+
+class ParentDoesNotExist(Exception):
+    pass
+
+
+class ChildAlreadyExists(Exception):
+    pass
+
+
+class ChildDoesNotExist(Exception):
+    pass
+
+
+class ObjectSaveRequired(Exception):
+    pass
 
 
 class FieldRequired(Exception):
@@ -176,3 +196,13 @@ class StorableModel(object):
                         options[key] = value
             app.logger.debug("Creating index with options: %s, %s" % (keys, options))
             db.conn[cls.collection].create_index(keys, **options)
+
+
+def save_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        this = args[0]
+        if this.is_new:
+            raise ObjectSaveRequired("This object must be saved first")
+        return func(*args, **kwargs)
+    return wrapper
