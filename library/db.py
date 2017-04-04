@@ -131,7 +131,6 @@ class DB(object):
 
     @intercept_mongo_errors
     def delete_obj(self, obj):
-        print "in delete_obj"
         if obj.is_new:
             return
         self.conn[obj.collection].delete_one({'_id': obj._id})
