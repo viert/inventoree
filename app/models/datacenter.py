@@ -1,5 +1,5 @@
 from app.models.storable_model import StorableModel, ParentDoesNotExist,\
-    ParentAlreadyExists, ParentCycle, \
+    ParentAlreadyExists, ParentCycle, ObjectSaveRequired, \
     ChildDoesNotExist, save_required
 from bson.objectid import ObjectId
 
@@ -44,6 +44,8 @@ class Datacenter(StorableModel):
         # and return a tuple of actual (datacenter, datacenter_id)
         if type(dc) == Datacenter:
             dc_id = dc._id
+            if dc_id is None:
+                raise ObjectSaveRequired("%s must be saved first" % dc)
         elif type(dc) == ObjectId:
             dc_id = dc
             dc = Datacenter.find_one({ "_id": dc_id })
