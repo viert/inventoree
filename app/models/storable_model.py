@@ -2,6 +2,7 @@ from library.db import db
 from datetime import datetime
 from functools import wraps
 
+
 def hungarian(name):
     result = ""
     for i, l in enumerate(name):
@@ -24,6 +25,10 @@ def now():
 
 
 class ParentAlreadyExists(Exception):
+    pass
+
+
+class ParentCycle(Exception):
     pass
 
 
@@ -84,16 +89,18 @@ class StorableModel(object):
                     value = value[:]
                 setattr(self, field, value)
 
-    def save(self):
+    def save(self, skip_callback=False):
         for field in self.missing_fields:
             raise FieldRequired(field)
-        self._before_save()
+        if not skip_callback:
+            self._before_save()
         db.save_obj(self)
 
-    def destroy(self):
+    def destroy(self, skip_callback=False):
         if self.is_new:
             return
-        self._before_delete()
+        if not skip_callback:
+            self._before_delete()
         db.delete_obj(self)
         delattr(self, '_id')
 
@@ -159,6 +166,10 @@ class StorableModel(object):
     @classmethod
     def find_one(cls, query, **kwargs):
         return db.get_obj(cls, cls.collection, query, **kwargs)
+
+    @classmethod
+    def destroy_all(cls):
+        db.delete_query(cls.collection, {})
 
     @classmethod
     def ensure_indexes(cls):

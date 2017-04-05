@@ -1,9 +1,14 @@
 from app.models.storable_model import StorableModel, ParentDoesNotExist,\
-    ParentAlreadyExists,\
+    ParentAlreadyExists, ParentCycle, \
     ChildDoesNotExist, save_required
 from bson.objectid import ObjectId
 
+
 class DatacenterNotFound(Exception):
+    pass
+
+
+class DatacenterNotEmpty(Exception):
     pass
 
 
@@ -20,6 +25,10 @@ class Datacenter(StorableModel):
     REQUIRED_FIELDS = (
         "name",
     )
+
+    DEFAULTS = {
+        "child_ids": []
+    }
 
     INDEXES = (
         "name",
@@ -61,10 +70,11 @@ class Datacenter(StorableModel):
     def unset_parent(self):
         if self.parent_id is None:
             raise ParentDoesNotExist("This object doesn't have a parent")
-        self.parent.child_ids.remove(self._id)
+        parent = self.parent
+        parent.child_ids.remove(self._id)
         self.parent_id = None
         self.save()
-        self.parent.save()
+        parent.save()
 
     @save_required
     def add_child(self, child):
@@ -73,6 +83,8 @@ class Datacenter(StorableModel):
             raise ChildDoesNotExist("Child with id %s doesn't exist" % child_id)
         if child.parent_id is not None:
             raise ParentAlreadyExists("This child already have a parent")
+        if child_id == self._id:
+            raise ParentCycle("Can't make datacenter child of itself")
         self.child_ids.append(child_id)
         child.parent_id = self._id
         child.save()
@@ -83,7 +95,10 @@ class Datacenter(StorableModel):
         child, child_id = self._resolve_dc(child)
         if child is None:
             raise ChildDoesNotExist("Child with id %s doesn't exist" % child_id)
-        child.unset_parent()
+        self.child_ids.remove(child_id)
+        child.parent_id = None
+        child.save()
+        self.save()
 
     @property
     def parent(self):
@@ -98,10 +113,20 @@ class Datacenter(StorableModel):
 
     def _before_save(self):
         if not self.is_new:
-            root_id = self.detect_root_id
+            root_id = self.detect_root_id()
             if root_id == self._id:
                 root_id = None
             self.root_id = root_id
+
+    def _before_delete(self):
+        if len(self.child_ids) > 0:
+            raise DatacenterNotEmpty()
+        if self.parent is not None:
+            self.unset_parent()
+
+    @property
+    def children(self):
+        return [Datacenter.find_one({ "_id": child_id }) for child_id in self.child_ids]
 
     @property
     @save_required
