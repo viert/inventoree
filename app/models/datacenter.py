@@ -1,6 +1,6 @@
 from app.models.storable_model import StorableModel, ParentDoesNotExist,\
     ParentAlreadyExists, ParentCycle, ObjectSaveRequired, \
-    ChildDoesNotExist, save_required
+    ChildDoesNotExist, ChildAlreadyExists, save_required
 from bson.objectid import ObjectId
 
 
@@ -38,20 +38,20 @@ class Datacenter(StorableModel):
 
     __slots__ = FIELDS
     
-    @staticmethod
-    def _resolve_dc(dc):
+    @classmethod
+    def _resolve_dc(cls, dc):
         # gets datacenter or datacenter_id or str with datacenter_id
         # and return a tuple of actual (datacenter, datacenter_id)
-        if type(dc) == Datacenter:
+        if type(dc) == cls:
             dc_id = dc._id
             if dc_id is None:
                 raise ObjectSaveRequired("%s must be saved first" % dc)
         elif type(dc) == ObjectId:
             dc_id = dc
-            dc = Datacenter.find_one({ "_id": dc_id })
+            dc = cls.find_one({ "_id": dc_id })
         else:
             dc_id = ObjectId(dc)
-            dc = Datacenter.find_one({ "_id": dc_id })
+            dc = cls.find_one({ "_id": dc_id })
         if dc is None:
             raise DatacenterNotFound("Datacenter %s not found" % dc_id)
         return dc, dc_id
@@ -63,6 +63,8 @@ class Datacenter(StorableModel):
         parent, parent_id = self._resolve_dc(parent)
         if parent is None:
             raise ParentDoesNotExist("Parent with id %s doesn't exist" % parent_id)
+        if parent._id == self._id:
+            raise ParentCycle("Can't set parent to myself")
         parent.child_ids.append(self._id)
         self.parent_id = parent_id
         parent.save()
@@ -87,6 +89,8 @@ class Datacenter(StorableModel):
             raise ParentAlreadyExists("This child already have a parent")
         if child_id == self._id:
             raise ParentCycle("Can't make datacenter child of itself")
+        if child_id in self.child_ids:
+            raise ChildAlreadyExists("%s is already a child of %s" (child, self))
         self.child_ids.append(child_id)
         child.parent_id = self._id
         child.save()
@@ -104,7 +108,7 @@ class Datacenter(StorableModel):
 
     @property
     def parent(self):
-        return Datacenter.find_one({ "_id": self.parent_id })
+        return self.__class__.find_one({ "_id": self.parent_id })
 
     @save_required
     def detect_root_id(self):
@@ -128,7 +132,7 @@ class Datacenter(StorableModel):
 
     @property
     def children(self):
-        return [Datacenter.find_one({ "_id": child_id }) for child_id in self.child_ids]
+        return [self.__class__.find_one({ "_id": child_id }) for child_id in self.child_ids]
 
     @property
     @save_required
