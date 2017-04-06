@@ -1,44 +1,36 @@
 from unittest import TestCase
-from app.models import Datacenter
+from app.models import Datacenter as Base
 from app.models.storable_model import FieldRequired
+
+class Datacenter(Base):
+    _collection = 'tdatacenter'
 
 
 class TestDatacenterModel(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.dc1 = Datacenter(name="dc1")
-        cls.dc1.save()
-
-        cls.dc11 = Datacenter(name="dc1.1")
-        cls.dc11.save()
-        cls.dc1.add_child(cls.dc11)
-
-        cls.dc12 = Datacenter(name="dc1.2")
-        cls.dc12.save()
-        cls.dc12.set_parent(cls.dc1)
-
-        cls.dc121 = Datacenter(name="dc1.2.1")
-        cls.dc121.save()
-        cls.dc122 = Datacenter(name="dc1.2.2")
-        cls.dc122.save()
-
-        cls.dc12.add_child(cls.dc121)
-        cls.dc12.add_child(cls.dc122)
+        Datacenter.destroy_all()
 
     @classmethod
     def tearDownClass(cls):
-        cls.dc121.unset_parent()
-        cls.dc121.destroy()
-        cls.dc122.unset_parent()
-        cls.dc122.destroy()
-        cls.dc12.unset_parent()
-        cls.dc12.destroy()
-        cls.dc11.unset_parent()
-        cls.dc11.destroy()
-        cls.dc1.destroy()
+        Datacenter.destroy_all()
 
     def test_incomlete(self):
         dc = Datacenter()
         self.assertRaises(FieldRequired, dc.save)
 
+    def test_children_before_save(self):
+        from app.models.storable_model import ObjectSaveRequired
+        dc1 = Datacenter(name="dc1")
+        dc12 = Datacenter(name="dc1.2")
+        self.assertRaises(ObjectSaveRequired, dc1.add_child, dc12)
+        self.assertRaises(ObjectSaveRequired, dc12.set_parent, dc1)
+
+    def test_self_parent(self):
+        from app.models.storable_model import ParentCycle
+        dc1 = Datacenter(name="dc1")
+        dc1.save()
+        self.assertRaises(ParentCycle, dc1.set_parent, dc1._id)
+        self.assertRaises(ParentCycle, dc1.set_parent, dc1)
+        dc1.destroy()
