@@ -1,7 +1,7 @@
 from unittest import TestCase
 from app.models import Group as BaseGroup
 from app.models import Project as BaseProject
-from app.models.storable_model import FieldRequired, ParentCycle
+from app.models.storable_model import FieldRequired, ParentCycle, ChildAlreadyExists, ParentAlreadyExists
 
 TEST_COLLECTION = "tgroup"
 
@@ -38,8 +38,12 @@ class TestGroupModel(TestCase):
         db.conn[TEST_COLLECTION].drop()
 
     def test_incomplete(self):
+        from app.models.group import InvalidProjectId
         group = Group()
         self.assertRaises(FieldRequired, group.save)
+        group.name = "my test group"
+        group.project_id = "some invalid id"
+        self.assertRaises(InvalidProjectId, group.save)
 
     def test_children_before_save(self):
         from app.models.storable_model import ObjectSaveRequired
@@ -58,6 +62,22 @@ class TestGroupModel(TestCase):
         g1.save()
         self.assertRaises(ParentCycle, g1.add_child, g1)
 
+    def test_child_already_exists(self):
+        g1 = Group(name="g1", project_id=self.tproject._id)
+        g1.save()
+        g2 = Group(name="g2", project_id=self.tproject._id)
+        g2.save()
+        g1.add_child(g2)
+        self.assertRaises(ChildAlreadyExists, g1.add_child, g2)
+
+    def test_parent_already_exists(self):
+        g1 = Group(name="g1", project_id=self.tproject._id)
+        g1.save()
+        g2 = Group(name="g2", project_id=self.tproject._id)
+        g2.save()
+        g1.add_parent(g2)
+        self.assertRaises(ParentAlreadyExists, g1.add_parent, g2)
+
     def test_cycle(self):
         g1 = Group(name="g1", project_id=self.tproject._id)
         g1.save()
@@ -72,3 +92,25 @@ class TestGroupModel(TestCase):
         g3.add_child(g4)
         self.assertRaises(ParentCycle, g4.add_child, g1)
         self.assertRaises(ParentCycle, g1.add_parent, g4)
+
+    def test_add_child_by(self):
+        g1 = Group(name="g1", project_id=self.tproject._id)
+        g1.save()
+        g2 = Group(name="g2", project_id=self.tproject._id)
+        g2.save()
+
+        g1.add_child(g2)
+        tg = Group.find_one({ "name": "g1" })
+        self.assertIn(g2._id, tg.child_ids)
+        g1.remove_child(g2)
+
+        g1.add_child(g2._id)
+        tg = Group.find_one({ "name": "g1" })
+        self.assertIn(g2._id, tg.child_ids)
+        g1.remove_child(g2._id)
+
+        g1.add_child(str(g2._id))
+        tg = Group.find_one({ "name": "g1" })
+        self.assertIn(g2._id, tg.child_ids)
+        g1.remove_child(str(g2._id))
+

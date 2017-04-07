@@ -166,4 +166,3 @@ class Group(StorableModel):
         if not self.empty:
             raise GroupNotEmpty()
 
-
