@@ -1,6 +1,6 @@
 from app.models.storable_model import StorableModel, ParentDoesNotExist,\
     ParentAlreadyExists, ParentCycle, ObjectSaveRequired, \
-    ChildDoesNotExist, ChildAlreadyExists, save_required
+    ChildDoesNotExist, ChildAlreadyExists, save_required, now
 from bson.objectid import ObjectId
 
 
@@ -19,15 +19,21 @@ class Datacenter(StorableModel):
         "name",
         "parent_id",
         "root_id",
-        "child_ids"
+        "child_ids",
+        "created_at",
+        "updated_at",
     )
     
     REQUIRED_FIELDS = (
         "name",
+        "created_at",
+        "updated_at",
     )
 
     DEFAULTS = {
-        "child_ids": []
+        "child_ids": [],
+        "created_at": now,
+        "updated_at": now
     }
 
     INDEXES = (
@@ -65,6 +71,8 @@ class Datacenter(StorableModel):
             raise ParentDoesNotExist("Parent with id %s doesn't exist" % parent_id)
         if parent._id == self._id:
             raise ParentCycle("Can't set parent to myself")
+        if parent in self.get_all_children():
+            raise ParentCycle("Can't set one of (grand)children parent")
         parent.child_ids.append(self._id)
         self.parent_id = parent_id
         parent.save()
@@ -89,6 +97,8 @@ class Datacenter(StorableModel):
             raise ParentAlreadyExists("This child already have a parent")
         if child_id == self._id:
             raise ParentCycle("Can't make datacenter child of itself")
+        if self in child.get_all_children():
+            raise ParentCycle("Can't add on of (grand)parents as child")
         if child_id in self.child_ids:
             raise ChildAlreadyExists("%s is already a child of %s" (child, self))
         self.child_ids.append(child_id)
@@ -105,6 +115,15 @@ class Datacenter(StorableModel):
         child.parent_id = None
         child.save()
         self.save()
+
+    def get_all_children(self):
+        children = self.children[:]
+        for child in self.children:
+            children += child.get_all_children()
+        return children
+
+    def touch(self):
+        self.updated_at = now()
 
     @property
     def parent(self):
@@ -123,6 +142,7 @@ class Datacenter(StorableModel):
             if root_id == self._id:
                 root_id = None
             self.root_id = root_id
+        self.touch()
 
     def _before_delete(self):
         if len(self.child_ids) > 0:
@@ -132,7 +152,7 @@ class Datacenter(StorableModel):
 
     @property
     def children(self):
-        return [self.__class__.find_one({ "_id": child_id }) for child_id in self.child_ids]
+        return self.__class__.find({ "_id": { "$in": self.child_ids } }).all()
 
     @property
     @save_required

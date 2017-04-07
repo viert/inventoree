@@ -37,6 +37,13 @@ class TestModel(StorableModel):
     __slots__ = FIELDS
 
 class TestStorableModel(TestCase):
+
+    def setUp(self):
+        TestModel.destroy_all()
+
+    def tearDown(self):
+        TestModel.destroy_all()
+
     def test_init(self):
         self.assertRaises(AttributeError, TestModel, nosuchfield='value')
         model = TestModel(field1='value')
@@ -45,7 +52,6 @@ class TestStorableModel(TestCase):
         model._before_delete()
         model._before_save()
 
-
     def test_incomplete(self):
         model = TestModel(field1='value')
         self.assertRaises(FieldRequired, model.save)
@@ -53,3 +59,9 @@ class TestStorableModel(TestCase):
     def test_incorrect_index(self):
         model = TestModel()
         self.assertRaises(TypeError, model.ensure_indexes)
+
+    def test_eq(self):
+        model = TestModel(field2="mymodel")
+        model.save()
+        model2 = TestModel.find_one({ "field2": "mymodel" })
+        self.assertEqual(model, model2)
