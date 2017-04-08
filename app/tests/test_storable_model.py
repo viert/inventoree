@@ -29,6 +29,10 @@ class TestModel(StorableModel):
         'field3',
     )
 
+    REJECTED_FIELDS = (
+        'field1',
+    )
+
     # Incorrect: not a tuple!!!
     INDEXES = (
         "field1"
@@ -65,3 +69,19 @@ class TestStorableModel(TestCase):
         model.save()
         model2 = TestModel.find_one({ "field2": "mymodel" })
         self.assertEqual(model, model2)
+
+    def test_reject_on_update(self):
+        model = TestModel(field1="original_value", field2="mymodel_reject_test")
+        model.save()
+        id = model._id
+        model.update({ "field1": "new_value" })
+        model = TestModel.find_one({ "_id": id })
+        self.assertEqual(model.field1, "original_value")
+
+    def test_update(self):
+        model = TestModel(field1="original_value", field2="mymodel_update_test")
+        model.save()
+        id = model._id
+        model.update({ "field2": "mymodel_updated" })
+        model = TestModel.find_one({ "_id": id })
+        self.assertEqual(model.field2, "mymodel_updated")

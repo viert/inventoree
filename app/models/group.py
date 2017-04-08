@@ -82,6 +82,7 @@ class Group(StorableModel):
             raise ParentCycle("Can't make group parent of itself")
         if self in parent.get_all_parents():
             raise ParentCycle("Can't add one of (grand)child group as a parent")
+        # TODO project checking
         parent.child_ids.append(self._id)
         self.parent_ids.append(parent._id)
         parent.save()
@@ -106,6 +107,7 @@ class Group(StorableModel):
             raise ParentCycle("Can't make group child of itself")
         if self in child.get_all_children():
             raise ParentCycle("Can't add one of (grand)parent group as a child")
+        # TODO project checking
         child.parent_ids.append(self._id)
         self.child_ids.append(child._id)
         child.save()

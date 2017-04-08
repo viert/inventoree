@@ -6,9 +6,9 @@ import logging
 from flask import Flask, request, session
 from collections import namedtuple
 from library.engine.utils import get_py_files
+from library.engine.json_encoder import MongoJSONEncoder
 from library.mongo_session import MongoSessionInterface
 from werkzeug.contrib.cache import MemcachedCache, SimpleCache
-
 
 
 class BaseApp(object):
@@ -51,7 +51,7 @@ class BaseApp(object):
         static_folder = self.config.http.get("STATIC", "static")
         static_folder = os.path.abspath(os.path.join(self.BASE_DIR, static_folder))
         self.flask = Flask(__name__, static_folder=static_folder)
-
+        self.flask.json_encoder = MongoJSONEncoder
         self.logger.debug("Setting sessions interface")
         self.flask.session_interface = MongoSessionInterface(collection_name='sessions')
 
@@ -78,6 +78,7 @@ class BaseApp(object):
                 self.logger.error("No blueprint named %s found in module %s" % (blueprint_name, module_name))
                 continue
             self.flask.register_blueprint(blueprint, url_prefix=route["prefix"])
+            self.logger.info("Registered blueprint '%s' with url_prefix=%s" % (blueprint_name, route["prefix"]))
 
     def __read_config(self):
         # reading and compiling config files

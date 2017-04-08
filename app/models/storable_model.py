@@ -66,6 +66,7 @@ class StorableModel(object):
 
     __metaclass__ = ModelMeta
     FIELDS = []
+    REJECTED_FIELDS = []
     REQUIRED_FIELDS = set()
     DEFAULTS = {}
     INDEXES = []
@@ -95,6 +96,12 @@ class StorableModel(object):
         if not skip_callback:
             self._before_save()
         db.save_obj(self)
+
+    def update(self, data, skip_callback=False):
+        for field in self.FIELDS:
+            if field in data and field not in self.REJECTED_FIELDS:
+                self.__setattr__(field, data[field])
+        self.save(skip_callback=skip_callback)
 
     def destroy(self, skip_callback=False):
         if self.is_new:
