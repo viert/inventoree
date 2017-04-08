@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node_modules/.bin/webpack -p"
   },
   "author": "Pavel Vorobyov <aquavitale@yandex.ru>",
   "license": "ISC",
   "dependencies": {
     "react": "^15.5.3",
-    "react-dom": "^15.5.3"
+    "react-dom": "^15.5.3",
+    "react-router": "^4.0.0",
+    "react-router-dom": "^4.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
