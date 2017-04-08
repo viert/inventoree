@@ -99,7 +99,7 @@ class StorableModel(object):
 
     def update(self, data, skip_callback=False):
         for field in self.FIELDS:
-            if field in data and field not in self.REJECTED_FIELDS:
+            if field in data and field not in self.REJECTED_FIELDS and field != "_id":
                 self.__setattr__(field, data[field])
         self.save(skip_callback=skip_callback)
 
