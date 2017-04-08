@@ -46,7 +46,12 @@ class Group(StorableModel):
         "project_id",
         "parent_ids",
         "child_ids",
-        "name"
+        "name",
+    )
+
+    REJECTED_FIELDS = (
+        "parent_ids",
+        "child_ids",
     )
 
     INDEXES = (
