@@ -1,0 +1,7 @@
+a:hover {
+    color: red !important;
+}
+
+a {
+    transition: color 0.2s ease;
+}

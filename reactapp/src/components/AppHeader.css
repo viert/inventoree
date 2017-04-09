@@ -1,0 +1,44 @@
+.appheader {
+    width: 100%;
+    display: flex;
+    height: 50px;
+    background-color: white;
+    border-bottom: 1px solid #dddddd;
+    color: #444444;
+}
+
+.appheader-logo {
+    flex-grow: 1;
+}
+
+.appheader-logo a {
+    font-size: 22px;
+    color: #444;
+    text-decoration: none;
+    line-height: 54px;
+    padding: 0 20px;
+}
+
+.appheader-menu {
+    padding: 0;
+    margin-left: 40px;
+    font-weight: bold;
+}
+
+.appheader-menu li {
+    display: inline;
+    padding-right: 20px;
+    font-size: 14px;
+    text-transform: uppercase;
+    line-height: 54px;
+}
+
+.appheader-menu li a {
+    color: #444444;
+    text-decoration: none;
+}
+
+.appheader-account {
+    line-height: 54px;
+    padding-right: 20px;
+}
