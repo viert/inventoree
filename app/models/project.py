@@ -4,6 +4,8 @@ class Project(StorableModel):
     FIELDS = (
         '_id',
         'name',
+        'email',
+        'root_email',
         'created_at',
         'updated_at',
     )

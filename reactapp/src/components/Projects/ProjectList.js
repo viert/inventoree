@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import Axios from 'axios';
 
 import ProjectListTable from './ProjectListTable';
@@ -9,22 +10,25 @@ class ProjectList extends Component {
         this.state = {
             projects: [],
             sorters: {
-                id: 1,
+                _id: 1,
                 name: 1
-            }
+            },
+            loading: true
         }
     }
+
     componentDidMount() {
         Axios.get("/api/v1/projects/").then((data) => {
             var projectList = data.data.data;     // zombie-zombie-zombie
             projectList.sort((a, b) => ( a.name > b.name ));
             this.setState({
-                projects: projectList
+                projects: projectList,
+                loading: false
             });
         });
     }
 
-    sortBy(field) {
+    handleSortBy(field) {
         var projectList = this.state.projects.slice();
         var sorters = this.state.sorters;
         sorters[field] = -sorters[field];
@@ -41,21 +45,17 @@ class ProjectList extends Component {
         });
     }
 
-    handleSortById(e) {
-        e.preventDefault();
-        this.sortBy('_id');
-    }
-
-    handleSortByName(e) {
-        e.preventDefault();
-        this.sortBy('name');
-    }
-
     render() {
         return (
             <div>
                 <h1>Project List</h1>
-                <ProjectListTable onSortById={this.handleSortById.bind(this)} onSortByName={this.handleSortByName.bind(this)} projects={this.state.projects} />
+                <div className="control-buttons">
+                    <Link to="/projects/new" className="btn btn-success uppercase">New Project</Link>
+                </div>
+                { 
+                    this.state.loading ? 'Loading' :
+                        <ProjectListTable onSortById={this.handleSortBy.bind(this, '_id')} onSortByName={this.handleSortBy.bind(this, 'name')} projects={this.state.projects} />
+                }
             </div>
         )
     }

@@ -3,6 +3,7 @@ import { NavLink, Route } from 'react-router-dom';
 import './Structure.css';
 
 import ProjectList from './Projects/ProjectList';
+import ProjectNew from './Projects/ProjectNew';
 import DatacenterList from './Datacenters/DatacenterList';
 
 class Structure extends Component {
@@ -11,17 +12,18 @@ class Structure extends Component {
             <div className="main">
                 <aside className="sidebar">
                     <ul className="sidebar-menu">
-                        <li><NavLink to="/structure/datacenters" activeClassName="active">datacenters</NavLink></li>
-                        <li><NavLink to="/structure/projects" activeClassName="active">projects</NavLink></li>
-                        <li><NavLink to="/structure/groups" activeClassName="active">groups</NavLink></li>
-                        <li><NavLink to="/structure/hosts" activeClassName="active">hosts</NavLink></li>
+                        <li><NavLink to="/datacenters" activeClassName="active">datacenters</NavLink></li>
+                        <li><NavLink to="/projects" activeClassName="active">projects</NavLink></li>
+                        <li><NavLink to="/groups" activeClassName="active">groups</NavLink></li>
+                        <li><NavLink to="/hosts" activeClassName="active">hosts</NavLink></li>
                         <hr/>
                         <li><NavLink to="/structure/users" activeClassName="active">users</NavLink></li>
                     </ul>
                 </aside>
                 <div className="content">
-                    <Route path="/structure/projects" component={ProjectList} />
-                    <Route path="/structure/datacenters" component={DatacenterList} />
+                    <Route exact path="/projects" component={ProjectList} />
+                    <Route exact path="/projects/new" component={ProjectNew} />
+                    <Route path="/datacenters" component={DatacenterList} />
                 </div>
             </div>
         )
