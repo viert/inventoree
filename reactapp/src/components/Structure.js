@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { NavLink, Route } from 'react-router-dom';
 import './Structure.css';
 
-import ProjectsList from './Projects/ProjectsList';
+import ProjectList from './Projects/ProjectList';
+import DatacenterList from './Datacenters/DatacenterList';
 
 class Structure extends Component {
     render() {
@@ -14,11 +15,13 @@ class Structure extends Component {
                         <li><NavLink to="/structure/projects" activeClassName="active">projects</NavLink></li>
                         <li><NavLink to="/structure/groups" activeClassName="active">groups</NavLink></li>
                         <li><NavLink to="/structure/hosts" activeClassName="active">hosts</NavLink></li>
+                        <hr/>
                         <li><NavLink to="/structure/users" activeClassName="active">users</NavLink></li>
                     </ul>
                 </aside>
                 <div className="content">
-                    <Route path="/structure/projects" component={ProjectsList} />
+                    <Route path="/structure/projects" component={ProjectList} />
+                    <Route path="/structure/datacenters" component={DatacenterList} />
                 </div>
             </div>
         )
