@@ -1,6 +1,5 @@
 from commands import Command
 from unittest import main
-from coverage import coverage
 from app import tests
 
 class Test(Command):

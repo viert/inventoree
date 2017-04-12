@@ -2,3 +2,4 @@ from test_storable_model import TestStorableModel
 from test_project_model import TestProjectModel
 from test_datacenter_model import TestDatacenterModel
 from test_group_model import TestGroupModel
+from test_pbkdf2 import TestPBKDF2
