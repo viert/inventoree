@@ -5,7 +5,7 @@ import './Structure.css';
 import ProjectList from './Projects/ProjectList';
 import ProjectNew from './Projects/ProjectNew';
 import DatacenterList from './Datacenters/DatacenterList';
-import { AlertBox } from './AlertBox';
+import { AlertBox } from '../library/AlertBox';
 
 class Structure extends Component {
     render() {
