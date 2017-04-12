@@ -2,15 +2,16 @@ import React, { Component } from 'react';
 import Axios from 'axios';
 import ProjectForm from './ProjectForm';
 import HttpErrorHandler from '../../library/HttpErrorHandler'
+import AlertStore from '../../library/AlertBox'
 
 class ProjectNew extends Component {
     handleSubmit(project) {
         Axios.post('/api/v1/projects/', project)
-            .then((data) => {
-                console.log(data);
+            .then((response) => {
+                AlertStore.Info('Project "' + response.data.data.name + '" successfully saved')
+                this.props.history.push('/projects')
             })
             .catch(HttpErrorHandler.bind(this));
-        this.props.history.push('/projects');
     }
 
     render() {

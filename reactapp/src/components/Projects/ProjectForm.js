@@ -1,12 +1,6 @@
 import React, { Component } from 'react';
 import '../Form.css';
 
-var EMPTY_PROJECT = {
-    name: "",
-    email: "",
-    root_email: ""
-}
-
 class ProjectForm extends Component {
     componentWillMount() {
         if (this.props.project) {
@@ -15,7 +9,11 @@ class ProjectForm extends Component {
             })
         } else {
             this.setState({
-                project: EMPTY_PROJECT
+                project: {
+                    name: "",
+                    email: "",
+                    root_email: ""
+                }
             })
         }
     }
