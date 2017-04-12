@@ -162,7 +162,7 @@ class StorableModel(object):
     def missing_fields(self):
         mfields = []
         for field in self.REQUIRED_FIELDS:
-            if not hasattr(self, field) or getattr(self, field) is None:
+            if not hasattr(self, field) or getattr(self, field) in ["", None]:
                 mfields.append(field)
         return mfields
 
