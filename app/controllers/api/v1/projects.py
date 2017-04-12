@@ -23,7 +23,7 @@ def create():
     from app.models import Project
     data = clear_aux_fields(request.json)
     # TODO check user supervisor privileges
-    project = Project(name=data.get("name"))
+    project = Project(name=data.get("name"), email=data.get("email"), root_email=data.get("root_email"))
     try:
         project.save()
     except Exception as e:
