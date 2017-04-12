@@ -7,8 +7,10 @@ class ProjectListTable extends Component {
             <table className="table">
                 <thead>
                 <tr>
-                    <th onClick={this.props.onSortByName}>name</th>
-                    <th onClick={this.props.onSortById}>id</th>
+                    <th>name</th>
+                    <th>email</th>
+                    <th>root email</th>
+                    <th>id</th>
                 </tr>
                 </thead>
                 <tbody>
