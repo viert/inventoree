@@ -16,10 +16,7 @@ def json_response(data, code=200):
 
 
 def json_exception(exception, code=400):
-    data = exception.to_dict()
-    errors = []
-    for k,v in data.items():
-        errors.append('%s %s' % (k,v))
+    errors = [ "%s: %s" % (exception.__class__.__name__, exception.message) ]
     return make_response(json.dumps({'errors': errors}), code, {'Content-Type':'application/json'})
 
 
