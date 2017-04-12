@@ -20,7 +20,6 @@ class BaseApp(object):
     def __init__(self):
         import inspect
         class_file = inspect.getfile(self.__class__)
-        print class_file
         self.APP_DIR = os.path.dirname(os.path.abspath(class_file))
         self.BASE_DIR = os.path.abspath(os.path.join(self.APP_DIR, "../"))
         self.__read_config()
