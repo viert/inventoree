@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
-
+import Axios from 'axios';
 import ProjectForm from './ProjectForm';
+import HttpErrorHandler from '../../library/HttpErrorHandler'
 
 class ProjectNew extends Component {
     handleSubmit(project) {
-        console.log(project);
+        Axios.post('/api/v1/projects/', project)
+            .then((data) => {
+                console.log(data);
+            })
+            .catch(HttpErrorHandler.bind(this));
+        this.props.history.push('/projects');
     }
 
     render() {

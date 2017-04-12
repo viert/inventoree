@@ -5,6 +5,7 @@ import './Structure.css';
 import ProjectList from './Projects/ProjectList';
 import ProjectNew from './Projects/ProjectNew';
 import DatacenterList from './Datacenters/DatacenterList';
+import { AlertBox } from './AlertBox';
 
 class Structure extends Component {
     render() {
@@ -21,6 +22,7 @@ class Structure extends Component {
                     </ul>
                 </aside>
                 <div className="content">
+                    <AlertBox />
                     <Route exact path="/projects" component={ProjectList} />
                     <Route exact path="/projects/new" component={ProjectNew} />
                     <Route path="/datacenters" component={DatacenterList} />
