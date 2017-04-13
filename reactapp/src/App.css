@@ -5,3 +5,8 @@ a:hover {
 a {
     transition: color 0.2s ease;
 }
+
+.btn {
+    text-transform: uppercase;
+    font-family: 'Days One'
+}

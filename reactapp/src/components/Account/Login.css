@@ -1,0 +1,22 @@
+.login-wrapper {
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 25vh 0;
+}
+
+.login-wrapper h3 {
+    text-align: center;
+    font-family: 'Days One';
+    text-transform: uppercase;
+}
+
+.buttons-group {
+    text-align: center;
+}
+
+.login-form {
+    border: 1px solid #cccccc;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 4px;
+}

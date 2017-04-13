@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import './AppHeader.css';
 
+// brand should be printed as image using Days One font 25px size
+
 class AppHeader extends Component {
     render() {
         return (

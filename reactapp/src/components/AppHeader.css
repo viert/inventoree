@@ -2,9 +2,10 @@
     width: 100%;
     display: flex;
     height: 50px;
-    background-color: white;
-    border-bottom: 1px solid #dddddd;
-    color: #444444;
+    background-color: #484;
+    background-image: linear-gradient(to top, #262, #484);
+    color: white;
+    margin-bottom: 2px;
 }
 
 .appheader-logo {
@@ -12,33 +13,16 @@
 }
 
 .appheader-logo a {
-    font-size: 22px;
-    color: #444;
+    font-size: 16px;
+    color: white;
     text-decoration: none;
-    line-height: 54px;
+    text-transform: uppercase;
+    font-family: 'Days One';
+    line-height: 52px;
     padding: 0 20px;
 }
 
-.appheader-menu {
-    padding: 0;
-    margin-left: 40px;
-    font-weight: bold;
-}
-
-.appheader-menu li {
-    display: inline;
-    padding-right: 20px;
-    font-size: 14px;
-    text-transform: uppercase;
-    line-height: 54px;
-}
-
-.appheader-menu li a {
-    color: #444444;
-    text-decoration: none;
-}
-
 .appheader-account {
-    line-height: 54px;
+    line-height: 52px;
     padding-right: 20px;
 }
