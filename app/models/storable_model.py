@@ -1,4 +1,3 @@
-from library.db import db
 from datetime import datetime
 from functools import wraps
 
@@ -91,6 +90,7 @@ class StorableModel(object):
                 setattr(self, field, value)
 
     def save(self, skip_callback=False):
+        from library.db import db
         for field in self.missing_fields:
             raise FieldRequired(field)
         if not skip_callback:
@@ -104,6 +104,7 @@ class StorableModel(object):
         self.save(skip_callback=skip_callback)
 
     def destroy(self, skip_callback=False):
+        from library.db import db
         if self.is_new:
             return
         if not skip_callback:
@@ -168,14 +169,17 @@ class StorableModel(object):
 
     @classmethod
     def find(cls, query={}, **kwargs):
+        from library.db import db
         return db.get_objs(cls, cls.collection, query, **kwargs)
 
     @classmethod
     def find_one(cls, query, **kwargs):
+        from library.db import db
         return db.get_obj(cls, cls.collection, query, **kwargs)
 
     @classmethod
     def destroy_all(cls):
+        from library.db import db
         db.delete_query(cls.collection, {})
 
     @classmethod
@@ -184,18 +188,19 @@ class StorableModel(object):
         if type(cls.INDEXES) != list and type(cls.INDEXES) != tuple:
             raise TypeError("INDEXES field must be of type list or tuple")
 
-        import pymongo
+        from pymongo import ASCENDING, DESCENDING, HASHED
+        from library.db import db
         from app import app
 
         def parse(key):
             if key.startswith("-"):
                 key = key[1:]
-                order = pymongo.DESCENDING
+                order = DESCENDING
             elif key.startswith("#"):
                 key = key[1:]
-                order = pymongo.HASHED
+                order = HASHED
             else:
-                order = pymongo.ASCENDING
+                order = ASCENDING
                 if key.startswith("+"):
                     key = key[1:]
             return (key, order)
