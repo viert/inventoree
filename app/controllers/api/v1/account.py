@@ -6,6 +6,14 @@ from library.engine.utils import json_response
 account_ctrl = AuthController("auth", __name__, require_auth=False)
 
 
+@account_ctrl.route("/me", methods=["GET"])
+def me():
+    if g.user is None:
+        return json_response({ "errors": [ "You must be authenticated first" ]}, 403)
+    else:
+        return json_response({ "data": g.user.to_dict() })
+
+
 @account_ctrl.route("/authenticate", methods=["POST"])
 def authenticate():
     if g.user:
@@ -24,7 +32,7 @@ def authenticate():
         #  I meant this ^^^^^^^^^^^^^^^^^^
         return json_response({ "errors": ["Authentication error: invalid username or password"] }, 403)
     session["user_id"] = user._id
-    return json_response({ "status": "authenticated" }, 200)
+    return json_response({ "status": "authenticated", "data": user.to_dict() })
 
 
 @account_ctrl.route("/logout", methods=["POST"])
