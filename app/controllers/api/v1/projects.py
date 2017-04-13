@@ -1,8 +1,9 @@
-from flask import Blueprint, request
+from flask import request
+from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
     json_response, clear_aux_fields, json_exception
 
-projects_ctrl = Blueprint("projects", __name__)
+projects_ctrl = AuthController("projects", __name__, require_auth=True)
 
 @projects_ctrl.route("/", methods=["GET"])
 @projects_ctrl.route("/<id>", methods=["GET"])

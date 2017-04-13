@@ -8,5 +8,9 @@ ROUTES = [
     {
         "prefix": "/api/v1/projects",
         "controller": "api.v1.projects"
+    },
+    {
+        "prefix": "/api/v1/account",
+        "controller": "api.v1.account"
     }
 ]
