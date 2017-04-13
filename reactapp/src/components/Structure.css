@@ -7,8 +7,9 @@
     width: 240px;
     border-right: 1px solid #ccc;
     height: 100%;
-    background-color: #444;
-    color: white;
+    background-color: #eeeeee;
+    background-image: linear-gradient(to right, #eeeeee, #dddddd);
+    color: black;
 }
 
 .content {
@@ -26,7 +27,7 @@
 
 .sidebar-menu hr {
     margin: 4px 0 12px;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #444;
 }
 
 .sidebar-menu li {
@@ -36,7 +37,7 @@
 }
 
 .sidebar-menu li a {
-    color: white;
+    color: black;
     text-decoration: none;
 }
 
