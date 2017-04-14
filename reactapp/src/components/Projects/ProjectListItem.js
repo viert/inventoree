@@ -7,7 +7,7 @@ class ProjectListItem extends Component {
                 <td>{this.props.project.name}</td>
                 <td>{this.props.project.email}</td>
                 <td>{this.props.project.root_email}</td>
-                <td>{this.props.project._id}</td>
+                <td>{this.props.project.description}</td>
             </tr>
         )
     }

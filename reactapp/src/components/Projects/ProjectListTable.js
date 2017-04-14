@@ -10,7 +10,7 @@ class ProjectListTable extends Component {
                     <th>name</th>
                     <th>email</th>
                     <th>root email</th>
-                    <th>id</th>
+                    <th>description</th>
                 </tr>
                 </thead>
                 <tbody>

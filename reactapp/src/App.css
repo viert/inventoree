@@ -1,20 +1,20 @@
 body {
-  margin: 0;
-  padding: 0;
-  font-family: 'PT Sans', 'Helvetica Neue', 'Ubuntu', Tahoma, sans-serif;
-  font-weight: normal;
+    margin: 0;
+    padding: 0;
+    font-family: 'PT Sans', 'Helvetica Neue', 'Ubuntu', Tahoma, sans-serif;
+    font-weight: normal;
 }
 
 .uppercase {
-  text-transform: uppercase;
+    text-transform: uppercase;
 }
 
 .btn {
-  padding-top: 8px;
+    /*padding-top: 8px;*/
 }
 
 a.btn:hover {
-  color: white !important;
+    color: white !important;
 }
 
 a:hover {
@@ -28,4 +28,38 @@ a {
 .btn {
     text-transform: uppercase;
     font-family: 'Days One'
+}
+
+.pageheader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    margin: 20px 0 30px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.pageheader h1 {
+    margin: 0;
+    flex-grow: 1;
+    font-size: 30px;
+    line-height: 34px;
+}
+
+.pageheader-search {
+    width: 30%;
+    padding-right: 20px;
+}
+
+.pageheader-buttons {
+    text-align: right;
+}
+
+.pageheader-buttons .btn {
+    margin-left: 8px;
+}
+
+.table>thead>tr>th {
+    background-color: #eeeeef;
+    border-bottom: none;
 }

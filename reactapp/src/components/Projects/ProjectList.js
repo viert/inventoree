@@ -30,33 +30,25 @@ class ProjectList extends Component {
         .catch(HttpErrorHandler);
     }
 
-    handleSortBy(field) {
-        var projectList = this.state.projects.slice();
-        var sorters = this.state.sorters;
-        sorters[field] = -sorters[field];
-        projectList.sort((a, b) => {
-            if (sorters[field] > 0) {
-                return a[field] > b[field];
-            } else {
-                return b[field] > a[field];
-            }
-        });
-        this.setState({
-            projects: projectList,
-            sorters: sorters
-        });
-    }
 
     render() {
         return (
             <div>
-                <h1>Project List</h1>
-                <div className="control-buttons">
-                    <Link to="/projects/new" className="btn btn-success uppercase">New Project</Link>
+                <div className="pageheader">
+                    <h1>Project List</h1>
+                    <div className="pageheader-search">
+                        <div className="input-group">
+                            <span className="input-group-addon">Filter</span>
+                            <input type="text" className="form-control" />
+                        </div>
+                    </div>
+                    <div className="pageheader-buttons">
+                        <Link to="/projects/new" className="btn btn-success">New Project</Link>
+                    </div>
                 </div>
                 { 
                     this.state.loading ? 'Loading' :
-                        <ProjectListTable onSortById={this.handleSortBy.bind(this, '_id')} onSortByName={this.handleSortBy.bind(this, 'name')} projects={this.state.projects} />
+                        <ProjectListTable projects={this.state.projects} />
                 }
             </div>
         )

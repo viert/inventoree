@@ -8,14 +8,22 @@ class AuthState {
         })
     }
 
-    setState(obj) {
-        if ("authState" in obj) {
+    getCurrentUser() {
+        return this.user
+    }
+
+    setAuthState(obj) {
+        console.log("setAuthState", obj)
+        if (obj.hasOwnProperty("authState")) {
             this.authState = obj.authState
         }
-        if ("user" in obj) {
+        if (obj.hasOwnProperty("user")) {
             this.user = obj.user
         }
     }
 }
 
-export default new AuthState()
+var StateInstance = new AuthState() 
+window.authState = StateInstance
+
+export default StateInstance
