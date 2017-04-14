@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Axios from 'axios';
 
 import ProjectListTable from './ProjectListTable';
@@ -25,7 +26,8 @@ class ProjectList extends Component {
                 projects: projectList,
                 loading: false
             });
-        });
+        })
+        .catch(HttpErrorHandler);
     }
 
     handleSortBy(field) {

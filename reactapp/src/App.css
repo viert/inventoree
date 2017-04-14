@@ -1,3 +1,22 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'PT Sans', 'Helvetica Neue', 'Ubuntu', Tahoma, sans-serif;
+  font-weight: normal;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.btn {
+  padding-top: 8px;
+}
+
+a.btn:hover {
+  color: white !important;
+}
+
 a:hover {
     color: red !important;
 }

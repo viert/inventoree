@@ -6,25 +6,30 @@ import AppHeader from './components/AppHeader'
 import Structure from './components/Structure'
 import Login from './components/Account/Login'
 import AlertStore from './library/AlertBox'
+import AuthState from './library/AuthState'
+import { observer } from 'mobx-react'
 
-class App extends Component {
+
+const App = observer(class App extends Component {
     constructor() {
         super();
-        this.state = {
-            stage: 'authenticating',
-            user: null
-        }
+        AuthState.setState(
+            {
+                authState: 'authenticating',
+                user: null
+            }
+        )
     }
     componentWillMount() {
         Axios.get('/api/v1/account/me')
             .then((response) => {
-                this.setState({
-                    stage: 'authenticated',
+                AuthState.setState({
+                    authState: 'authenticated',
                     user: response.data.data
                 })
             }).catch((err) => {
-                this.setState({
-                    stage: 'login',
+                AuthState.setState({
+                    authState: 'login',
                     user: null
                 })
             });
@@ -32,20 +37,20 @@ class App extends Component {
 
     userDataSubmit(userdata) {
         Axios.post('/api/v1/account/authenticate', userdata)
-            .then( ((response) => {
-                this.setState({
-                    stage: 'authenticated',
+            .then( (response) => {
+                AuthState.setState({
+                    authState: 'authenticated',
                     user: response.data.data
                 })
                 AlertStore.Notice("You're successfully logged in");
-            }).bind(this))
+            })
             .catch( (error) => {
                 console.log(error.response);
             })
     } 
 
     getRenderContent() {
-        switch (this.state.stage) {
+        switch (AuthState.authState) {
             case 'authenticating':
                 return <div>Loading</div>
             case 'login':
@@ -71,6 +76,6 @@ class App extends Component {
             </Router>
         );
     }
-}
+})
 
-export default App;
+export default App
