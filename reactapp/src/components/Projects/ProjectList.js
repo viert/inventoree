@@ -43,7 +43,7 @@ class ProjectList extends Component {
                         </div>
                     </div>
                     <div className="pageheader-buttons">
-                        <Link to="/projects/new" className="btn btn-success">New Project</Link>
+                        <Link to="/create_project" className="btn btn-success">New Project</Link>
                     </div>
                 </div>
                 { 

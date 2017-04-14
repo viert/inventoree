@@ -1,5 +1,10 @@
 from app.models.storable_model import StorableModel, now
 
+
+class ProjectNotEmpty(Exception):
+    pass
+
+
 class Project(StorableModel):
     FIELDS = (
         '_id',
@@ -34,3 +39,12 @@ class Project(StorableModel):
 
     def touch(self):
         self.updated_at = now()
+
+    def _before_delete(self):
+        if self.groups.count() > 0:
+            raise ProjectNotEmpty("Can not delete project having groups")
+
+    @property
+    def groups(self):
+        from app.models import Group
+        return Group.find({ "project_id": self._id })

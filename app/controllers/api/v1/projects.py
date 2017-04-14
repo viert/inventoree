@@ -24,7 +24,7 @@ def create():
     from app.models import Project
     data = clear_aux_fields(request.json)
     # TODO check user supervisor privileges
-    project = Project(name=data.get("name"), email=data.get("email"), root_email=data.get("root_email"))
+    project = Project(name=data.get("name"), email=data.get("email"), root_email=data.get("root_email"), description=data.get('description'))
     try:
         project.save()
     except Exception as e:
@@ -60,5 +60,8 @@ def delete(id):
     if project is None:
         return json_response({ "errors": [ "Project not found" ]}, 404)
     # TODO check user supervisor privileges
-    project.destroy()
+    try:
+        project.destroy()
+    except Exception as e:
+        return json_exception(e, 400)
     return json_response({ "data": project.to_dict(), "status": "deleted" })

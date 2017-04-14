@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import { NavLink, Route } from 'react-router-dom';
-import './Structure.css';
+import React, { Component } from 'react'
+import { NavLink, Route } from 'react-router-dom'
+import './Structure.css'
 
-import ProjectList from './Projects/ProjectList';
-import ProjectNew from './Projects/ProjectNew';
-import DatacenterList from './Datacenters/DatacenterList';
-import { AlertBox } from '../library/AlertBox';
+import ProjectList from './Projects/ProjectList'
+import ProjectEditor from './Projects/ProjectEditor'
+import DatacenterList from './Datacenters/DatacenterList'
+import { AlertBox } from '../library/AlertBox'
 
 class Structure extends Component {
     render() {
@@ -24,7 +24,8 @@ class Structure extends Component {
                 <div className="content">
                     <AlertBox />
                     <Route exact path="/projects" component={ProjectList} />
-                    <Route exact path="/projects/new" component={ProjectNew} />
+                    <Route exact path="/create_project" component={ProjectEditor} />
+                    <Route path="/projects/:id" component={ProjectEditor} />
                     <Route path="/datacenters" component={DatacenterList} />
                 </div>
             </div>

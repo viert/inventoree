@@ -2,10 +2,11 @@ import AlertStore from './AlertBox'
 import AuthState from './AuthState'
 
 const HttpErrorHandler = (error) => {
+    console.log('in http error handler', error)
     if (error.response) {
         if (error.response.status === 403) {
-            if (error.response.data && error.response.data[0] === "You must authenticate first") {
-                AuthState.setState({
+            if (error.response.data && error.response.data.state === "logged out") {
+                AuthState.setAuthState({
                     authState: 'login',
                     user: null
                 })
@@ -16,7 +17,9 @@ const HttpErrorHandler = (error) => {
             error.response.data.errors.forEach((item) => {
                 AlertStore.Alert(item)
             })
+            return
         }
+        console.log(error)
     }
 }
 

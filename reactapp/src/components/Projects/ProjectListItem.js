@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
 
+import { Link } from 'react-router-dom';
+
 class ProjectListItem extends Component {
     render() {
         return (
             <tr>
-                <td>{this.props.project.name}</td>
+                <td>
+                    <Link to={"/projects/" + this.props.project._id}>
+                    {this.props.project.name}
+                    </Link>
+                </td>
                 <td>{this.props.project.email}</td>
                 <td>{this.props.project.root_email}</td>
                 <td>{this.props.project.description}</td>

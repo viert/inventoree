@@ -63,3 +63,7 @@ a {
     background-color: #eeeeef;
     border-bottom: none;
 }
+
+.form-buttons .btn {
+    margin-right: 8px;
+}

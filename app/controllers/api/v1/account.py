@@ -9,7 +9,7 @@ account_ctrl = AuthController("auth", __name__, require_auth=False)
 @account_ctrl.route("/me", methods=["GET"])
 def me():
     if g.user is None:
-        return json_response({ "errors": [ "You must be authenticated first" ]}, 403)
+        return json_response({ "errors": [ "You must be authenticated first" ], "state": "logged out" }, 403)
     else:
         user_data = g.user.to_dict()
         if "password_hash" in user_data:
