@@ -11,7 +11,10 @@ def me():
     if g.user is None:
         return json_response({ "errors": [ "You must be authenticated first" ]}, 403)
     else:
-        return json_response({ "data": g.user.to_dict() })
+        user_data = g.user.to_dict()
+        if "password_hash" in user_data:
+            del(user_data["password_hash"])
+        return json_response({ "data": user_data })
 
 
 @account_ctrl.route("/authenticate", methods=["POST"])
@@ -32,7 +35,10 @@ def authenticate():
         #  I meant this ^^^^^^^^^^^^^^^^^^
         return json_response({ "errors": ["Authentication error: invalid username or password"] }, 403)
     session["user_id"] = user._id
-    return json_response({ "status": "authenticated", "data": user.to_dict() })
+    user_data = user.to_dict()
+    if "password_hash" in user_data:
+        del(user_data["password_hash"])
+    return json_response({ "status": "authenticated", "data": user_data })
 
 
 @account_ctrl.route("/logout", methods=["POST"])
