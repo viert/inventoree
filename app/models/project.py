@@ -36,6 +36,12 @@ class Project(StorableModel):
         "updated_at": now
     }
 
+    REJECTED_FIELDS = (
+        'created_at',
+        'updated_at',
+        'owner_id'
+    )
+
     INDEXES = [
         [ "name", { "unique": True } ]
     ]
@@ -46,14 +52,14 @@ class Project(StorableModel):
     def owner_class(self):
         if self._owner_class is None:
             from app.models import User
-            self._owner_class = User
+            self.__class__._owner_class = User
         return self._owner_class
 
     @property
     def group_class(self):
         if self._group_class is None:
             from app.models import Group
-            self._group_class = Group
+            self.__class__._group_class = Group
         return self._group_class
 
     def _before_save(self):

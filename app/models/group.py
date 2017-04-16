@@ -2,8 +2,6 @@ from app.models.storable_model import StorableModel, \
     ParentDoesNotExist, ParentAlreadyExists,\
     ChildAlreadyExists, ChildDoesNotExist,\
     ParentCycle, now, save_required
-from app.models import Project
-
 from bson.objectid import ObjectId
 
 
@@ -22,7 +20,7 @@ class InvalidProjectId(Exception):
 class Group(StorableModel):
 
     _collection = 'groups'
-    _project_class = Project
+    _project_class = None
 
     FIELDS = (
         "_id",
@@ -146,7 +144,7 @@ class Group(StorableModel):
 
     @property
     def project(self):
-        return self._project_class.find_one({ "_id": self.project_id })
+        return self.project_class.find_one({ "_id": self.project_id })
 
     def get_all_children(self):
         children = self.children[:]
@@ -164,7 +162,7 @@ class Group(StorableModel):
         self.updated_at = now()
 
     def _before_save(self):
-        p = self._project_class.find_one({ "_id": self.project_id })
+        p = self.project_class.find_one({ "_id": self.project_id })
         if p is None:
             raise InvalidProjectId("Project with id %s doesn't exist" % self.project_id)
         if not self.is_new:
@@ -174,3 +172,9 @@ class Group(StorableModel):
         if not self.empty:
             raise GroupNotEmpty()
 
+    @property
+    def project_class(self):
+        if self._project_class is None:
+            from app.models import Project
+            self.__class__._project_class = Project
+        return self._project_class
