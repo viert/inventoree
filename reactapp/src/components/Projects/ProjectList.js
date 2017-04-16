@@ -19,8 +19,8 @@ class ProjectList extends Component {
     }
 
     componentDidMount() {
-        Axios.get("/api/v1/projects/").then((data) => {
-            var projectList = data.data.data;     // zombie-zombie-zombie
+        Axios.get("/api/v1/projects/").then((response) => {
+            var projectList = response.data.data; 
             projectList.sort((a, b) => ( a.name > b.name ));
             this.setState({
                 projects: projectList,
@@ -43,7 +43,7 @@ class ProjectList extends Component {
                         </div>
                     </div>
                     <div className="pageheader-buttons">
-                        <Link to="/create_project" className="btn btn-success">New Project</Link>
+                        <Link to="/projects/new" className="btn btn-success">New Project</Link>
                     </div>
                 </div>
                 { 

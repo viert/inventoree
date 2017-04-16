@@ -16,7 +16,7 @@ class ProjectEditor extends Component {
 
     componentDidMount() {
         var id = this.props.match.params.id;
-        if (id) {
+        if (id && id !== "new") {
             Axios.get('/api/v1/projects/' + id)
                 .then((response) => {
                     this.setState({
@@ -45,6 +45,7 @@ class ProjectEditor extends Component {
     }
 
     handleDestroy(project) {
+
         console.log('in handledestroy', project)
     }
 
