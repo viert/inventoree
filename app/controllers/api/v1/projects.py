@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, g
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
     json_response, clear_aux_fields, json_exception
@@ -23,8 +23,13 @@ def show(id=None):
 def create():
     from app.models import Project
     data = clear_aux_fields(request.json)
+    owner_id = g.user._id
     # TODO check user supervisor privileges
-    project = Project(name=data.get("name"), email=data.get("email"), root_email=data.get("root_email"), description=data.get('description'))
+    project = Project(name=data.get("name"),
+                      email=data.get("email"),
+                      root_email=data.get("root_email"),
+                      description=data.get('description'),
+                      owner_id=owner_id)
     try:
         project.save()
     except Exception as e:
