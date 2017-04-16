@@ -18,4 +18,4 @@ class AuthController(Blueprint):
             if user:
                 g.user = user
         if g.user is None and self.require_auth:
-            return json_response({ "errors": [ "You must authenticate first" ] }, 403)
+            return json_response({ "errors": [ "You must be authenticated first" ], "state": "logged out" }, 403)
