@@ -4,32 +4,35 @@ import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Axios from 'axios';
 
 import ProjectListTable from './ProjectListTable';
+import Pagination from '../common/Pagination'
 
 class ProjectList extends Component {
     constructor() {
         super();
         this.state = {
             projects: [],
-            sorters: {
-                _id: 1,
-                name: 1
-            },
-            loading: true
+            loading: true,
+            currentPage: 1,
+            totalPages: 0
         }
     }
 
     componentDidMount() {
         Axios.get("/api/v1/projects/").then((response) => {
             var projectList = response.data.data; 
-            projectList.sort((a, b) => ( a.name > b.name ));
             this.setState({
                 projects: projectList,
-                loading: false
+                loading: false,
+                currentPage: response.data.page,
+                totalPages: response.data.total_pages
             });
         })
         .catch(HttpErrorHandler);
     }
 
+    handlePageChanged(page) {
+        console.log(page)
+    }
 
     render() {
         return (
@@ -50,6 +53,7 @@ class ProjectList extends Component {
                     this.state.loading ? 'Loading' :
                         <ProjectListTable projects={this.state.projects} />
                 }
+                <Pagination current={this.state.currentPage} total={this.state.totalPages} onChangePage={this.handlePageChanged.bind(this)} />
             </div>
         )
     }

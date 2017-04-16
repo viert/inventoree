@@ -6,16 +6,17 @@ from library.engine.utils import resolve_id, paginated_data, \
 projects_ctrl = AuthController("projects", __name__, require_auth=True)
 
 @projects_ctrl.route("/", methods=["GET"])
-@projects_ctrl.route("/<id>", methods=["GET"])
-def show(id=None):
+@projects_ctrl.route("/<project_id>", methods=["GET"])
+def show(project_id=None):
+    "list/show handler for projects"
     from app.models import Project
-    if id is None:
+    if project_id is None:
         projects = Project.find()
     else:
-        id = resolve_id(id)
+        project_id = resolve_id(project_id)
         projects = Project.find({ "$or": [
-            { "_id": id },
-            { "name": id }
+            { "_id": project_id },
+            { "name": project_id }
         ] })
     return json_response(paginated_data(projects.sort("name")))
 

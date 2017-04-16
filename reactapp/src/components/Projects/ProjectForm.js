@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import '../Form.css';
-import ConfirmButton from '../../library/ConfirmButton'
+import ConfirmButton from '../common/ConfirmButton'
 
 class ProjectForm extends Component {
-    constructor() {
-        super();
-        this.state = { project: {} }
+    constructor(props) {
+        super(props);
+        this.state = { project: props.project }
     }
 
     componentWillReceiveProps(props) {

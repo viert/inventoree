@@ -12,5 +12,9 @@ ROUTES = [
     {
         "prefix": "/api/v1/account",
         "controller": "api.v1.account"
+    },
+    {
+        "prefix": "/api/v1/groups",
+        "controller": "api.v1.groups"
     }
 ]

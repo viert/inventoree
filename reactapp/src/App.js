@@ -13,8 +13,8 @@ import { observer } from 'mobx-react'
 
 
 const App = observer(class App extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         AuthState.setAuthState(
             {
                 authState: 'authenticating',
