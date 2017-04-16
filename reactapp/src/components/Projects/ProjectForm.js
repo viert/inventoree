@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import '../Form.css';
+import ConfirmButton from '../../library/ConfirmButton'
 
 class ProjectForm extends Component {
     constructor() {
@@ -103,7 +104,7 @@ class ProjectForm extends Component {
                 <div className="form-group">
                     <div className="col-sm-9 col-sm-offset-3 form-buttons">
                         <button type="submit" className="btn btn-primary">Save</button>
-                        { this.props.isNew ? '': <button type="button" onClick={this.handleDestroy.bind(this)} className="btn btn-danger">Destroy</button> }
+                        { this.props.isNew ? '': <ConfirmButton onClick={this.handleDestroy.bind(this)} className="btn btn-danger">Destroy</ConfirmButton> }
                     </div>
                 </div>
             </form> 
