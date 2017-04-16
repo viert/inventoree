@@ -3,6 +3,10 @@ import './Login.css'
 
 class Login extends Component {
 
+    componentDidMount() {
+        this.refs.username.focus()
+    }
+
     handleSubmit(e) {
         e.preventDefault();
         var data = {
