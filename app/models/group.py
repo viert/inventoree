@@ -167,7 +167,8 @@ class Group(StorableModel):
         p = self._project_class.find_one({ "_id": self.project_id })
         if p is None:
             raise InvalidProjectId("Project with id %s doesn't exist" % self.project_id)
-        self.touch()
+        if not self.is_new:
+            self.touch()
 
     def _before_delete(self):
         if not self.empty:
