@@ -1,0 +1,35 @@
+.sidebar {
+    width: 240px;
+    min-width: 240px;
+    border-right: 1px solid #ccc;
+    height: 100%;
+    background-color: #eeeeee;
+    background-image: linear-gradient(to right, #eeeeee, #dddddd);
+    color: black;
+}
+
+.sidebar-menu {
+    padding: 8px 20px;
+    margin: 0;
+    list-style: none;
+}
+
+.sidebar-menu hr {
+    margin: 12px 0 12px;
+    border-top: 1px solid #999;
+}
+
+.sidebar-menu li {
+    text-transform: uppercase;
+    font-size: 16px;
+    padding: 2px 0;
+}
+
+.sidebar-menu li a {
+    color: black;
+    text-decoration: none;
+}
+
+.sidebar-menu li a.active {
+    font-weight: bold;
+}
