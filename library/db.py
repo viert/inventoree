@@ -5,6 +5,9 @@ from bson.objectid import ObjectId, InvalidId
 from time import sleep
 
 
+__mongo_retries = 6
+
+
 def intercept_mongo_errors(func):
     def wrapper(*args, **kwargs):
         global __mongo_retries

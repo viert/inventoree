@@ -1,4 +1,7 @@
 *.pyc
 .idea
+
 .coverage
-static/*
+
+.vscode
+.venv
