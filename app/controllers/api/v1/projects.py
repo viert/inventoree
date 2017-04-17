@@ -13,7 +13,9 @@ def show(project_id=None):
     if project_id is None:
         query = {}
         if "_filter" in request.values:
-            query["name"] = { "$regex": "^%s" % request.values["_filter"] }
+            name_filter = request.values["_filter"]
+            if len(name_filter) > 2:
+                query["name"] = { "$regex": "^%s" % name_filter }
         projects = Project.find(query)
     else:
         project_id = resolve_id(project_id)
