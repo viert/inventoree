@@ -7,9 +7,9 @@ class ProjectListTable extends Component {
             <table className="table">
                 <thead>
                 <tr>
-                    <th>name</th>
-                    <th>email</th>
-                    <th>root email</th>
+                    <th className="th-name">name</th>
+                    <th className="th-email">email</th>
+                    <th className="th-email">root email</th>
                     <th>description</th>
                 </tr>
                 </thead>

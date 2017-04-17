@@ -67,3 +67,7 @@ a {
 .form-buttons .btn {
     margin-right: 8px;
 }
+
+.th-email {
+    min-width: 300px;
+}

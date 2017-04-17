@@ -27,7 +27,7 @@ export default class Pagination extends Component {
             result.push({ id: 2, page: '...', disabled: true })
             i = current - spread
         }
-        while (i <= current + spread && i < total) {
+        while (i <= current + spread && i <= total) {
             result.push({ id: i, page: i, disabled: current === i })
             i++
         }

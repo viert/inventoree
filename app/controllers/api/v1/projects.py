@@ -11,7 +11,10 @@ def show(project_id=None):
     "list/show handler for projects"
     from app.models import Project
     if project_id is None:
-        projects = Project.find()
+        query = {}
+        if "_filter" in request.values:
+            query["name"] = { "$regex": "^%s" % request.values["_filter"] }
+        projects = Project.find(query)
     else:
         project_id = resolve_id(project_id)
         projects = Project.find({ "$or": [
