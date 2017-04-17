@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ProjectListItem from './ProjectListItem';
 
-class ProjectListTable extends Component {
+export default class ProjectListTable extends Component {
     render() {
         return (
             <table className="table">
@@ -26,5 +26,3 @@ class ProjectListTable extends Component {
         )
     }
 }
-
-export default ProjectListTable;

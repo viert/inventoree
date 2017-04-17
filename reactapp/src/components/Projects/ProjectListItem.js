@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
 
-import { Link } from 'react-router-dom';
-
-class ProjectListItem extends Component {
+export default class ProjectListItem extends Component {
     render() {
         return (
             <tr>
@@ -18,5 +17,3 @@ class ProjectListItem extends Component {
         )
     }
 }
-
-export default ProjectListItem;

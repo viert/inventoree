@@ -69,5 +69,13 @@ a {
 }
 
 .th-email {
-    min-width: 300px;
+    width: 260px;
+}
+
+.th-name {
+    width: 180px;
+}
+
+.th-group-name {
+    width: 240px;
 }

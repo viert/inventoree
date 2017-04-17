@@ -5,6 +5,7 @@ import './Structure.css'
 import AppSidebar from './AppSidebar'
 import ProjectList from './Projects/ProjectList'
 import ProjectEditor from './Projects/ProjectEditor'
+import GroupList from './Groups/GroupList'
 import DatacenterList from './Datacenters/DatacenterList'
 import { AlertBox } from '../library/AlertBox'
 
@@ -17,7 +18,7 @@ class Structure extends Component {
                     <AlertBox />
                     <Route exact path="/projects" component={ProjectList} />
                     <Route path="/projects/:id" component={ProjectEditor} />
-                    <Route path="/datacenters" component={DatacenterList} />
+                    <Route exact path="/groups" component={GroupList} />
                 </div>
             </div>
         )
