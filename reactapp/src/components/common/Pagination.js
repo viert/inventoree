@@ -69,7 +69,7 @@ export default class Pagination extends Component {
 
     render() {
         return (
-            <nav aria-label="Page navigation">
+            <nav aria-label="Page navigation" className={this.props.className}>
                 {
                     this.props.total > 1 ?
                         <ul className="pagination">

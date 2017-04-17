@@ -1,6 +1,6 @@
 .main {
     display: flex;
-    height: calc(100vh - 50px);
+    min-height: calc(100vh - 50px);
 }
 
 .content {

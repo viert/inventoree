@@ -68,7 +68,7 @@ class ProjectList extends Component {
                     this.state.loading ? 'Loading' :
                         <ProjectListTable projects={this.state.projects} />
                 }
-                <Pagination current={this.state.currentPage} total={this.state.totalPages} onChangePage={this.handlePageChanged.bind(this)} />
+                <Pagination className="text-center" current={this.state.currentPage} total={this.state.totalPages} onChangePage={this.handlePageChanged.bind(this)} />
             </div>
         )
     }

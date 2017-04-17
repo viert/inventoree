@@ -2,7 +2,7 @@
     width: 240px;
     min-width: 240px;
     border-right: 1px solid #ccc;
-    height: 100%;
+    min-height: 100%;
     background-color: #eeeeee;
     background-image: linear-gradient(to right, #eeeeee, #dddddd);
     color: black;
