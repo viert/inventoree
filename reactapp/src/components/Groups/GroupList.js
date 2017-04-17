@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
 import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Axios from 'axios'
 
-import FilterField from '../common/FilterField'
 import ListPageHeader from '../common/ListPageHeader'
 import GroupListTable from './GroupListTable'
 import Pagination from '../common/Pagination'

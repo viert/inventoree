@@ -6,7 +6,6 @@ import AppSidebar from './AppSidebar'
 import ProjectList from './Projects/ProjectList'
 import ProjectEditor from './Projects/ProjectEditor'
 import GroupList from './Groups/GroupList'
-import DatacenterList from './Datacenters/DatacenterList'
 import { AlertBox } from '../library/AlertBox'
 
 class Structure extends Component {
