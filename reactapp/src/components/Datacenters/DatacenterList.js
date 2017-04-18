@@ -1,14 +1,45 @@
 import React, { Component } from 'react';
+import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Axios from 'axios';
+import ListPageHeader from '../common/ListPageHeader'
+import DatacenterListTree from './DatacenterListTree'
 
-class DatacenterList extends Component {
-    componentDidMount() {
-        Axios.get("/api/v1/datacenters");
-        console.log('component did mount');
+export default class DatacenterList extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            datacenters: [],
+            loading: true
+        }
     }
+
+    loadData() {
+        Axios.get("/api/v1/datacenters/?_nopaging=true").then((response) => {
+            var dcList = response.data.data; 
+            this.setState({
+                datacenters: dcList,
+                loading: false
+            });
+        })
+        .catch(HttpErrorHandler)
+    }
+
+    componentDidMount() {
+        this.loadData()
+    }
+
     render() {
-        return <h1>Datacenter List</h1>
+        return (
+            <div>
+                <ListPageHeader title="Datacenter List" 
+                                noFilter={true}
+                                createButtonText="New Datacenter" 
+                                createLink="/datacenters/new" />
+                { 
+                    this.state.loading ? 'Loading' :
+                        <DatacenterListTree datacenters={this.state.datacenters} />
+                }
+            </div>
+        )
     }
 }
-
-export default DatacenterList;

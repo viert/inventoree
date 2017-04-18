@@ -1,0 +1,15 @@
+.datacenter-tree_item {
+    display: flex;
+    flex-direction: row;
+}
+
+.datacenter-tree_item-icon {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+}
+
+.datacenter-tree_item-text {
+    line-height: 24px;
+}
