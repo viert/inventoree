@@ -17,6 +17,7 @@ class Datacenter(StorableModel):
     FIELDS = (
         "_id",
         "name",
+        "human_readable",
         "parent_id",
         "root_id",
         "child_ids",
@@ -146,7 +147,7 @@ class Datacenter(StorableModel):
 
     def _before_delete(self):
         if len(self.child_ids) > 0:
-            raise DatacenterNotEmpty()
+            raise DatacenterNotEmpty("Can not delete datacenter because it's not empty")
         if self.parent is not None:
             self.unset_parent()
 
