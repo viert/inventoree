@@ -4,7 +4,6 @@ from app.models import User as BaseUser
 from app.models import Project as BaseProject
 from app.models.storable_model import FieldRequired, ParentCycle, ChildAlreadyExists, ParentAlreadyExists
 
-
 class TestUser(BaseUser):
     _collection = 'test_user'
 
@@ -31,6 +30,8 @@ class TestGroupModel(TestCase):
         cls.tproject_owner.save()
         cls.tproject = TestProject(name="test_project", owner_id=cls.tproject_owner._id)
         cls.tproject.save()
+        cls.tproject2 = TestProject(name="test_project2", owner_id=cls.tproject_owner._id)
+        cls.tproject2.save()
 
     def setUp(self):
         TestGroup.destroy_all()
@@ -41,6 +42,8 @@ class TestGroupModel(TestCase):
     @classmethod
     def tearDownClass(cls):
         TestGroup.destroy_all()
+        TestProject.destroy_all()
+        TestUser.destroy_all()
 
     def test_incomplete(self):
         from app.models.group import InvalidProjectId
@@ -98,7 +101,7 @@ class TestGroupModel(TestCase):
         self.assertRaises(ParentCycle, g4.add_child, g1)
         self.assertRaises(ParentCycle, g1.add_parent, g4)
 
-    def test_add_child_by(self):
+    def test_add_child_via_attrs(self):
         g1 = TestGroup(name="g1", project_id=self.tproject._id)
         g1.save()
         g2 = TestGroup(name="g2", project_id=self.tproject._id)
@@ -119,3 +122,12 @@ class TestGroupModel(TestCase):
         self.assertIn(g2._id, tg.child_ids)
         g1.remove_child(str(g2._id))
 
+    def test_add_child_with_different_project(self):
+        from app.models.group import InvalidProjectId
+        g1 = TestGroup(name="g1", project_id=self.tproject._id)
+        g1.save()
+        g2 = TestGroup(name="g2", project_id=self.tproject2._id)
+        g2.save()
+
+        self.assertRaises(InvalidProjectId, g1.add_child, g2)
+        self.assertRaises(InvalidProjectId, g1.add_parent, g2)
