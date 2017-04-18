@@ -52,7 +52,7 @@ class ProjectEditor extends Component {
     render() {
         return (
             <div>
-                <h1>{this.state.title}</h1>
+                <h2>{this.state.title}</h2>
                 <div className="row">
                     <div className="col-sm-6">
                         <ProjectForm isNew={this.state.isNew} 
