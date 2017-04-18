@@ -67,17 +67,24 @@ def get_limit():
 
 
 def paginated_data(data, page=None, limit=None):
-    if page is None:
-        page = get_page()
-    if limit is None:
-        limit = get_limit()
+    if "_nopaging" in request.values and request.values["_nopaging"] == "true":
+        limit = None
+        page = None
+    else:
+        if page is None:
+            page = get_page()
+        if limit is None:
+            limit = get_limit()
     try:
         count = data.count()
-        data = cursor_to_list(data.skip((page-1)*limit).limit(limit))
+        if limit is not None and page is not None:
+            data = data.skip((page-1)*limit).limit(limit)
+        data = cursor_to_list(data)
     except AttributeError:
         count = len(data)
         data = data[(page-1)*limit:page*limit]
-    total_pages = int(math.ceil(float(count) / limit))
+
+    total_pages = int(math.ceil(float(count) / limit)) if limit is not None else None
 
     return {
         "page": page,
