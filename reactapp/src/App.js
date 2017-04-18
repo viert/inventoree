@@ -4,7 +4,7 @@ import './App.css';
 
 import Axios from 'axios';
 import AppHeader from './components/AppHeader'
-import Structure from './components/Structure'
+import Main from './components/Main'
 import Login from './components/Account/Login'
 import AlertStore from './library/AlertBox'
 import AuthState from './library/AuthState'
@@ -56,7 +56,7 @@ const App = observer(class App extends Component {
                 return (
                     <div>
                         <AppHeader />
-                        <Route path="/" component={Structure} />
+                        <Route path="/" component={Main} />
                     </div>
                 )
             default:

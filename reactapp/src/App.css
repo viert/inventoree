@@ -30,35 +30,6 @@ a {
     font-family: 'Days One'
 }
 
-.pageheader {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-bottom: 20px;
-    margin: 20px 0 30px;
-    border-bottom: 1px solid #eeeeee;
-}
-
-.pageheader h1 {
-    margin: 0;
-    flex-grow: 1;
-    font-size: 30px;
-    line-height: 34px;
-}
-
-.pageheader-search {
-    width: 30%;
-    padding-right: 20px;
-}
-
-.pageheader-buttons {
-    text-align: right;
-}
-
-.pageheader-buttons .btn {
-    margin-left: 8px;
-}
-
 .table>thead>tr>th {
     background-color: #eeeeef;
     border-bottom: none;
@@ -78,4 +49,8 @@ a {
 
 .th-group-name {
     width: 240px;
+}
+
+.table>tbody>tr>td {
+    padding: 6px 8px;
 }
