@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import ProjectListItem from './ProjectListItem';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import ProjectListItem from './ProjectListItem'
 
 export default class ProjectListTable extends Component {
     render() {
@@ -25,4 +26,8 @@ export default class ProjectListTable extends Component {
             </table>
         )
     }
+}
+
+ProjectListTable.propTypes = {
+    projects: PropTypes.array.isRequired
 }

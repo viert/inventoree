@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import './DatacenterItem.css'
 
@@ -19,4 +20,14 @@ export default class DatacenterItem extends Component {
             </div>
         )
     }
+}
+
+DatacenterItem.propTypes = {
+    datacenter: PropTypes.shape({
+        level: PropTypes.number.isRequired,
+        datacenter: PropTypes.shape({
+            _id: PropTypes.string.isRequired,
+            name: PropTypes.string.isRequired
+        })
+    })
 }

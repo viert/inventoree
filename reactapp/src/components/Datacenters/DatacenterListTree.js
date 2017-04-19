@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import DatacenterItem from './DatacenterItem'
 
 export default class DatacenterListTree extends Component {
@@ -52,4 +53,8 @@ export default class DatacenterListTree extends Component {
             </div>
         )
     }
+}
+
+DatacenterListTree.propTypes = {
+    datacenters: PropTypes.array.isRequired
 }

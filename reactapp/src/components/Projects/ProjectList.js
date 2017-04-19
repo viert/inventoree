@@ -5,6 +5,7 @@ import Axios from 'axios'
 import ProjectListTable from './ProjectListTable'
 import Pagination from '../common/Pagination'
 import ListPageHeader from '../common/ListPageHeader'
+import Loading from '../common/Loading'
 
 export default class ProjectList extends Component {
     constructor(props) {
@@ -21,6 +22,9 @@ export default class ProjectList extends Component {
     }
 
     loadData(page, filter) {
+        this.setState({
+            loading: true
+        })
         Axios.get(`/api/v1/projects/?_page=${page}&_filter=${filter}`).then((response) => {
             var projectList = response.data.data; 
             this.setState({
@@ -60,7 +64,7 @@ export default class ProjectList extends Component {
                                 createButtonText="New Project" 
                                 createLink="/projects/new" />
                 { 
-                    this.state.loading ? 'Loading' :
+                    this.state.loading ? <Loading /> :
                         <ProjectListTable projects={this.state.projects} />
                 }
                 <Pagination className="text-center" current={this.state.currentPage} total={this.state.totalPages} onChangePage={this.handlePageChanged.bind(this)} />

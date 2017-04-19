@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types'
 import '../Form.css';
 import ConfirmButton from '../common/ConfirmButton'
 
-class ProjectForm extends Component {
+export default class ProjectForm extends Component {
     constructor(props) {
         super(props);
         this.state = { project: props.project }
@@ -112,4 +113,14 @@ class ProjectForm extends Component {
     }
 }
 
-export default ProjectForm;
+ProjectForm.propTypes = {
+    isNew: PropTypes.bool.isRequired,
+    project: PropTypes.shape({
+        name: PropTypes.string,
+        email: PropTypes.string,
+        root_email: PropTypes.string,
+        description: PropTypes.string
+    }),
+    onSubmit: PropTypes.func.isRequired,
+    onDestroy: PropTypes.func
+}

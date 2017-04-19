@@ -3,6 +3,7 @@ import Axios from 'axios';
 import ProjectForm from './ProjectForm';
 import HttpErrorHandler from '../../library/HttpErrorHandler'
 import AlertStore from '../../library/AlertBox'
+import Loading from '../common/Loading'
 
 class ProjectEditor extends Component {
     constructor() {
@@ -10,7 +11,8 @@ class ProjectEditor extends Component {
         this.state = {
             title: "New Project",
             project: {},
-            isNew: true
+            isNew: true,
+            isLoading: true
         }
     }
 
@@ -22,7 +24,8 @@ class ProjectEditor extends Component {
                     this.setState({
                         project: response.data.data[0],
                         title: "Edit project",
-                        isNew: false
+                        isNew: false,
+                        isLoading: false
                     })
                 })
                 .catch(HttpErrorHandler);
@@ -52,15 +55,20 @@ class ProjectEditor extends Component {
     render() {
         return (
             <div>
-                <h2>{this.state.title}</h2>
-                <div className="row">
-                    <div className="col-sm-6">
-                        <ProjectForm isNew={this.state.isNew} 
-                                    onDestroy={this.handleDestroy.bind(this)} 
-                                    project={this.state.project} 
-                                    onSubmit={this.handleSubmit.bind(this)} />
+            {
+                this.state.isLoading ? <Loading /> :
+                <div>
+                    <h2>{this.state.title}</h2>
+                    <div className="row">
+                        <div className="col-sm-6">
+                            <ProjectForm isNew={this.state.isNew} 
+                                        onDestroy={this.handleDestroy.bind(this)} 
+                                        project={this.state.project} 
+                                        onSubmit={this.handleSubmit.bind(this)} />
+                        </div>
                     </div>
                 </div>
+            }
             </div>
         )
     }

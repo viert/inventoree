@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 
 export default class ProjectListItem extends Component {
@@ -16,4 +17,14 @@ export default class ProjectListItem extends Component {
             </tr>
         )
     }
+}
+
+ProjectListItem.propTypes = {
+    project: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        email: PropTypes.string,
+        root_email: PropTypes.string,
+        description: PropTypes.string,
+    })
 }
