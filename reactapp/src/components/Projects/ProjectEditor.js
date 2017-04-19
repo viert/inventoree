@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import Axios from 'axios';
-import ProjectForm from './ProjectForm';
 import HttpErrorHandler from '../../library/HttpErrorHandler'
 import AlertStore from '../../library/AlertBox'
 import Loading from '../common/Loading'
 
+import ProjectForm from './ProjectForm';
+
 class ProjectEditor extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props)
         this.state = {
             title: "New Project",
             project: {},
@@ -23,13 +24,17 @@ class ProjectEditor extends Component {
                 .then((response) => {
                     this.setState({
                         project: response.data.data[0],
-                        title: "Edit project",
+                        title: "Edit Project",
                         isNew: false,
                         isLoading: false
                     })
                 })
                 .catch(HttpErrorHandler);
-        } 
+        } else {
+            this.setState({
+                isLoading: false
+            })
+        }
     }
 
     handleSubmit(project) {
