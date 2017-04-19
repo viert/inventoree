@@ -13,10 +13,11 @@ def show(datacenter_id=None):
         datacenters = Datacenter.find()
     else:
         datacenter_id = resolve_id(datacenter_id)
-        datacenters = Datacenter.find({ "$or": {
-            "_id": datacenter_id,
-            "name": datacenter_id
-        }})
+        datacenters = Datacenter.find({ "$or": [
+            { "_id": datacenter_id },
+            { "name": datacenter_id }
+        ]
+        })
     data = paginated_data(datacenters.sort("name"))
     for item in data["data"]:
         if "parent_id" not in item:
