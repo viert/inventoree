@@ -51,6 +51,10 @@ class FieldRequired(Exception):
     pass
 
 
+class InvalidTags(Exception):
+    pass
+
+
 class ModelMeta(type):
     _collection = None
 

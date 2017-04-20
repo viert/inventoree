@@ -1,7 +1,7 @@
 from app.models.storable_model import StorableModel, \
     ParentDoesNotExist, ParentAlreadyExists,\
     ChildAlreadyExists, ChildDoesNotExist,\
-    ParentCycle, now, save_required
+    ParentCycle, InvalidTags, now, save_required
 from bson.objectid import ObjectId
 
 
@@ -21,6 +21,7 @@ class Group(StorableModel):
 
     _collection = 'groups'
     _project_class = None
+    _host_class = None
 
     FIELDS = (
         "_id",
@@ -31,6 +32,7 @@ class Group(StorableModel):
         "project_id",
         "parent_ids",
         "child_ids",
+        "tags",
     )
 
     DEFAULTS = {
@@ -131,8 +133,7 @@ class Group(StorableModel):
         self.save()
 
     def hosts(self):
-        # Placeholder
-        return []
+        return self._host_class.find({ "group_id": self._id })
 
     @property
     def empty(self):
@@ -166,9 +167,10 @@ class Group(StorableModel):
         self.updated_at = now()
 
     def _before_save(self):
-        p = self.project_class.find_one({ "_id": self.project_id })
-        if p is None:
+        if self.project_id is not None and self.project is None:
             raise InvalidProjectId("Project with id %s doesn't exist" % self.project_id)
+        if not hasattr(self.tags, "__getitem__"):
+            raise InvalidTags("Tags must be of array type")
         if not self.is_new:
             self.touch()
 
@@ -177,8 +179,22 @@ class Group(StorableModel):
             raise GroupNotEmpty()
 
     @property
+    def all_tags(self):
+        tags = set(self.tags)
+        for parent in self.parents:
+            tags = tags.union(parent.all_tags)
+        return tags
+
+    @property
     def project_class(self):
         if self._project_class is None:
             from app.models import Project
             self.__class__._project_class = Project
         return self._project_class
+
+    @property
+    def host_class(self):
+        if self._host_class is None:
+            from app.models import Host
+            self.__class__._host_class = Host
+        return self._host_class
