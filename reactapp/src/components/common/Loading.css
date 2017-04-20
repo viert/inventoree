@@ -1,7 +1,9 @@
+.loading-block {
+}
 .loading-block_spinner {
-    margin: 40px auto 0;
     width: 80px;
     height: 80px;
+    margin: 0 auto;
     border: 2px solid yellow;
     border-bottom: 2px solid transparent;
     border-right: 2px solid transparent;
@@ -34,6 +36,7 @@
 .loading-block h1 {
     position: relative;
     top: -80px;
+    margin-bottom: -80px;
     text-align: center;
     font-family: 'Days One';
     text-transform: uppercase;
