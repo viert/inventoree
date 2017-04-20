@@ -15,6 +15,7 @@ class Host(StorableModel):
     _datacenter_class = None
 
     FIELDS = (
+        "_id",
         "fqdn",
         "short_name",
         "group_id",
@@ -62,15 +63,20 @@ class Host(StorableModel):
             raise InvalidDatacenter("Can not find datacenter with id %s" % self.datacenter_id)
         if not hasattr(self.tags, "__getitem__"):
             raise InvalidTags("Tags must be of array type")
+        if self.short_name is None:
+            self._guess_short_name()
         self.touch()
+
+    def _guess_short_name(self):
+        self.short_name = self.fqdn.split(".")[0]
 
     @property
     def group(self):
-        return self._group_class.find_one({ "_id": self.group_id })
+        return self.group_class.find_one({ "_id": self.group_id })
 
     @property
     def datacenter(self):
-        return self._datacenter_class.find_one({ "_id": self.datacenter_id })
+        return self.datacenter_class.find_one({ "_id": self.datacenter_id })
 
     @property
     def group_class(self):
