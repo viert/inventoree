@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Axios from 'axios';
 import HttpErrorHandler from '../../library/HttpErrorHandler'
-import AlertStore from '../../library/AlertBox'
+// import AlertStore from '../../library/AlertBox'
 import Loading from '../common/Loading'
 
 import DatacenterForm from './DatacenterForm'
@@ -47,10 +47,10 @@ export default class DatacenterEditor extends Component {
 
     render() {
         return (
-            <div>
+            <div className="max vertcenter">
             {
                 this.state.isLoading ? <Loading /> :
-                <div>
+                <div className="max">
                     <h2>{this.state.title}</h2>
                     <div className="row">
                         <div className="col-sm-6">

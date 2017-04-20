@@ -1,0 +1,15 @@
+.react-autosuggest__suggestions-list {
+    list-style: none;
+    padding: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+}
+
+li.react-autosuggest__suggestion {
+    padding: 8px;
+}
+
+li.react-autosuggest__suggestion--highlighted {
+    background-color: #337ab7;
+    color: white;
+}

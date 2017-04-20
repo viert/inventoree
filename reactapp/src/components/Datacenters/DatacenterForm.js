@@ -1,24 +1,28 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import '../Form.css';
 import ConfirmButton from '../common/ConfirmButton'
+import DatacenterPicker from './DatacenterPicker'
 
 export default class DatacenterForm extends Component {
     constructor(props) {
         super(props);
-        this.state = { datacenter: props.datacenter }
+        this.state = {
+            datacenter: props.datacenter
+        }
     }
 
     componentWillReceiveProps(props) {
         if (props.datacenter) {
             this.setState({
-                datacenter: props.datacenter
+                datacenter: props.datacenter,
             })
         } else {
             this.setState({
                 datacenter: {
                     name: "",
-                    human_readable: ""
+                    human_readable: "",
+                    parent_id: ""
                 }
             })
         }
@@ -59,9 +63,33 @@ export default class DatacenterForm extends Component {
         }
     }
 
+    parentSelected(parent) {
+        let datacenter = this.state.datacenter
+        datacenter.parent_id = parent._id
+        this.setState({
+            datacenter: datacenter
+        })
+    }
+
+    parentClear() {
+        let datacenter = this.state.datacenter
+        datacenter.parent_id = ""
+        this.setState({
+            datacenter: datacenter
+        })
+    }
+
     render() {
         return (
             <form onChange={this.handleFieldChange.bind(this)} onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form">
+                <div className="form-group">
+                    <label htmlFor="inputDatacenterParent" className="col-sm-3 control-label">
+                        Parent:
+                    </label>
+                    <div className="col-sm-9">
+                        <DatacenterPicker onDataClear={this.parentClear.bind(this)} onDataPicked={this.parentSelected.bind(this)} placeholder="Parent Datacenter" />
+                    </div>
+                </div>
                 <div className="form-group">
                     <label htmlFor="inputDatacenterName" className="col-sm-3 control-label">
                         Name:
