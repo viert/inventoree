@@ -183,11 +183,12 @@ class StorableModel(object):
 
     @classmethod
     def destroy_all(cls):
+        # print "destroying all, class %s, collection %s" % (cls.__name__, cls.collection)
         from library.db import db
         db.delete_query(cls.collection, {})
 
     @classmethod
-    def ensure_indexes(cls):
+    def ensure_indexes(cls, loud=False):
 
         if type(cls.INDEXES) != list and type(cls.INDEXES) != tuple:
             raise TypeError("INDEXES field must be of type list or tuple")
@@ -221,7 +222,8 @@ class StorableModel(object):
                 else:
                     for key, value in subindex.items():
                         options[key] = value
-            app.logger.debug("Creating index with options: %s, %s" % (keys, options))
+            if loud:
+                app.logger.debug("Creating index with options: %s, %s" % (keys, options))
             db.conn[cls.collection].create_index(keys, **options)
 
 

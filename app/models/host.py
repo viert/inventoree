@@ -43,8 +43,8 @@ class Host(StorableModel):
     }
 
     INDEXES = (
-        "fqdn",
-        "short_name",
+        [ "fqdn", { "unique": True } ],
+        [ "short_name", { "unique": True } ],
         "group_id",
         "datacenter_id",
         "tags",

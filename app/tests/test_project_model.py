@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.models import Project as Base, User as BaseUser, Group as BaseGroup
+from app.tests.models import TestGroup, TestUser, TestProject
 from app.models.project import ProjectNotEmpty, InvalidOwner
 from time import sleep
 from pymongo.errors import DuplicateKeyError
@@ -8,28 +8,16 @@ TEST_PROJECT_NAME = "testCase.my_unique_test_project"
 TEST_GROUP_NAME = "testCase.my_unique_test_group"
 
 
-class TestUser(BaseUser):
-    _collection = 'test_user'
-
-
-class TestProject(Base):
-    _collection = 'test_project'
-
-
-class TestGroup(BaseGroup):
-    _collection = 'test_group'
-
-# cross-links avoiding, that's why need explicit setattr
-# TestProject <-> TestGroup
-#
-setattr(TestProject, '_owner_class', TestUser)
-setattr(TestProject, '_group_class', TestGroup)
-setattr(TestGroup, '_project_class', TestProject)
-
 class TestProjectModel(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        TestProject.destroy_all()
+        TestProject.ensure_indexes()
+        TestGroup.destroy_all()
+        TestGroup.ensure_indexes()
+        TestUser.destroy_all()
+        TestUser.ensure_indexes()
         cls.owner = TestUser(username='viert', password_hash='hash')
         cls.owner.save()
         TestProject.ensure_indexes()
@@ -39,11 +27,13 @@ class TestProjectModel(TestCase):
         cls.owner.destroy()
 
     def setUp(self):
+        TestGroup.destroy_all()
         p = TestProject.find_one({ "name": TEST_PROJECT_NAME })
         if p is not None:
             p.destroy()
 
     def tearDown(self):
+        TestGroup.destroy_all()
         p = TestProject.find_one({ "name": TEST_PROJECT_NAME })
         if p is not None:
             p.destroy()

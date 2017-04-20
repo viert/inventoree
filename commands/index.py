@@ -18,7 +18,7 @@ class Index(Command):
                 obj = getattr(module, attr)
                 if hasattr(obj, "ensure_indexes"):
                     app.logger.info("Creating indexes for %s" % attr)
-                    obj.ensure_indexes()
+                    obj.ensure_indexes(True)
         from library.db import db
         app.logger.info("Creating sessions indexes")
         db.conn["sessions"].create_index("sid", unique=True, sparse=False)

@@ -38,7 +38,7 @@ class Datacenter(StorableModel):
     }
 
     INDEXES = (
-        "name",
+        ["name", { "unique": True }],
         "parent_id",
         "root_id",
     )

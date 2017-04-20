@@ -1,21 +1,6 @@
 from unittest import TestCase
-from app.models import Group as BaseGroup
-from app.models import User as BaseUser
-from app.models import Project as BaseProject
+from app.tests.models import TestProject, TestGroup, TestHost, TestUser
 from app.models.storable_model import FieldRequired, ParentCycle, ChildAlreadyExists, ParentAlreadyExists
-
-class TestUser(BaseUser):
-    _collection = 'test_user'
-
-
-class TestProject(BaseProject):
-    _owner_class = TestUser
-    _collection = "test_project"
-
-
-class TestGroup(BaseGroup):
-    _collection = "test_group"
-    _project_class = TestProject
 
 
 class TestGroupModel(TestCase):
@@ -23,9 +8,11 @@ class TestGroupModel(TestCase):
     @classmethod
     def setUpClass(cls):
         TestProject.destroy_all()
-        TestGroup.destroy_all()
         TestProject.ensure_indexes()
+        TestGroup.destroy_all()
         TestGroup.ensure_indexes()
+        TestHost.destroy_all()
+        TestHost.ensure_indexes()
         cls.tproject_owner = TestUser(username='viert', password_hash='hash')
         cls.tproject_owner.save()
         cls.tproject = TestProject(name="test_project", owner_id=cls.tproject_owner._id)
@@ -131,3 +118,29 @@ class TestGroupModel(TestCase):
 
         self.assertRaises(InvalidProjectId, g1.add_child, g2)
         self.assertRaises(InvalidProjectId, g1.add_parent, g2)
+
+    def test_group_hosts(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id)
+        g1.save()
+        g2 = TestGroup(name="g2", project_id=self.tproject._id)
+        g2.save()
+        g1.add_child(g2)
+
+        host1 = TestHost(fqdn="host1.example.com", short_name='host1', group_id=g1._id)
+        host1.save()
+        host2 = TestHost(fqdn="host2.example.com", short_name='host2', group_id=g2._id)
+        host2.save()
+
+        self.assertItemsEqual([host1], g1.hosts)
+        self.assertItemsEqual([host2], g2.hosts)
+        self.assertItemsEqual([host1, host2], g1.all_hosts)
+
+    def test_tags(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, tags=["tag1", "tag2"])
+        g1.save()
+        g2 = TestGroup(name="g2", project_id=self.tproject._id, tags=["tag2", "tag3"])
+        g2.save()
+        g1.add_child(g2)
+
+        self.assertItemsEqual(["tag1", "tag2"], g1.all_tags)
+        self.assertItemsEqual(["tag1", "tag2", "tag3"], g2.all_tags)

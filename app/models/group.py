@@ -39,7 +39,8 @@ class Group(StorableModel):
         "created_at": now,
         "updated_at": now,
         "parent_ids": [],
-        "child_ids": []
+        "child_ids": [],
+        "tags": []
     }
 
     REQUIRED_FIELDS = (
@@ -59,7 +60,7 @@ class Group(StorableModel):
     INDEXES = (
         "parent_ids",
         "child_ids",
-        "name"
+        ["name", { "unique": True }]
     )
 
     __slots__ = FIELDS
@@ -132,12 +133,18 @@ class Group(StorableModel):
         child.save()
         self.save()
 
+    @property
     def hosts(self):
         return self._host_class.find({ "group_id": self._id })
 
     @property
+    def all_hosts(self):
+        group_ids = [ self._id ] + [x._id for x in self.get_all_children()]
+        return self.host_class.find({ "group_id": { "$in": group_ids } })
+
+    @property
     def empty(self):
-        return len(self.child_ids) + len(self.hosts()) == 0
+        return len(self.child_ids) + self.hosts.count() == 0
 
     @property
     def parents(self):
