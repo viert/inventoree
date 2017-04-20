@@ -16,8 +16,6 @@ def show(datacenter_id=None):
             name_filter = request.values["_filter"]
             if len(name_filter) >= 2:
                 query["name"] = { "$regex": "^%s" % name_filter }
-            else:
-                query["name"] = None
         datacenters = Datacenter.find(query)
     else:
         datacenter_id = resolve_id(datacenter_id)

@@ -16,8 +16,6 @@ def show(group_id=None):
             name_filter = request.values["_filter"]
             if len(name_filter) >= 2:
                 query["name"] = { "$regex": "^%s" % name_filter }
-            else:
-                query["name"] = None
         groups = Group.find(query)
     else:
         group_id = resolve_id(group_id)
