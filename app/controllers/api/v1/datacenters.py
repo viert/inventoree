@@ -1,5 +1,6 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data
+from flask import request
 
 
 datacenters_ctrl = AuthController("datacenters", __name__, require_auth=True)
@@ -10,7 +11,14 @@ datacenters_ctrl = AuthController("datacenters", __name__, require_auth=True)
 def show(datacenter_id=None):
     from app.models import Datacenter
     if datacenter_id is None:
-        datacenters = Datacenter.find()
+        query = {}
+        if "_filter" in request.values:
+            name_filter = request.values["_filter"]
+            if len(name_filter) >= 2:
+                query["name"] = { "$regex": "^%s" % name_filter }
+            else:
+                query["name"] = None
+        datacenters = Datacenter.find(query)
     else:
         datacenter_id = resolve_id(datacenter_id)
         datacenters = Datacenter.find({ "$or": [
