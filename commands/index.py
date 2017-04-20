@@ -2,7 +2,6 @@ from commands import Command
 from library.engine.utils import get_modules
 import importlib
 import os.path
-from app.models.storable_model import ModelMeta
 
 class Index(Command):
     def run(self):
@@ -17,7 +16,7 @@ class Index(Command):
                     continue
                 obj = getattr(module, attr)
                 if hasattr(obj, "ensure_indexes"):
-                    app.logger.info("Creating indexes for %s" % attr)
+                    app.logger.info("Creating indexes for %s, collection %s" % (attr, obj.collection))
                     obj.ensure_indexes(True)
         from library.db import db
         app.logger.info("Creating sessions indexes")
