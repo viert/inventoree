@@ -43,6 +43,14 @@ class Datacenter(StorableModel):
         "root_id",
     )
 
+    REJECTED_FIELDS = (
+        "parent_id",
+        "root_id",
+        "child_ids",
+        "created_at",
+        "updated_at"
+    )
+
     __slots__ = FIELDS
     
     @classmethod

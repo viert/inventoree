@@ -35,6 +35,11 @@ class User(StorableModel):
         "updated_at",
     )
 
+    INDEXES = (
+        "username",
+        "supervisor",
+    )
+
     __slots__ = list(FIELDS) + ["_salt"]
 
     @property

@@ -50,6 +50,8 @@ class Group(StorableModel):
     REJECTED_FIELDS = (
         "parent_ids",
         "child_ids",
+        "created_at",
+        "updated_at",
     )
 
     INDEXES = (
