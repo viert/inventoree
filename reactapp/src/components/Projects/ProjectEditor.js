@@ -59,10 +59,10 @@ class ProjectEditor extends Component {
 
     render() {
         return (
-            <div>
+            <div className="max vertcenter">
             {
                 this.state.isLoading ? <Loading /> :
-                <div>
+                <div className="max">
                     <h2>{this.state.title}</h2>
                     <div className="row">
                         <div className="col-sm-6">

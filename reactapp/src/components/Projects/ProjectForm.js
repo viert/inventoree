@@ -69,7 +69,7 @@ export default class ProjectForm extends Component {
 
     render() {
         return (
-            <form onChange={this.handleFieldChange.bind(this)} onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form">
+            <form onChange={this.handleFieldChange.bind(this)} onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form max">
                 <div className="form-group">
                     <label htmlFor="inputProjectName" className="col-sm-3 control-label">
                         Name:
