@@ -28,13 +28,13 @@ class Host(StorableModel):
 
     REQUIRED_FIELDS = (
         "fqdn",
-        "short_name",
         "group_id",
     )
 
     REJECTED_FIELDS = (
         "created_at",
         "updated_at",
+        "group_id",
     )
 
     DEFAULTS = {
@@ -61,14 +61,19 @@ class Host(StorableModel):
             raise InvalidGroup("Can not find group with id %s" % self.group_id)
         if self.datacenter_id is not None and self.datacenter is None:
             raise InvalidDatacenter("Can not find datacenter with id %s" % self.datacenter_id)
-        if not hasattr(self.tags, "__getitem__"):
+        if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("Tags must be of array type")
         if self.short_name is None:
             self._guess_short_name()
         self.touch()
 
     def _guess_short_name(self):
-        self.short_name = self.fqdn.split(".")[0]
+        short_name_domains = self.fqdn.split(".")[:-2]
+        if len(short_name_domains) == 0:
+            short_name = self.fqdn
+        else:
+            short_name = '.'.join(short_name_domains)
+        self.short_name = short_name
 
     @property
     def group(self):
@@ -77,6 +82,17 @@ class Host(StorableModel):
     @property
     def datacenter(self):
         return self.datacenter_class.find_one({ "_id": self.datacenter_id })
+
+    @property
+    def root_datacenter(self):
+        dc = self.datacenter_class.find_one({ "_id": self.datacenter_id })
+        if dc is None:
+            return None
+        elif dc.root_id is None:
+            return dc
+        else:
+            return self.datacenter_class.find_one({ "_id": dc.root_id })
+
 
     @property
     def group_class(self):

@@ -25,11 +25,12 @@ class TestUser(BaseUser):
     _collection = "test_user"
 
 
-# cross-links avoiding, that's why need explicit setattr
+# cross-links avoiding, that"s why need explicit setattr
 # TestProject <-> TestGroup
 #
-setattr(TestProject, '_owner_class', TestUser)
-setattr(TestProject, '_group_class', TestGroup)
-setattr(TestGroup, '_project_class', TestProject)
-setattr(TestGroup, '_host_class', TestHost)
-setattr(TestHost, '_group_class', TestGroup)
+setattr(TestProject, "_owner_class", TestUser)
+setattr(TestProject, "_group_class", TestGroup)
+setattr(TestGroup, "_project_class", TestProject)
+setattr(TestGroup, "_host_class", TestHost)
+setattr(TestHost, "_group_class", TestGroup)
+setattr(TestHost, "_datacenter_class", TestDatacenter)

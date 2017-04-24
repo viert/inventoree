@@ -176,7 +176,7 @@ class Group(StorableModel):
     def _before_save(self):
         if self.project_id is not None and self.project is None:
             raise InvalidProjectId("Project with id %s doesn't exist" % self.project_id)
-        if not hasattr(self.tags, "__getitem__"):
+        if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("Tags must be of array type")
         if not self.is_new:
             self.touch()

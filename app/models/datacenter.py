@@ -139,15 +139,15 @@ class Datacenter(StorableModel):
         return self.__class__.find_one({ "_id": self.parent_id })
 
     @save_required
-    def detect_root_id(self):
+    def _detect_root_id(self):
         if self.parent_id is None:
             return self._id
         else:
-            return self.parent.detect_root_id()
+            return self.parent._detect_root_id()
 
     def _before_save(self):
         if not self.is_new:
-            root_id = self.detect_root_id()
+            root_id = self._detect_root_id()
             if root_id == self._id:
                 root_id = None
             self.root_id = root_id

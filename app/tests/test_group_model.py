@@ -1,6 +1,7 @@
 from unittest import TestCase
 from app.tests.models import TestProject, TestGroup, TestHost, TestUser
-from app.models.storable_model import FieldRequired, ParentCycle, ChildAlreadyExists, ParentAlreadyExists
+from app.models.storable_model import FieldRequired, ParentCycle,\
+    ChildAlreadyExists, ParentAlreadyExists, InvalidTags
 
 
 class TestGroupModel(TestCase):
@@ -31,6 +32,7 @@ class TestGroupModel(TestCase):
         TestGroup.destroy_all()
         TestProject.destroy_all()
         TestUser.destroy_all()
+        TestHost.destroy_all()
 
     def test_incomplete(self):
         from app.models.group import InvalidProjectId
@@ -141,6 +143,9 @@ class TestGroupModel(TestCase):
         g2 = TestGroup(name="g2", project_id=self.tproject._id, tags=["tag2", "tag3"])
         g2.save()
         g1.add_child(g2)
-
         self.assertItemsEqual(["tag1", "tag2"], g1.all_tags)
         self.assertItemsEqual(["tag1", "tag2", "tag3"], g2.all_tags)
+
+    def test_invalid_tags(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, tags="invalid tags")
+        self.assertRaises(InvalidTags, g1.save)
