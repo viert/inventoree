@@ -31,7 +31,7 @@ export default class Pagination extends Component {
             result.push({ id: i, page: i, disabled: current === i })
             i++
         }
-        if (i < total - 1) {
+        if (i < total) {
             result.push({ id: i, page: '...', disabled: true })
             // show the last page
             result.push({ id: total, page: total, disabled: current === total })
