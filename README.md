@@ -10,6 +10,8 @@ Original version of conductor has an ability to track deployment and packages mo
 
 ## Roadmap
 
+*Strikedthrough ones are ready to use*
+
 ### Python API
 
  * ~~Datacenter model and unittests~~
@@ -17,3 +19,18 @@ Original version of conductor has an ability to track deployment and packages mo
  * ~~Group model and unittests~~
  * ~~Host model and unittests~~
  * ~~User model and unittests~~
+ * ~~Importing test data~~
+ * Benchmarks
+ 
+### HTTP API
+ * ~~User Sessions and Authentication~~ (TODO: move from pbkdf2 to bcrypt)
+ * /api/v1/datacenters (~~list~~, ~~show~~, create, update, delete)
+ * /api/v1/groups (~~list~~, ~~show~~, create, update, delete)
+ * /api/v1/hosts (list, show, create, update, delete)
+ * /api/v1/projects (~~list~~, ~~show~~, ~~create~~, ~~update~~, ~~delete~~)
+ * suggestions/filters should be switched to golang-based https://github.com/viert/simplesuggest for better performance
+ * readonly non-auth cached helpers like *groups2hosts*, *projects2groups* to use in CMSes and command line tools
+ 
+### HTTP Frontend
+ 
+ React.js-based frontend can be considered as very amateur being my first one after years of developing of Angular.js apps. Any help would be highly valuable. As well as any help on python part
