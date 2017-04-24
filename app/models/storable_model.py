@@ -124,8 +124,7 @@ class StorableModel(object):
 
     def __repr__(self):
         attributes = ["%s=%r" % (a, getattr(self, a))
-                      for a in list(self.FIELDS) + [ "_id" ]
-                      if hasattr(self, a) and getattr(self, a) is not None]
+                      for a in list(self.FIELDS)]
         return '%s(\n    %s\n)' % (self.__class__.__name__, ',\n    '.join(attributes))
 
     def __eq__(self, other):
@@ -147,7 +146,7 @@ class StorableModel(object):
     def to_dict(self, fields=None):
         if fields is None:
             fields = self.FIELDS
-        result = dict([(f, getattr(self, f)) for f in fields if hasattr(self, f) and getattr(self, f) is not None])
+        result = dict([(f, getattr(self, f)) for f in fields])
         return result
 
     @property

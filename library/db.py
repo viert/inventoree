@@ -127,7 +127,9 @@ class DB(object):
     @intercept_mongo_errors
     def save_obj(self, obj):
         if obj.is_new:
-            inserted_id = self.conn[obj.collection].insert_one(obj.to_dict()).inserted_id
+            data = obj.to_dict()    # object to_dict() method should always return all fields
+            del(data["_id"])        # although with the new object we shouldn't pass _id=null to mongo
+            inserted_id = self.conn[obj.collection].insert_one(data).inserted_id
             obj._id = inserted_id
         else:
             self.conn[obj.collection].replace_one({'_id': obj._id}, obj.to_dict(), upsert=True)
