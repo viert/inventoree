@@ -8,6 +8,14 @@ Original version of conductor has an ability to track deployment and packages mo
 
 **Important:** this version is not based on the original one but created from scratch using absolutely separate technologies.
 
+## Development bootstrap
+
+Being in deep development and moving from one notebook to another, from MacOSX to Windows and Linux, the current conductor version has become very easy to set up. 
+
+ * Clone repo and `cd` into its' directory. 
+ * Run `pip install -r requirements.txt`  
+
+sd
 ## Roadmap
 
 *Strikedthrough ones are ready to use*
