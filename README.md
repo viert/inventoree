@@ -18,10 +18,12 @@ Being in deep development and moving from one notebook to another, from MacOSX t
  * Run `./micro.py index` to create indexes. Be sure your mongodb server is up and running.
  * Run `./micro.py shell` to start project shell. If you have IPython installed in your virtualenv, it will be used automatically.
  * Create a supervisor user like described below:
-`from app.models import User
+```
+from app.models import User
 user = User(username="<your_nickname>", password_raw="<your_password_in_plaintext>", supervisor=True)
-user.save()`
- * Exit the shell using `Ctrl-D` and run `./micro.py run` to start python development server. By default it binds on port 5000, you can check it with browser or something like curl using url `http://localhost:5000/api/v1/account/me` - it will give you Unauthorized error.
+user.save()
+```
+ * Exit the shell using `Ctrl-D` and run `./micro.py run` to start python development server. By default it binds on port 5000, you can check it with a browser or something like curl using url `http://localhost:5000/api/v1/account/me` - it will give you Unauthorized error.
  * `cd` to `reactapp` and run `npm install` to install React.js and all the react application dependencies. You must have node.js 6+ installed
  * Run `npm start` to build react application, don't be scared when it starts your browser automatically.
  * Log in using your supervisor username and password
