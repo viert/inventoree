@@ -12,8 +12,8 @@ Original version of conductor has an ability to track deployment and packages mo
 
 ### Python API
 
- * --Datacenter model and unittests--
- * --Project model and unittests--
- * --Group model and unittests--
- * --Host model and unittests--
- * --User model and unittests--
+ * ~~Datacenter model and unittests~~
+ * ~~Project model and unittests~~
+ * ~~Group model and unittests~~
+ * ~~Host model and unittests~~
+ * ~~User model and unittests~~
