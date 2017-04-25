@@ -114,3 +114,8 @@ class Host(StorableModel):
         if self.is_new:
             return tags
         return tags.union(self.group.all_tags)
+
+    def to_dict(self, fields=None):
+        result = StorableModel.to_dict(self, fields)
+        result["tags"] = list(self.all_tags)
+        return result
