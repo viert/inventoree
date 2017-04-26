@@ -28,3 +28,23 @@ def show(group_id=None):
     for item in data["data"]:
         item["project_name"] = Project.find_one({ "_id": item["project_id"]}).name
     return json_response(data)
+
+@groups_ctrl.route("/<group_id>", methods=["PUT"])
+def update(group_id):
+    from app.models import Group
+    group_id = resolve_id(group_id)
+    group = Group.find_one({
+        "$or": [
+            { "_id": group_id },
+            { "name": group_id }
+        ]
+    })
+    if group is None:
+        return json_response({ "errors": "Group not found" }, 404)
+    group.update(request.json)
+    return json_response({ "data": group.to_dict() })
+
+@groups_ctrl.route("/", methods=["POST"])
+def create():
+    from app.models import Group
+    pass
