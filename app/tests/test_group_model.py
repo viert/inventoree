@@ -170,3 +170,15 @@ class TestGroupModel(TestCase):
         g1.project_id = self.tproject2._id
         self.assertRaises(InvalidProjectId, g1.save)
 
+    def test_remove_deleted_group_refs(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id)
+        g1.save()
+        g2 = TestGroup(name="g2", project_id=self.tproject._id)
+        g2.save()
+        g1.add_child(g2)
+        parent_id = g1._id
+        g1 = TestGroup.find_one({ "_id": parent_id })
+        self.assertItemsEqual([g2], g1.children)
+        g2.destroy()
+        g1 = TestGroup.find_one({ "_id": parent_id })
+        self.assertItemsEqual([], g1.children)

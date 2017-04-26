@@ -190,6 +190,8 @@ class Group(StorableModel):
     def _before_delete(self):
         if not self.empty:
             raise GroupNotEmpty()
+        for parent in self.parents[:]:
+            self.remove_parent(parent)
 
     @property
     def all_tags(self):
