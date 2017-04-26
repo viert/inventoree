@@ -1,6 +1,6 @@
 from flask import request, g
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import resolve_id, json_response, paginated_data
+from library.engine.utils import resolve_id, json_response, json_exception, paginated_data
 
 
 groups_ctrl = AuthController("groups", __name__, require_auth=True)
@@ -41,10 +41,37 @@ def update(group_id):
     })
     if group is None:
         return json_response({ "errors": "Group not found" }, 404)
-    group.update(request.json)
+    try:
+        group.update(request.json)
+    except Exception as e:
+        return json_exception(e, 500)
     return json_response({ "data": group.to_dict() })
 
 @groups_ctrl.route("/", methods=["POST"])
 def create():
     from app.models import Group
-    pass
+    group_attrs = dict([x for x in request.json.items() if x[0] in Group.FIELDS])
+    group = Group(**group_attrs)
+    try:
+        group.save()
+    except Exception as e:
+        return json_exception(e, 500)
+    return json_response({ "data": group.to_dict() })
+
+@groups_ctrl.route("/<group_id>", methods=["DELETE"])
+def delete(group_id):
+    from app.models import Group
+    group_id = resolve_id(group_id)
+    group = Group.find_one({
+        "$or": [
+            { "_id": group_id },
+            { "name": group_id }
+        ]
+    })
+    if group is None:
+        return json_response({ "errors": "Group not found" }, 404)
+    try:
+        group.destroy()
+    except Exception as e:
+        return json_exception(e, 500)
+    return json_response({ "data": group.to_dict() })
