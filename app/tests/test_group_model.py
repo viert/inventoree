@@ -145,7 +145,24 @@ class TestGroupModel(TestCase):
         g1.add_child(g2)
         self.assertItemsEqual(["tag1", "tag2"], g1.all_tags)
         self.assertItemsEqual(["tag1", "tag2", "tag3"], g2.all_tags)
+        dictg2 = g2.to_dict(fields=list(TestGroup.FIELDS) + ["all_tags"])
+        self.assertItemsEqual(["tag1", "tag2", "tag3"], dictg2["all_tags"])
+        from app import app
+        import flask.json as json
+        json.dumps(dictg2, default=app.flask.json_encoder().default)
 
     def test_invalid_tags(self):
         g1 = TestGroup(name="g1", project_id=self.tproject._id, tags="invalid tags")
         self.assertRaises(InvalidTags, g1.save)
+
+    def test_change_project_id(self):
+        from app.models.group import InvalidProjectId
+        g1 = TestGroup(name="g1", project_id=self.tproject._id)
+        g1.save()
+        g2 = TestGroup(name="g2", project_id=self.tproject._id)
+        g2.save()
+
+        g1.add_child(g2)
+        g2.project_id = self.tproject2._id
+        self.assertRaises(InvalidProjectId, g2.save)
+
