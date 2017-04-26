@@ -176,6 +176,12 @@ class Group(StorableModel):
     def _before_save(self):
         if self.project_id is not None and self.project is None:
             raise InvalidProjectId("Project with id %s doesn't exist" % self.project_id)
+        for parent in self.parents:
+            if parent.project_id != self.project_id:
+                raise InvalidProjectId("Group can not be in a project different from parent's project")
+        for child in self.children:
+            if child.project_id != self.project_id:
+                raise InvalidProjectId("Group can not be in a different project than it's children")
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("Tags must be of array type")
         if not self.is_new:
@@ -205,3 +211,4 @@ class Group(StorableModel):
             from app.models import Host
             self.__class__._host_class = Host
         return self._host_class
+

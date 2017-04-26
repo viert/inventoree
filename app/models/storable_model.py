@@ -146,7 +146,7 @@ class StorableModel(object):
     def to_dict(self, fields=None):
         if fields is None:
             fields = self.FIELDS
-        result = dict([(f, getattr(self, f)) for f in fields])
+        result = dict([(f, getattr(self, f)) for f in fields if hasattr(self, f)])
         return result
 
     @property
