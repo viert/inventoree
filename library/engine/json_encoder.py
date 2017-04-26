@@ -8,7 +8,7 @@ class MongoJSONEncoder(JSONEncoder):
         from library.db import ObjectsCursor
         if isinstance(o, ObjectId):
             return str(o)
-        elif isinstance(o, ObjectsCursor):
+        elif isinstance(o, ObjectsCursor) or isinstance(o, set):
             return list(o)
         elif isinstance(o, StorableModel):
             return o.to_dict()

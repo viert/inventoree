@@ -50,6 +50,7 @@ class BaseApp(object):
         static_folder = self.config.http.get("STATIC", "static")
         static_folder = os.path.abspath(os.path.join(self.BASE_DIR, static_folder))
         self.flask = Flask(__name__, static_folder=static_folder)
+        self.logger.debug("Setting JSON Encoder")
         self.flask.json_encoder = MongoJSONEncoder
         self.logger.debug("Setting sessions interface")
         self.flask.session_interface = MongoSessionInterface(collection_name='sessions')
