@@ -10,7 +10,7 @@ import DatacenterList from './Datacenters/DatacenterList'
 import DatacenterEditor from './Datacenters/DatacenterEditor'
 import { AlertBox } from '../library/AlertBox'
 
-class Structure extends Component {
+class Main extends Component {
     render() {
         return (
             <div className="main">
@@ -28,4 +28,4 @@ class Structure extends Component {
     }
 }
 
-export default Structure;
+export default Main;
