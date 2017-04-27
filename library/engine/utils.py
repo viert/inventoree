@@ -36,8 +36,8 @@ def resolve_id(id):
     return id
 
 
-def cursor_to_list(crs):
-    return [x.to_dict() for x in crs]
+def cursor_to_list(crs, fields=None):
+    return [x.to_dict(fields) for x in crs]
 
 
 def get_page():
@@ -66,7 +66,7 @@ def get_limit():
     return limit
 
 
-def paginated_data(data, page=None, limit=None):
+def paginated_data(data, page=None, limit=None, fields=None):
     if "_nopaging" in request.values and request.values["_nopaging"] == "true":
         limit = None
         page = None
@@ -75,11 +75,15 @@ def paginated_data(data, page=None, limit=None):
             page = get_page()
         if limit is None:
             limit = get_limit()
+
+    if "_fields" in request.values:
+        fields = request.values["_fields"].split(",")
+
     try:
         count = data.count()
         if limit is not None and page is not None:
             data = data.skip((page-1)*limit).limit(limit)
-        data = cursor_to_list(data)
+        data = cursor_to_list(data, fields=fields)
     except AttributeError:
         count = len(data)
         data = data[(page-1)*limit:page*limit]
