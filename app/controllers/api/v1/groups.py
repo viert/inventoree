@@ -25,8 +25,6 @@ def show(group_id=None):
         ]})
 
     data = paginated_data(groups.sort("name"))
-    for item in data["data"]:
-        item["project_name"] = Project.find_one({ "_id": item["project_id"]}).name
     return json_response(data)
 
 @groups_ctrl.route("/<group_id>", methods=["PUT"])
