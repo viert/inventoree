@@ -201,6 +201,14 @@ class Group(StorableModel):
         return tags
 
     @property
+    def project_name(self):
+        project = self.project
+        if project is None:
+            return None
+        else:
+            return project.name
+
+    @property
     def project_class(self):
         if self._project_class is None:
             from app.models import Project
