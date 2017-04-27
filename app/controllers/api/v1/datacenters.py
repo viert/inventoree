@@ -24,7 +24,4 @@ def show(datacenter_id=None):
             { "name": datacenter_id }
         ]})
     data = paginated_data(datacenters.sort("name"))
-    for item in data["data"]:
-        if "parent_id" not in item:
-            item["parent_id"] = None
     return json_response(data)
