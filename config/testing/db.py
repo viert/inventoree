@@ -4,5 +4,5 @@ MONGO = {
         "connectTimeoutMS": 1100,
         "socketKeepAlive": True,
     },
-    "dbname":   "microeng",
+    "dbname":   "conductor_test",
 }

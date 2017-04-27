@@ -11,6 +11,14 @@ from library.mongo_session import MongoSessionInterface
 from werkzeug.contrib.cache import MemcachedCache, SimpleCache
 
 
+ENVIRONMENT_TYPES = (
+    "development",
+    "testing",
+    "production",
+)
+
+DEFAULT_ENVIRONMENT_TYPE = "development"
+
 class BaseApp(object):
 
     DEFAULT_LOG_FORMAT = "[%(asctime)s] %(levelname)s %(filename)s:%(lineno)d %(message)s"
@@ -22,6 +30,10 @@ class BaseApp(object):
         class_file = inspect.getfile(self.__class__)
         self.APP_DIR = os.path.dirname(os.path.abspath(class_file))
         self.BASE_DIR = os.path.abspath(os.path.join(self.APP_DIR, "../"))
+        # detecting environment type
+        self.envtype = os.environ.get("CONDUCTOR_ENV")
+        if not self.envtype in ENVIRONMENT_TYPES:
+            self.envtype = DEFAULT_ENVIRONMENT_TYPE
         self.__read_config()
         self.__prepare_logger()
         self.__prepare_flask()
@@ -82,7 +94,7 @@ class BaseApp(object):
 
     def __read_config(self):
         # reading and compiling config files
-        config_directory = os.path.abspath(os.path.join(self.BASE_DIR, 'config'))
+        config_directory = os.path.abspath(os.path.join(self.BASE_DIR, 'config', self.envtype))
         config_files = get_py_files(config_directory)
         module_names = [x[:-3] for x in config_files]
         data = {}
@@ -120,6 +132,7 @@ class BaseApp(object):
         for handler in self.logger.handlers:
             handler.setLevel(log_level)
             handler.setFormatter(log_format)
+        self.logger.info("Logger created. Environment type set to %s" % self.envtype)
 
     # shortcut method
     def run(self, **kwargs):
