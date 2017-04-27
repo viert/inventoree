@@ -147,7 +147,7 @@ class StorableModel(object):
         if fields is None:
             fields = self.FIELDS
         result = dict([(f, getattr(self, f)) for f in fields if hasattr(self, f)
-                       and not f.startswith("_")
+                       and not (f != "_id" and f.startswith("_"))
                        and not callable(getattr(self, f))])
         return result
 
