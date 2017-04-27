@@ -20,7 +20,7 @@ export default class DatacenterEditor extends Component {
     componentDidMount() {
         var id = this.props.match.params.id;
         if (id && id !== "new") {
-            Axios.get('/api/v1/datacenters/' + id)
+            Axios.get('/api/v1/datacenters/' + id + '?_fields=name,human_readable,parent_id,parent')
                 .then((response) => {
                     this.setState({
                         datacenter: response.data.data[0],

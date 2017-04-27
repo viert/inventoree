@@ -79,6 +79,14 @@ export default class DatacenterForm extends Component {
         })
     }
 
+    getParentName() {
+        if (this.state.datacenter.parent && this.state.datacenter.parent.name) {
+            return this.state.datacenter.parent.name
+        } else {
+            return ""
+        }
+    }
+
     render() {
         return (
             <form onChange={this.handleFieldChange.bind(this)} onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form">
@@ -87,7 +95,7 @@ export default class DatacenterForm extends Component {
                         Parent:
                     </label>
                     <div className="col-sm-9">
-                        <DatacenterPicker onDataClear={this.parentClear.bind(this)} onDataPicked={this.parentSelected.bind(this)} placeholder="Parent Datacenter" />
+                        <DatacenterPicker value={this.getParentName()} onDataClear={this.parentClear.bind(this)} onDataPicked={this.parentSelected.bind(this)} placeholder="Parent Datacenter" />
                     </div>
                 </div>
                 <div className="form-group">

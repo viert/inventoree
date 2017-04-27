@@ -15,7 +15,7 @@ export default class AutosuggestContainer extends Component {
         super(props)
         this.state = {
             suggestions: [],
-            value: ""
+            value: this.props.value
         }
     }
 
