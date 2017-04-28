@@ -23,6 +23,8 @@ def authenticate():
         return json_response({ "errors": ["Already authenticated. Use /api/v1/account/logout handler first"]}, 400)
     from app.models import User
     data = request.json
+    if data is None:
+        return json_response({ "errors": ["No JSON in POST data"] }, 400)
     if "username" not in data or "password" not in data:
         return json_response({ "errors": ["Insufficient fields for authenticate handler"] }, 400)
     user = User.find_one({ "username": data["username"] })

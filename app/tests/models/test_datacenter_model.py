@@ -1,7 +1,7 @@
 from unittest import TestCase
 from app.models.datacenter import DatacenterNotEmpty
 from app.models.storable_model import FieldRequired, ParentCycle
-from app.tests.models import TestDatacenter
+from app.tests.models.test_models import TestDatacenter
 
 
 class TestDatacenterModel(TestCase):

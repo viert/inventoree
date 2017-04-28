@@ -1,5 +1,5 @@
 from unittest import TestCase
-from models import TestHost, TestGroup, TestDatacenter, TestProject, TestUser
+from app.tests.models.test_models import TestHost, TestGroup, TestDatacenter, TestProject, TestUser
 from app.models.host import InvalidGroup, InvalidDatacenter, InvalidTags
 from pymongo.errors import DuplicateKeyError
 

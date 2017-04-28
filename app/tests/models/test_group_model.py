@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.tests.models import TestProject, TestGroup, TestHost, TestUser
+from app.tests.models.test_models import TestProject, TestGroup, TestHost, TestUser
 from app.models.storable_model import FieldRequired, ParentCycle,\
     ChildAlreadyExists, ParentAlreadyExists, InvalidTags
 

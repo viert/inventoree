@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.tests.models import TestGroup, TestUser, TestProject
+from app.tests.models.test_models import TestGroup, TestUser, TestProject
 from app.models.project import ProjectNotEmpty, InvalidOwner
 from time import sleep
 from pymongo.errors import DuplicateKeyError
