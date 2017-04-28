@@ -135,7 +135,7 @@ class Group(StorableModel):
 
     @property
     def hosts(self):
-        return self._host_class.find({ "group_id": self._id })
+        return self.host_class.find({ "group_id": self._id })
 
     @property
     def all_hosts(self):
