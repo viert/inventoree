@@ -1,10 +1,15 @@
 from flask import make_response, request
 from bson.objectid import ObjectId, InvalidId
+from collections import namedtuple
 import flask.json as json
 import os
 import math
 
 DEFAULT_DOCUMENTS_PER_PAGE = 20
+
+
+class Diff(namedtuple('Diff', ('add', 'remove'))):
+    pass
 
 
 def json_response(data, code=200):
@@ -100,3 +105,11 @@ def paginated_data(data, page=None, limit=None, fields=None):
 
 def clear_aux_fields(data):
     return dict([(k, v) for k, v in data.iteritems() if not k.startswith("_")])
+
+
+def diff(original, updated):
+    o = set(original)
+    u = set(updated)
+    add = [x for x in u if x not in o]
+    remove = [x for x in o if x not in u]
+    return Diff(add=add, remove=remove)
