@@ -114,7 +114,7 @@ class StorableModel(object):
         if not skip_callback:
             self._before_delete()
         db.delete_obj(self)
-        delattr(self, '_id')
+        self._id = None
 
     def _before_save(self):
         pass
