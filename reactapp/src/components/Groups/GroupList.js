@@ -21,7 +21,7 @@ export default class GroupList extends Component {
     }
 
     loadData(page, filter) {
-        Axios.get(`/api/v1/groups/?_page=${page}&_filter=${filter}`).then((response) => {
+        Axios.get(`/api/v1/groups/?_page=${page}&_filter=${filter}&_fields=_id,name,description,project_name`).then((response) => {
             var groupList = response.data.data; 
             this.setState({
                 groups: groupList,
