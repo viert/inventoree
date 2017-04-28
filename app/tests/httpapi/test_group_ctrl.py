@@ -40,3 +40,17 @@ class TestGroupCtrl(HttpApiTestCase):
             self.assertEqual(group["name"], payload["name"])
             self.assertEqual(group["description"], payload["description"])
             self.assertItemsEqual(group["tags"], payload["tags"])
+
+    def test_delete_group(self):
+        self.test_create_group()
+        group = Group.find_one({"name": "group1"})
+        with self.authenticated_client() as ac:
+            r = ac.delete("/api/v1/groups/%s" % group._id)
+            self.assertEqual(r.status_code, 200)
+            data = json.loads(r.data)
+            self.assertIn("data", data)
+            group_data = data["data"]
+            self.assertEqual(group_data["_id"], None)
+            group = Group.find_one({"_id": group._id})
+            self.assertIsNone(group)
+
