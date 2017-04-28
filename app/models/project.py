@@ -56,6 +56,14 @@ class Project(StorableModel):
         return self._owner_class
 
     @property
+    def owner(self):
+        return self.owner_class.find_one({ "_id": self.owner_id })
+
+    @property
+    def owner_name(self):
+        return self.owner.username
+
+    @property
     def group_class(self):
         if self._group_class is None:
             from app.models import Group
@@ -65,8 +73,7 @@ class Project(StorableModel):
     def _before_save(self):
         if not self.is_new:
             self.touch()
-        owner = self.owner_class.find_one({ "_id": self.owner_id })
-        if owner is None:
+        if self.owner is None:
             raise InvalidOwner("Can't find user by project's owner_id")
 
     def touch(self):
