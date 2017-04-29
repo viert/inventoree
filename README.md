@@ -44,7 +44,7 @@ user.save()
  
 ### HTTP API
  * ~~User Sessions and Authentication~~ (TODO: move from pbkdf2 to bcrypt)
- * /api/v1/datacenters (~~list~~, ~~show~~, create, update, delete)
+ * /api/v1/datacenters (~~list~~, ~~show~~, ~~create~~, ~~update~~, ~~delete~~)
  * /api/v1/groups (~~list~~, ~~show~~, create, update, delete)
  * /api/v1/hosts (list, show, create, update, delete)
  * /api/v1/projects (~~list~~, ~~show~~, ~~create~~, ~~update~~, ~~delete~~)
