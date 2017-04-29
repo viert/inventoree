@@ -4,6 +4,7 @@ from collections import namedtuple
 import flask.json as json
 import os
 import math
+import traceback
 
 DEFAULT_DOCUMENTS_PER_PAGE = 20
 
@@ -21,6 +22,10 @@ def json_response(data, code=200):
 
 
 def json_exception(exception, code=400):
+    from app import app
+    from sys import exc_info
+    exc_type, exc_value, exc_traceback = exc_info()
+    app.logger.error("\n" + "\n".join(traceback.format_exception(exc_type, exc_value, exc_traceback)))
     errors = [ "%s: %s" % (exception.__class__.__name__, exception.message) ]
     return make_response(json.dumps({'errors': errors}), code, {'Content-Type':'application/json'})
 
