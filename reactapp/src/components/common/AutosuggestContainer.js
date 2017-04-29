@@ -39,12 +39,21 @@ export default class AutosuggestContainer extends Component {
 
     handleSuggestionsClearRequested() {
         this.setState({
-            suggestion: []
+            suggestions: []
         })
     }
 
     handleSuggestionSelected(event, { suggestion }) {
         this.props.onDataPicked(suggestion)
+    }
+
+    handleBlur(event) {
+        this.loadData(this.state.value, data => {
+            let exactMatch = data.filter(item => getSuggestionValue(item) === this.state.value)
+            if (exactMatch.length === 1) {
+                this.props.onDataPicked(exactMatch[0])
+            }
+        })
     }
 
     render() {
@@ -54,7 +63,8 @@ export default class AutosuggestContainer extends Component {
             id: "inputDatacenterParent",
             className: "form-control",
             value,
-            onChange: this.handleChange.bind(this)
+            onChange: this.handleChange.bind(this),
+            onBlur: this.handleBlur.bind(this)
         }
 
         return (
