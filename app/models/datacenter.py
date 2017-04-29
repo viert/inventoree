@@ -151,6 +151,9 @@ class Datacenter(StorableModel):
             if root_id == self._id:
                 root_id = None
             self.root_id = root_id
+        else:
+            # set parent_id only via set_parent
+            self.parent_id = None
         self.touch()
 
     def _before_delete(self):

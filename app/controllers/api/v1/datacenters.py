@@ -42,13 +42,14 @@ def show(datacenter_id=None):
 def create():
     from app.models import Datacenter
     dc_attrs = dict([x for x in request.json.items() if x[0] in Datacenter.FIELDS])
-    dc_attrs["parent_id"] = ObjectId(dc_attrs["parent_id"])
     dc = Datacenter(**dc_attrs)
     # TODO: check permissions!
     try:
         dc.save()
     except Exception as e:
         return json_exception(e, 500)
+    if "parent_id" in dc_attrs and dc_attrs["parent_id"]:
+        return set_parent(dc._id)
     return json_response({ "data": dc.to_dict() }, 201)
 
 @datacenters_ctrl.route("/<dc_id>", methods=["PUT"])
@@ -61,6 +62,10 @@ def update(dc_id):
         dc.update(request.json)
     except Exception as e:
         return json_exception(e, 500)
+    if "parent_id" in request.json:
+        parent_id = resolve_id(request.json["parent_id"])
+        if parent_id != dc.parent_id:
+            return set_parent(dc._id)
     return json_response({ "data": dc.to_dict() })
 
 @datacenters_ctrl.route("/<dc_id>", methods=["DELETE"])
