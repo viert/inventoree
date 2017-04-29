@@ -1,7 +1,6 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, json_exception
 from flask import request
-from bson.objectid import ObjectId
 
 
 datacenters_ctrl = AuthController("datacenters", __name__, require_auth=True)
