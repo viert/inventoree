@@ -7,8 +7,10 @@ import DatacenterPicker from './DatacenterPicker'
 export default class DatacenterForm extends Component {
     constructor(props) {
         super(props);
+        const picked = props.datacenter ? true : false
         this.state = {
-            datacenter: props.datacenter
+            datacenter: props.datacenter,
+            picked: picked
         }
     }
 
@@ -16,6 +18,7 @@ export default class DatacenterForm extends Component {
         if (props.datacenter) {
             this.setState({
                 datacenter: props.datacenter,
+                picked: true
             })
         } else {
             this.setState({
@@ -23,7 +26,8 @@ export default class DatacenterForm extends Component {
                     name: "",
                     human_readable: "",
                     parent_id: ""
-                }
+                },
+                picked: false
             })
         }
     }
@@ -67,7 +71,8 @@ export default class DatacenterForm extends Component {
         let datacenter = this.state.datacenter
         datacenter.parent_id = parent._id
         this.setState({
-            datacenter: datacenter
+            datacenter: datacenter,
+            picked: true
         })
     }
 
@@ -75,7 +80,8 @@ export default class DatacenterForm extends Component {
         let datacenter = this.state.datacenter
         datacenter.parent_id = ""
         this.setState({
-            datacenter: datacenter
+            datacenter: datacenter,
+            picked: false
         })
     }
 
@@ -90,7 +96,7 @@ export default class DatacenterForm extends Component {
     render() {
         return (
             <form onChange={this.handleFieldChange.bind(this)} onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form">
-                <div className="form-group">
+                <div className={"form-group" + (this.state.picked ? " has-success" : "")}>
                     <label htmlFor="inputDatacenterParent" className="col-sm-3 control-label">
                         Parent:
                     </label>
