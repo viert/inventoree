@@ -35,6 +35,8 @@ def show(datacenter_id=None):
             { "_id": datacenter_id },
             { "name": datacenter_id }
         ]})
+        if datacenters.count() == 0:
+            return json_response({ "errors": [ "Datacenter not found"] }, 404)
     data = paginated_data(datacenters.sort("name"))
     return json_response(data)
 
