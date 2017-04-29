@@ -15,6 +15,7 @@ export default class ConfirmButton extends Component {
             )
             this.interval = setInterval(this.tick.bind(this), 1000)
         } else {
+            clearInterval(this.interval)
             this.props.onClick(e)
         }
     }
