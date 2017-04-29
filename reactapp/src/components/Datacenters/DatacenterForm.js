@@ -55,16 +55,12 @@ export default class DatacenterForm extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        if (this.props.onSubmit) {
-            this.props.onSubmit(this.state.datacenter);
-        }
+        this.props.onSubmit(this.state.datacenter);
     }
 
     handleDestroy(e) {
         e.preventDefault();
-        if (this.props.onDestroy) {
-            this.props.onDestroy(this.state.datacenter)
-        }
+        this.props.onDestroy(this.state.datacenter)
     }
 
     parentSelected(parent) {
@@ -138,5 +134,5 @@ DatacenterForm.propTypes = {
         human_readable: PropTypes.string
     }),
     onSubmit: PropTypes.func.isRequired,
-    onDestroy: PropTypes.func
+    onDestroy: PropTypes.func.isRequired
 }
