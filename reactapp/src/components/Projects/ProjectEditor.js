@@ -6,7 +6,7 @@ import Loading from '../common/Loading'
 
 import ProjectForm from './ProjectForm';
 
-class ProjectEditor extends Component {
+export default class ProjectEditor extends Component {
     constructor(props) {
         super(props)
         this.state = {
@@ -46,15 +46,19 @@ class ProjectEditor extends Component {
         }
 
         action.then((response) => {
-            AlertStore.Notice("Project has been successfully saved")
+            AlertStore.Notice(`Project ${project.name} has been successfully saved`)
             this.props.history.push('/projects')
         })
         .catch(HttpErrorHandler)
     }
 
     handleDestroy(project) {
+        Axios.delete(`/api/v1/projects/${project._id}`)
+            .then( response => {
+                AlertStore.Notice(`Project ${project.name} has been successfully deleted`)
 
-        console.log('in handledestroy', project)
+            })
+            .catch(HttpErrorHandler)
     }
 
     render() {
@@ -78,5 +82,3 @@ class ProjectEditor extends Component {
         )
     }
 }
-
-export default ProjectEditor;

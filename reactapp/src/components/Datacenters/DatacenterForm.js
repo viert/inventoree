@@ -7,7 +7,7 @@ import DatacenterPicker from './DatacenterPicker'
 export default class DatacenterForm extends Component {
     constructor(props) {
         super(props);
-        const picked = props.datacenter ? true : false
+        const picked = props.datacenter.parent_id ? true : false
         this.state = {
             datacenter: props.datacenter,
             picked: picked
