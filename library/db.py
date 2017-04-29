@@ -144,6 +144,10 @@ class DB(object):
     def delete_query(self, collection, query):
         return self.conn[collection].delete_many(query)
 
+    @intercept_mongo_errors
+    def update_query(self, collection, query, update):
+        return self.conn[collection].update_many(query, update)
+
     # SESSIONS
 
     @intercept_mongo_errors

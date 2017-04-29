@@ -14,6 +14,8 @@ class DatacenterNotEmpty(Exception):
 
 class Datacenter(StorableModel):
 
+    _host_class = None
+
     FIELDS = (
         "_id",
         "name",
@@ -161,6 +163,7 @@ class Datacenter(StorableModel):
             raise DatacenterNotEmpty("Can not delete datacenter because it's not empty")
         if self.parent is not None:
             self.unset_parent()
+        self.host_class.unset_datacenter(self._id)
 
     @property
     def children(self):
@@ -170,3 +173,19 @@ class Datacenter(StorableModel):
     @save_required
     def is_root(self):
         return self.root_id is None
+
+    @property
+    def host_class(self):
+        if self._host_class is None:
+            from app.models import Host
+            self.__class__._host_class = Host
+        return self._host_class
+
+    @property
+    def hosts(self):
+        return self.host_class.find({ "datacenter_id": self._id })
+
+    @property
+    def all_hosts(self):
+        all_ids = [self._id] + [x._id for x in self.get_all_children()]
+        return self.host_class.find({ "datacenter_id": { "$in": all_ids } })

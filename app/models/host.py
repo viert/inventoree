@@ -133,3 +133,8 @@ class Host(StorableModel):
         if self.is_new:
             return tags
         return tags.union(self.group.all_tags)
+
+    @classmethod
+    def unset_datacenter(cls, datacenter_id):
+        from library.db import db
+        db.conn[cls.collection].update_many({ "datacenter_id": datacenter_id }, { "$set": { "datacenter_id": None }})
