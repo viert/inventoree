@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Axios from 'axios';
 import HttpErrorHandler from '../../library/HttpErrorHandler'
-// import AlertStore from '../../library/AlertBox'
+import AlertStore from '../../library/AlertBox'
 import Loading from '../common/Loading'
 
 import DatacenterForm from './DatacenterForm'
@@ -18,9 +18,9 @@ export default class DatacenterEditor extends Component {
     }
 
     componentDidMount() {
-        var id = this.props.match.params.id;
+        const id = this.props.match.params.id;
         if (id && id !== "new") {
-            Axios.get('/api/v1/datacenters/' + id + '?_fields=name,human_readable,parent_id,parent')
+            Axios.get(`/api/v1/datacenters/${id}?_fields=_id,name,human_readable,parent_id,parent`)
                 .then((response) => {
                     this.setState({
                         datacenter: response.data.data[0],
@@ -29,7 +29,7 @@ export default class DatacenterEditor extends Component {
                         isLoading: false
                     })
                 })
-                .catch(HttpErrorHandler);
+                .catch(HttpErrorHandler)
         } else {
             this.setState({
                 isLoading: false
@@ -38,11 +38,35 @@ export default class DatacenterEditor extends Component {
     }
 
     handleSubmit(datacenter) {
+        var action;
+        const parent_id = datacenter.parent_id === "" ? null : datacenter.parent_id
+        const payload = {
+            name: datacenter.name,
+            human_readable: datacenter.human_readable,
+            parent_id: parent_id
+        }
 
+        if (datacenter._id) {
+            action = Axios.put(`/api/v1/datacenters/${datacenter._id}`, payload)
+        } else {
+            action = Axios.post('/api/v1/datacenters/', payload)
+        }
+
+        action
+            .then( response => {
+                AlertStore.Notice(`Datacenter ${datacenter.name} has been saved successfully`)
+                this.props.history.push("/datacenters")
+            })
+            .catch(HttpErrorHandler)
     }
 
     handleDestroy(datacenter) {
-
+        Axios.delete(`/api/v1/datacenters/${datacenter._id}`)
+            .then( response => {
+                AlertStore.Notice(`Datacenter ${datacenter.name} has been successfully deleted`)
+                this.props.history.push("/datacenters")
+            })
+            .catch(HttpErrorHandler)
     }
 
     render() {
