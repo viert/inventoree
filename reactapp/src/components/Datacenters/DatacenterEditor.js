@@ -29,7 +29,10 @@ export default class DatacenterEditor extends Component {
                         isLoading: false
                     })
                 })
-                .catch(HttpErrorHandler)
+                .catch( error => {
+                    HttpErrorHandler(error)
+                    this.props.history.push('/datacenters')
+                })
         } else {
             this.setState({
                 isLoading: false
