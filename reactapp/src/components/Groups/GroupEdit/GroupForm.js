@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import '../Form.css';
-import ConfirmButton from '../common/ConfirmButton'
+import '../../Form.css';
+import ConfirmButton from '../../common/ConfirmButton'
 
 export default class GroupForm extends Component {
     constructor(props) {
@@ -41,14 +41,14 @@ export default class GroupForm extends Component {
 
     render() {
         return (
-            <form onChange={this.handleFieldChange.bind(this)} onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form">
+            <form onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form">
                 <h3 className="object-form_title">Group Properties</h3>
                 <div className="form-group">
                     <label htmlFor="inputGroupName" className="col-sm-3 control-label">
                         Name:
                     </label>
                     <div className="col-sm-9">
-                        <input ref="firstInput" type="text" value={this.state.group.name} id="inputGroupName" className="form-control" placeholder="Group name" />
+                        <input onChange={this.handleFieldChange.bind(this)} ref="firstInput" type="text" value={this.state.group.name} id="inputGroupName" className="form-control" placeholder="Group name" />
                     </div>
                 </div>
                 <div className="form-group">
@@ -56,7 +56,7 @@ export default class GroupForm extends Component {
                         Description:
                     </label>
                     <div className="col-sm-9">
-                        <input type="text" value={this.state.group.description} id="inputGroupDesc" className="form-control" placeholder="Description" />
+                        <input onChange={this.handleFieldChange.bind(this)} type="text" value={this.state.group.description} id="inputGroupDesc" className="form-control" placeholder="Description" />
                     </div>
                 </div>
                 <div className="form-group">

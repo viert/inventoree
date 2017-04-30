@@ -9,4 +9,6 @@
     margin: 0;
     position: relative;
     top: -14px;
+    font-weight: 300;
+    text-transform: uppercase;
 }

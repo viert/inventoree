@@ -1,0 +1,28 @@
+.child-item {
+}
+
+.child-item_delete-trigger {
+    cursor: pointer;
+    padding-right: 4px;
+}
+
+.child-item_delete-trigger:hover, .child-item.removed .child-item_delete-trigger {
+    color: #900;
+}
+.child-item.removed .child-item_delete-trigger:hover {
+    color: black;
+}
+
+.child-item_text, .child-item_delete-trigger {
+    transition: all .3s ease;
+}
+
+.child-item_delete-trigger:hover + .child-item_text, .child-item.removed .child-item_text {
+    text-decoration: line-through;
+    color: #900;
+}
+
+.child-item.removed .child-item_delete-trigger:hover + .child-item_text {
+    text-decoration: none;
+    color: black;
+}

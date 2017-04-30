@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import Axios from 'axios'
-import HttpErrorHandler from '../../library/HttpErrorHandler'
-import AlertStore from '../../library/AlertBox'
-import Loading from '../common/Loading'
+import HttpErrorHandler from '../../../library/HttpErrorHandler'
+// import AlertStore from '../../library/AlertBox'
+import Loading from '../../common/Loading'
 
 import GroupForm from './GroupForm'
+import GroupRelationsForm from './GroupRelationsForm'
 
 export default class GroupEditor extends Component {
     constructor(props) {
@@ -48,6 +49,14 @@ export default class GroupEditor extends Component {
         console.log('in handleDestroy')
     }
 
+    handleSubmitChildren(child_ids) {
+        console.log('in handle submit children', child_ids)
+    }
+
+    handleSubmitHosts(host_ids) {
+        console.log('in handle submit hosts', host_ids)
+    }
+
     render() {
         return (
             <div className="max vertcenter">
@@ -64,7 +73,13 @@ export default class GroupEditor extends Component {
                                     onDestroy={this.handleDestroy.bind(this)} />
                         </div>
                         <div className="col-sm-6">
-                            Group children editor
+                            {
+                                this.state.isNew ? "" : 
+                                <GroupRelationsForm
+                                    group={this.state.group}
+                                    onSubmitChildren={this.handleSubmitChildren.bind(this)}
+                                    onSubmitHosts={this.handleSubmitHosts.bind(this)} />
+                            }
                         </div>
                     </div>
                 </div>
