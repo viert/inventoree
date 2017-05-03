@@ -28,7 +28,6 @@ class Host(StorableModel):
 
     REQUIRED_FIELDS = (
         "fqdn",
-        "group_id",
     )
 
     REJECTED_FIELDS = (

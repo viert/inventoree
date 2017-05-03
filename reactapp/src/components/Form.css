@@ -1,6 +1,15 @@
-form.object-form {
+.object-form {
     padding: 30px 20px;
     border: 1px solid #cccccc;
     background-color: #fafafa;
     border-radius: 5px;
+    margin-bottom: 30px;
+}
+
+.object-form_title {
+    margin: 0;
+    position: relative;
+    top: -14px;
+    font-weight: 300;
+    text-transform: uppercase;
 }

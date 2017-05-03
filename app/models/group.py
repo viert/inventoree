@@ -138,6 +138,10 @@ class Group(StorableModel):
         return self.host_class.find({ "group_id": self._id })
 
     @property
+    def host_ids(self):
+        return [x._id for x in self.hosts.all()]
+
+    @property
     def all_hosts(self):
         group_ids = [ self._id ] + [x._id for x in self.get_all_children()]
         return self.host_class.find({ "group_id": { "$in": group_ids } })
@@ -188,8 +192,10 @@ class Group(StorableModel):
             self.touch()
 
     def _before_delete(self):
-        if not self.empty:
-            raise GroupNotEmpty()
+        if len(self.child_ids) > 0:
+            raise GroupNotEmpty("Can't delete group with child groups attached")
+        if self.hosts.count() > 0:
+            raise GroupNotEmpty("Can't delete groups with hosts in it")
         for parent in self.parents[:]:
             self.remove_parent(parent)
 
