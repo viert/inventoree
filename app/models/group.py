@@ -138,6 +138,10 @@ class Group(StorableModel):
         return self.host_class.find({ "group_id": self._id })
 
     @property
+    def host_ids(self):
+        return [x._id for x in self.hosts.all()]
+
+    @property
     def all_hosts(self):
         group_ids = [ self._id ] + [x._id for x in self.get_all_children()]
         return self.host_class.find({ "group_id": { "$in": group_ids } })
