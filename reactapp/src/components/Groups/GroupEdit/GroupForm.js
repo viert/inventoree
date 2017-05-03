@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import '../../Form.css';
 import ConfirmButton from '../../common/ConfirmButton'
+import TagEditor from '../../common/TagEditor'
 
 export default class GroupForm extends Component {
     constructor(props) {
@@ -24,8 +25,29 @@ export default class GroupForm extends Component {
                 break;
         }
         this.setState({
-            group: group
+            group
         })
+    }
+
+    addTag(tag) {
+        let { group } = this.state
+        group.tags.push(tag)
+        this.setState({
+            group
+        })
+        console.log('add tag', tag)
+    }
+
+    removeTag(tag) {
+        let { group } = this.state
+        let ind = group.tags.indexOf(tag)
+        if (ind >= 0) {
+            group.tags.splice(ind,1)
+            this.setState({
+                group
+            })
+        }
+        console.log('remove tag', tag)
     }
 
 
@@ -57,6 +79,17 @@ export default class GroupForm extends Component {
                     </label>
                     <div className="col-sm-9">
                         <input onChange={this.handleFieldChange.bind(this)} type="text" value={this.state.group.description} id="inputGroupDesc" className="form-control" placeholder="Description" />
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="inputGroupDesc" className="col-sm-3 control-label">
+                        Tags:
+                    </label>
+                    <div className="col-sm-9">
+                        <TagEditor 
+                                tags={this.state.group.tags}
+                                onAdd={this.addTag.bind(this)}
+                                onRemove={this.removeTag.bind(this)} />
                     </div>
                 </div>
                 <div className="form-group">

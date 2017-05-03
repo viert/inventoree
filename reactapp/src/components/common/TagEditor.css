@@ -1,0 +1,30 @@
+.tag-editor {
+    min-height: 32px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    line-height: 32px;
+    padding: 0 12px;
+    background-color: white;
+}
+
+.tag-editor_input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    display: inline-block;
+}
+
+.tag-editor_tag {
+    display: inline-block;
+    padding: 1px 8px;
+    border: 1px solid #ccc;
+    background-color: #efe;
+    margin-right: 8px;
+    overflow-wrap: normal;
+    line-height: 1.5em;
+}
+
+.tag-editor_tag-remove {
+    padding-left: 4px;
+    cursor: pointer;
+}
