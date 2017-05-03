@@ -5,6 +5,7 @@
     line-height: 32px;
     padding: 0 12px;
     background-color: white;
+    cursor: text;
 }
 
 .tag-editor_input {
@@ -15,6 +16,7 @@
 }
 
 .tag-editor_tag {
+    cursor: default;
     display: inline-block;
     padding: 1px 8px;
     border: 1px solid #ccc;

@@ -192,8 +192,10 @@ class Group(StorableModel):
             self.touch()
 
     def _before_delete(self):
-        if not self.empty:
-            raise GroupNotEmpty()
+        if len(self.child_ids) > 0:
+            raise GroupNotEmpty("Can't delete group with child groups attached")
+        if self.hosts.count() > 0:
+            raise GroupNotEmpty("Can't delete groups with hosts in it")
         for parent in self.parents[:]:
             self.remove_parent(parent)
 

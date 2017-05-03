@@ -3,12 +3,15 @@ import PropTypes from 'prop-types'
 import '../../Form.css';
 import ConfirmButton from '../../common/ConfirmButton'
 import TagEditor from '../../common/TagEditor'
+import ProjectPicker from './ProjectPicker'
 
 export default class GroupForm extends Component {
     constructor(props) {
         super(props)
+        let projectPicked = props.group.project._id ? true : false
         this.state = {
-            group: props.group
+            group: props.group,
+            projectPicked
         }
     }
 
@@ -35,7 +38,6 @@ export default class GroupForm extends Component {
         this.setState({
             group
         })
-        console.log('add tag', tag)
     }
 
     removeTag(tag) {
@@ -47,7 +49,6 @@ export default class GroupForm extends Component {
                 group
             })
         }
-        console.log('remove tag', tag)
     }
 
 
@@ -60,6 +61,25 @@ export default class GroupForm extends Component {
         e.preventDefault();
         this.props.onDestroy(this.state.group)
     }
+
+    handleProjectPicked(project) {
+        let { group } = this.state
+        group.project_id = project._id
+        this.setState({
+            group,
+            projectPicked: true
+        })
+    }
+
+    handleProjectClear(project) {
+        let { group } = this.state
+        group.project_id = null
+        this.setState({
+            group,
+            projectPicked: false
+        })
+    }
+
 
     render() {
         return (
@@ -92,6 +112,18 @@ export default class GroupForm extends Component {
                                 onRemove={this.removeTag.bind(this)} />
                     </div>
                 </div>
+                <div className={"form-group" + (this.state.projectPicked ? " has-success": "")}>
+                    <label className="col-sm-3 control-label">
+                        Project:
+                    </label>
+                    <div className="col-sm-9">
+                        <ProjectPicker
+                                    value={this.state.group.project.name}
+                                    onDataPicked={this.handleProjectPicked.bind(this)}
+                                    onDataClear={this.handleProjectClear.bind(this)}
+                                    placeholder="Choose project" />
+                    </div>
+                </div>
                 <div className="form-group">
                     <div className="col-sm-9 col-sm-offset-3 form-buttons">
                         <button type="submit" className="btn btn-primary">Save</button>
@@ -108,7 +140,6 @@ GroupForm.propTypes = {
     group: PropTypes.shape({
         name: PropTypes.string,
         description: PropTypes.string,
-        project_name: PropTypes.string,
         tags: PropTypes.array
     }),
     onSubmit: PropTypes.func.isRequired,

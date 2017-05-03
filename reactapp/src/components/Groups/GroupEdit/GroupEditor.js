@@ -12,14 +12,21 @@ export default class GroupEditor extends Component {
         super(props)
         this.state = {
             title: "New Group",
-            group: {},
+            group: {
+                name: "",
+                description: "",
+                tags: [],
+                project: {
+                    name: ""
+                }
+            },
             isNew: true,
             isLoading: true
         }
     }
 
     componentDidMount() {
-        let { id } = this.props.match.params;
+        let { id } = this.props.match.params
         if (id && id !== "new") {
             Axios.get(`/api/v1/groups/${id}?_fields=children,name,description,project,tags,hosts`)
                 .then( this.onDataLoaded.bind(this) )
@@ -44,11 +51,34 @@ export default class GroupEditor extends Component {
     }
 
     handleSubmit(group) {
-        console.log('in handleSubmit')
+        if (this.state.isNew) {
+            Axios.post("/api/v1/groups/", group)
+                .then( response => {
+                    let { _id, name } = response.data.data
+                    AlertStore.Notice(`Group ${name} has been successfully created, you can now add group's relations`)
+                    this.props.history.push(`/groups/${_id}`)
+                    this.componentDidMount()
+                })
+                .catch(HttpErrorHandler)
+        } else {
+            let { id } = this.props.match.params
+            Axios.put(`/api/v1/groups/${id}`, group)
+                .then( response => {
+                    let { name } = group
+                    AlertStore.Notice(`Group ${name} has been successfully updated, be sure to save relations if you made changes`)
+                })
+        }
     }
 
     handleDestroy(group) {
-        console.log('in handleDestroy')
+        let { id } = this.props.match.params
+        Axios.delete(`/api/v1/groups/${id}`)
+            .then( response => {
+                let { name } = group
+                AlertStore.Notice(`Group ${name} has been successfully destroyed`)
+                this.props.history.push("/groups")
+            })
+            .catch(HttpErrorHandler)
     }
 
     handleSubmitRelations(child_ids, host_ids) {
