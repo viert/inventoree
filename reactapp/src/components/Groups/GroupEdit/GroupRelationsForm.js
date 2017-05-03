@@ -117,7 +117,7 @@ export default class GroupRelationsForm extends Component {
                 </div>
                 <div className="form-group">
                     <div className="col-sm-12 form-buttons">
-                        <button onClick={this.handleSubmitData.bind(this)} className="btn btn-primary">
+                        <button type="button" onClick={this.handleSubmitData.bind(this)} className="btn btn-primary">
                         Save changes
                         </button>
                     </div>
