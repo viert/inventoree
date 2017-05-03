@@ -3,13 +3,6 @@ import PropTypes from 'prop-types'
 import Autosuggest from 'react-autosuggest'
 import './AutosuggestContainer.css'
 
-const getSuggestionValue = suggestion => suggestion.name
-const renderSuggestion = suggestion => (
-    <div>
-        {suggestion.name}
-    </div>
-)
-
 export default class AutosuggestContainer extends Component {
     constructor(props) {
         super(props)
@@ -30,7 +23,7 @@ export default class AutosuggestContainer extends Component {
 
     handleSuggestionsFetchRequested({ value }) {
         this.loadData( value, data => {
-            this.props.onDataClear()
+            if (this.props.onDataClear) this.props.onDataClear()
             this.setState({
                 suggestions: data
             })
@@ -45,23 +38,38 @@ export default class AutosuggestContainer extends Component {
 
     handleSuggestionSelected(event, { suggestion }) {
         this.props.onDataPicked(suggestion)
+        if (this.props.clearOnPick) {
+            this.setState({
+                value: ""
+            })
+        }
     }
 
     handleBlur(event) {
         this.loadData(this.state.value, data => {
-            let exactMatch = data.filter(item => getSuggestionValue(item) === this.state.value)
+            let exactMatch = data.filter(item => this.getSuggestionValue(item) === this.state.value)
             if (exactMatch.length === 1) {
                 this.props.onDataPicked(exactMatch[0])
             }
         })
     }
 
+    getSuggestionValue(suggestion) {
+        return suggestion[this.props.showField]
+    }
+
+    renderSuggestion(suggestion) {
+        return (
+            <div>{this.getSuggestionValue(suggestion)}</div>
+        )
+    }
+
     render() {
         const { value, suggestions } = this.state
         const inputProps = {
             placeholder: this.props.placeholder,
-            id: "inputDatacenterParent",
-            className: "form-control",
+            id: 'inputDatacenterParent',
+            className: 'form-control',
             value,
             onChange: this.handleChange.bind(this),
             onBlur: this.handleBlur.bind(this)
@@ -73,8 +81,8 @@ export default class AutosuggestContainer extends Component {
                 onSuggestionsFetchRequested={this.handleSuggestionsFetchRequested.bind(this)}
                 onSuggestionsClearRequested={this.handleSuggestionsClearRequested.bind(this)}
                 onSuggestionSelected={this.handleSuggestionSelected.bind(this)}
-                getSuggestionValue={getSuggestionValue}
-                renderSuggestion={renderSuggestion}
+                getSuggestionValue={this.getSuggestionValue.bind(this)}
+                renderSuggestion={this.renderSuggestion.bind(this)}
                 inputProps={inputProps} />
         )
     }
@@ -82,6 +90,13 @@ export default class AutosuggestContainer extends Component {
 
 AutosuggestContainer.propTypes = {
     onDataPicked: PropTypes.func.isRequired,
-    onDataClear: PropTypes.func.isRequired,
-    placeholder: PropTypes.string
+    onDataClear: PropTypes.func,
+    placeholder: PropTypes.string,
+    showField: PropTypes.string,
+    clearOnPick: PropTypes.bool
+}
+
+AutosuggestContainer.defaultProps = {
+    showField: 'name',
+    clearOnPick: false
 }

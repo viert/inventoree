@@ -49,12 +49,8 @@ export default class GroupEditor extends Component {
         console.log('in handleDestroy')
     }
 
-    handleSubmitChildren(child_ids) {
-        console.log('in handle submit children', child_ids)
-    }
-
-    handleSubmitHosts(host_ids) {
-        console.log('in handle submit hosts', host_ids)
+    handleSubmitRelations(child_ids, host_ids) {
+        console.log('in handle submit relations', child_ids, host_ids)
     }
 
     render() {
@@ -65,20 +61,19 @@ export default class GroupEditor extends Component {
                 <div className="max">
                     <h2>{this.state.title}</h2>
                     <div className="row">
-                        <div className="col-sm-6">
+                        <div className="col-sm-4">
                             <GroupForm 
                                     group={this.state.group}
                                     isNew={this.state.isNew}
                                     onSubmit={this.handleSubmit.bind(this)}
                                     onDestroy={this.handleDestroy.bind(this)} />
                         </div>
-                        <div className="col-sm-6">
+                        <div className="col-sm-8">
                             {
                                 this.state.isNew ? "" : 
                                 <GroupRelationsForm
                                     group={this.state.group}
-                                    onSubmitChildren={this.handleSubmitChildren.bind(this)}
-                                    onSubmitHosts={this.handleSubmitHosts.bind(this)} />
+                                    onSubmitData={this.handleSubmitRelations.bind(this)} />
                             }
                         </div>
                     </div>
