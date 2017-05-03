@@ -22,6 +22,16 @@ export default class GroupRelationsForm extends Component {
         }
     }
 
+    componentWillReceiveProps(props) {
+        let { children, hosts } = props.group
+        children.forEach( item => { item.removed = false })
+        hosts.forEach( item => { item.removed = false })
+        this.state = {
+            children,
+            hosts
+        }
+    }
+
     handleGroupRemoveTrigger(group) {
         let { children } = this.state
         children.forEach( item => {

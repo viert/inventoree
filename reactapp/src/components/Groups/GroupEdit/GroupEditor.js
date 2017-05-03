@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Axios from 'axios'
 import HttpErrorHandler from '../../../library/HttpErrorHandler'
-// import AlertStore from '../../library/AlertBox'
+import AlertStore from '../../../library/AlertBox'
 import Loading from '../../common/Loading'
 
 import GroupForm from './GroupForm'
@@ -19,7 +19,7 @@ export default class GroupEditor extends Component {
     }
 
     componentDidMount() {
-        var id = this.props.match.params.id;
+        let { id } = this.props.match.params;
         if (id && id !== "new") {
             Axios.get(`/api/v1/groups/${id}?_fields=children,name,description,project,tags,hosts`)
                 .then( this.onDataLoaded.bind(this) )
@@ -52,7 +52,28 @@ export default class GroupEditor extends Component {
     }
 
     handleSubmitRelations(child_ids, host_ids) {
-        console.log('in handle submit relations', child_ids, host_ids)
+        let { id } = this.props.match.params;
+        let { group } = this.state
+        Axios.put(`/api/v1/groups/${id}/set_hosts?_fields=hosts`, { host_ids })
+            .then( response => {
+                let { hosts } = response.data.data
+                group.hosts = hosts
+                this.setState({
+                    group
+                })
+                AlertStore.Notice("Hosts have been successfully updated")
+            })
+            .catch(HttpErrorHandler)
+        Axios.put(`/api/v1/groups/${id}/set_children?_fields=children`, { child_ids })
+            .then( response => {
+                let { children } = response.data.data
+                group.children = children
+                this.setState({
+                    group
+                })
+                AlertStore.Notice("Children have been successfully updated")
+            })
+            .catch(HttpErrorHandler)
     }
 
     render() {
