@@ -97,7 +97,11 @@ export default class DatacenterForm extends Component {
                         Parent:
                     </label>
                     <div className="col-sm-9">
-                        <DatacenterPicker value={this.getParentName()} onDataClear={this.parentClear.bind(this)} onDataPicked={this.parentSelected.bind(this)} placeholder="Parent Datacenter" />
+                        <DatacenterPicker 
+                                    value={this.getParentName()} 
+                                    onDataClear={this.parentClear.bind(this)} 
+                                    onDataPicked={this.parentSelected.bind(this)} 
+                                    placeholder="Parent Datacenter" />
                     </div>
                 </div>
                 <div className="form-group">
