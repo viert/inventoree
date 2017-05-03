@@ -1,5 +1,5 @@
 from flask import request
-from bson.objectid import ObjectId
+from bson.objectid import ObjectId, InvalidId
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, json_exception, paginated_data, diff
 
@@ -48,7 +48,11 @@ def update(group_id):
         group.update(request.json)
     except Exception as e:
         return json_exception(e, 500)
-    return json_response({ "data": group.to_dict() })
+    if "_fields" in request.values:
+        fields = request.values["_fields"].split(",")
+    else:
+        fields = None
+    return json_response({ "data": group.to_dict(fields) })
 
 @groups_ctrl.route("/<group_id>/set_children", methods=["PUT"])
 def set_children(group_id):
@@ -58,6 +62,10 @@ def set_children(group_id):
     # TODO: check permissions!
     orig = group.child_ids
     upd = request.json["child_ids"]
+    try:
+        upd = [ObjectId(x) for x in upd]
+    except InvalidId as e:
+        return json_exception(e, 400)
     d =  diff(orig, upd)
     exs = []
     for item in d.remove:
@@ -73,7 +81,52 @@ def set_children(group_id):
     if len(exs) > 0:
         return json_response({ "errors": ["%s: %s" % (x.__class__.__name__, x.message) for x in exs] })
     else:
-        return json_response({ "data": group.to_dict(), "status": "ok" })
+        if "_fields" in request.values:
+            fields = request.values["_fields"].split(",")
+        else:
+            fields = None
+        return json_response({ "data": group.to_dict(fields), "status": "ok" })
+
+@groups_ctrl.route("/<group_id>/set_hosts", methods=["PUT"])
+def set_hosts(group_id):
+    from app.models import Host
+    group = _get_group_by_id(group_id)
+    if group is None:
+        return json_response({ "errors": ["Group not found"] }, 404)
+    # TODO: check permissions!
+    orig = group.host_ids
+    upd = request.json["host_ids"]
+    try:
+        upd = [ObjectId(x) for x in upd]
+    except InvalidId as e:
+        return json_exception(e, 400)
+    d =  diff(orig, upd)
+    exs = []
+    for item in d.remove:
+        try:
+            h = Host.find_one({ "_id": item })
+            if h is not None:
+                h.group_id = None
+                h.save()
+        except Exception as e:
+            exs.append(e)
+    for item in d.add:
+        try:
+            h = Host.find_one({ "_id": item })
+            if h is not None:
+                h.group_id = group._id
+                h.save()
+        except Exception as e:
+            exs.append(e)
+    if len(exs) > 0:
+        return json_response({ "errors": ["%s: %s" % (x.__class__.__name__, x.message) for x in exs] })
+    else:
+        if "_fields" in request.values:
+            fields = request.values["_fields"].split(",")
+        else:
+            fields = None
+        return json_response({ "data": group.to_dict(fields), "status": "ok" })
+
 
 @groups_ctrl.route("/", methods=["POST"])
 def create():
@@ -86,7 +139,11 @@ def create():
         group.save()
     except Exception as e:
         return json_exception(e, 500)
-    return json_response({ "data": group.to_dict() }, 201)
+    if "_fields" in request.values:
+        fields = request.values["_fields"].split(",")
+    else:
+        fields = None
+    return json_response({ "data": group.to_dict(fields) }, 201)
 
 @groups_ctrl.route("/<group_id>", methods=["DELETE"])
 def delete(group_id):
