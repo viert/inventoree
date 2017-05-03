@@ -22,14 +22,7 @@ export default class GroupEditor extends Component {
         var id = this.props.match.params.id;
         if (id && id !== "new") {
             Axios.get(`/api/v1/groups/${id}?_fields=children,name,description,project,tags,hosts`)
-                .then( response => {
-                    this.setState({
-                        group: response.data.data[0],
-                        title: "Edit Group",
-                        isNew: false,
-                        isLoading: false
-                    })                    
-                })
+                .then( this.onDataLoaded.bind(this) )
                 .catch( error => {
                     HttpErrorHandler(error)
                     this.props.history.push('/groups')
@@ -39,6 +32,15 @@ export default class GroupEditor extends Component {
                 isLoading: false
             })
         }
+    }
+
+    onDataLoaded(response) {
+        this.setState({
+            group: response.data.data[0],
+            title: "Edit Group",
+            isNew: false,
+            isLoading: false
+        })        
     }
 
     handleSubmit(group) {

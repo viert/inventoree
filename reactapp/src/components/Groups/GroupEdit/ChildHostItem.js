@@ -8,10 +8,17 @@ export default class ChildHostItem extends Component {
         this.props.onRemoveTrigger(this.props.host)
     }
 
+    handleMouseEnter(e) {
+        if (e.buttons === 1) {
+            this.handleRemoveClick()
+        }
+        return false
+    }
+
     render() {
         return (
             <div className={'child-item' + (this.props.host.removed ? ' removed': '')}>
-                <span onClick={this.handleRemoveClick.bind(this)} className="fa fa-remove child-item_delete-trigger"></span>
+                <span onMouseEnter={this.handleMouseEnter.bind(this)} onMouseDown={this.handleRemoveClick.bind(this)} className="fa fa-remove child-item_delete-trigger"></span>
                 <span className="child-item_text">
                     { this.props.host.fqdn }
                 </span>
