@@ -16,13 +16,14 @@ export default class GroupList extends Component {
             loading: true,
             currentPage: 1,
             totalPages: 0,
-            filter: search.get("filter") || ""
+            filter: search.get("filter") || "",
+            selectedGroups: []
         }
     }
 
     loadData(page, filter) {
         Axios.get(`/api/v1/groups/?_page=${page}&_filter=${filter}&_fields=_id,name,description,project_name`).then((response) => {
-            var groupList = response.data.data; 
+            var groupList = response.data.data.map( item => { item.selected = false; return item });
             this.setState({
                 groups: groupList,
                 loading: false,
@@ -51,6 +52,38 @@ export default class GroupList extends Component {
         this.props.history.push({ 'search': `page=${this.page}&filter=${filter}` })
     }
 
+    handleSelect(groupsToSelect) {
+        var ind
+        let {selectedGroups, groups} = this.state
+        if (!(groupsToSelect instanceof Array)) { groupsToSelect = [groupsToSelect] }
+
+        groupsToSelect.forEach(function(group) {
+            ind = selectedGroups.indexOf(group)
+            if (ind === -1) {
+                selectedGroups.push(group)
+                ind = groups.indexOf(group)
+                groups[ind].selected = true
+            }
+        }, this);
+        this.setState({ selectedGroups, groups })
+    }
+
+    handleDeselect(groupsToDeselect) {
+        var ind
+        let {selectedGroups, groups} = this.state
+        if (!(groupsToDeselect instanceof Array)) { groupsToDeselect = [groupsToDeselect] }
+
+        groupsToDeselect.forEach(function(group) {
+            ind = selectedGroups.indexOf(group)
+            if (ind !== -1) {
+                selectedGroups.splice(ind, 1)
+                ind = groups.indexOf(group)
+                groups[ind].selected = false
+            } 
+        }, this);
+        this.setState({ selectedGroups, groups })
+    }
+
     render() {
         return (
             <div>
@@ -61,7 +94,7 @@ export default class GroupList extends Component {
                                 createLink="/groups/new" />
                 { 
                     this.state.loading ? 'Loading' :
-                        <GroupListTable groups={this.state.groups} />
+                        <GroupListTable onSelect={this.handleSelect.bind(this)} onDeselect={this.handleDeselect.bind(this)} groups={this.state.groups} />
                 }
                 <Pagination className="text-center" current={this.state.currentPage} total={this.state.totalPages} onChangePage={this.handlePageChanged.bind(this)} />
             </div>
