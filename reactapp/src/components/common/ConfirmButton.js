@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 export default class ConfirmButton extends Component {
     constructor(props) {
@@ -36,9 +37,17 @@ export default class ConfirmButton extends Component {
 
     render() {
         return (
-            <button type="button" onClick={this.handleClick.bind(this)} className={this.props.className}>
+            <button type={this.props.buttonType} onClick={this.handleClick.bind(this)} className={this.props.className}>
                 {this.props.children} { this.state.counter === 0 ? '' : '(' + this.state.counter + ')' }
             </button>
         )
     }
+}
+
+ConfirmButton.propTypes = {
+    buttonType: PropTypes.string
+}
+
+ConfirmButton.defaultProps = {
+    buttonType: "button"
 }

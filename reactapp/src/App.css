@@ -70,3 +70,11 @@ a {
     justify-content: space-around;
     flex-direction: column;
 }
+
+.selection-table h3:first-child {
+    margin-top: 0;
+}
+
+.selection-actions {
+    margin-top: 40px;
+}
