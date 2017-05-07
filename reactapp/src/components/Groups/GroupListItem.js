@@ -12,6 +12,7 @@ export default class GroupListItem extends Component {
             this.props.onSelect(this.props.group)
         else 
             this.props.onDeselect(this.props.group)
+        this.props.onSelectStarted()
     }
 
     render() {
@@ -39,6 +40,7 @@ GroupListItem.propTypes = {
         description: PropTypes.string,
         project_name: PropTypes.string
     }).isRequired,
+    onSelectStarted: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
     onDeselect: PropTypes.func.isRequired
 }

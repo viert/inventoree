@@ -10,7 +10,8 @@ export default class GroupListTable extends Component {
         let selectedLen = props.groups.filter( group => group.selected === true ).length
         let allSelected = selectedLen === props.groups.length
         this.state = {
-            allSelected
+            allSelected,
+            selectionMode: false
         }
     }
 
@@ -42,9 +43,22 @@ export default class GroupListTable extends Component {
         }
     }
 
+    handleSelectStarted() {
+        this.setState({
+            selectionMode: true
+        })
+    }
+
+    handleSelectFinished() {
+        this.setState({
+            selectionMode: false
+        })
+    }
+
     render() {
+        let userSelect = this.state.selectionMode ? "none" : "inherit"
         return (
-            <table className="table">
+            <table style={{userSelect}} className="table" onMouseUp={this.handleSelectFinished.bind(this)}>
                 <thead>
                 <tr>
                     <th className="th-group-select">
@@ -59,7 +73,7 @@ export default class GroupListTable extends Component {
                 {
                     this.props.groups.map((group) => {
                         return (
-                            <GroupListItem onDeselect={this.props.onDeselect} onSelect={this.props.onSelect} group={group} key={group._id} />
+                            <GroupListItem onSelectStarted={this.handleSelectStarted.bind(this)} onDeselect={this.props.onDeselect} onSelect={this.props.onSelect} group={group} key={group._id} />
                         )
                     })
                 }
