@@ -6,7 +6,7 @@ import CheckBoxIcon from '../common/CheckBoxIcon'
 export default class GroupListItem extends Component {
 
     selectItem() {
-        let {selected} = this.props.group
+        let {selected} = this.props
         selected = !selected
         if (selected)
             this.props.onSelect(this.props.group)
@@ -19,7 +19,7 @@ export default class GroupListItem extends Component {
         return (
             <tr>
                 <td className="td-group-select">
-                    <CheckBoxIcon checked={this.props.group.selected} className="fa" classNameChecked="fa-folder" classNameUnchecked="fa-folder-o" onTrigger={this.selectItem.bind(this)} />
+                    <CheckBoxIcon checked={this.props.selected} className="fa" classNameChecked="fa-folder" classNameUnchecked="fa-folder-o" onTrigger={this.selectItem.bind(this)} />
                 </td>
                 <td>
                     <Link to={`/groups/${this.props.group._id}`}>
@@ -40,6 +40,7 @@ GroupListItem.propTypes = {
         description: PropTypes.string,
         project_name: PropTypes.string
     }).isRequired,
+    selected: PropTypes.bool.isRequired,
     onSelectStarted: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
     onDeselect: PropTypes.func.isRequired

@@ -72,8 +72,9 @@ export default class GroupListTable extends Component {
                 <tbody>
                 {
                     this.props.groups.map((group) => {
+                        let selected = typeof this.props.selected[group._id] !== "undefined"
                         return (
-                            <GroupListItem onSelectStarted={this.handleSelectStarted.bind(this)} onDeselect={this.props.onDeselect} onSelect={this.props.onSelect} group={group} key={group._id} />
+                            <GroupListItem selected={selected} onSelectStarted={this.handleSelectStarted.bind(this)} onDeselect={this.props.onDeselect} onSelect={this.props.onSelect} group={group} key={group._id} />
                         )
                     })
                 }
@@ -85,6 +86,7 @@ export default class GroupListTable extends Component {
 
 GroupListTable.propTypes = {
     groups: PropTypes.array.isRequired,
+    selected: PropTypes.object.isRequired,
     onSelect: PropTypes.func.isRequired,
     onDeselect: PropTypes.func.isRequired,
 }

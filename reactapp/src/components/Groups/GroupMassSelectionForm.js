@@ -43,7 +43,7 @@ export default class GroupMassSelectionForm extends Component {
             <div className="selection-table">
                 <h3>Selected Groups</h3>
                 {
-                    this.props.groups.map( group => {
+                    Object.values(this.props.groups).map( group => {
                         group.removed = false
                         return <ChildGroupItem key={group._id} onRemoveTrigger={this.props.onRemove} group={group} />
                     })
@@ -82,7 +82,7 @@ export default class GroupMassSelectionForm extends Component {
 }
 
 GroupMassSelectionForm.propTypes = {
-    groups: PropTypes.array.isRequired,
+    groups: PropTypes.object.isRequired,
     onRemove: PropTypes.func.isRequired,
     onMoveToProject: PropTypes.func.isRequired,
     onDestroy: PropTypes.func.isRequired
