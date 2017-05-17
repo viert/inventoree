@@ -114,14 +114,14 @@ export default class GroupEditor extends Component {
                 <div className="max">
                     <h2>{this.state.title}</h2>
                     <div className="row">
-                        <div className="col-sm-4">
+                        <div className="col-sm-5">
                             <GroupForm 
                                     group={this.state.group}
                                     isNew={this.state.isNew}
                                     onSubmit={this.handleSubmit.bind(this)}
                                     onDestroy={this.handleDestroy.bind(this)} />
                         </div>
-                        <div className="col-sm-8">
+                        <div className="col-sm-7">
                             {
                                 this.state.isNew ? "" : 
                                 <GroupRelationsForm
