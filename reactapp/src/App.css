@@ -47,6 +47,11 @@ a {
     width: 180px;
 }
 
+.th-group-select, .td-group-select {
+    width: 32px;
+    text-align: center;
+}
+
 .th-group-name {
     width: 240px;
 }
@@ -64,4 +69,12 @@ a {
     display: flex;
     justify-content: space-around;
     flex-direction: column;
+}
+
+.selection-table h3:first-child {
+    margin-top: 0;
+}
+
+.selection-actions {
+    margin-top: 40px;
 }
