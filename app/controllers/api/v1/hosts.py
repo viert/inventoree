@@ -39,6 +39,7 @@ def show(host_id=None):
     data = paginated_data(hosts.sort("fqdn"))
     return json_response(data)
 
+
 @hosts_ctrl.route("/", methods=["POST"])
 def create():
     from app.models import Host
@@ -58,6 +59,7 @@ def create():
         fields = None
     return json_response({ "data": host.to_dict(fields) }, 201)
 
+
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
 def update(host_id):
     host = _get_host_by_id(host_id)
@@ -72,6 +74,7 @@ def update(host_id):
     else:
         fields = None
     return json_response({ "data": host.to_dict(fields) })
+
 
 @hosts_ctrl.route("/<host_id>", methods=["DELETE"])
 def delete(host_id):
