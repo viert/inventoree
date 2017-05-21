@@ -28,6 +28,9 @@ def show(host_id=None):
             name_filter = request.values["_filter"]
             if len(name_filter) >= 2:
                 query["fqdn"] = { "$regex": "^%s" % name_filter }
+        if "group_id" in request.values:
+            group_id = resolve_id(request.values["group_id"])
+            query["group_id"] = group_id
         hosts = Host.find(query)
     else:
         host_id = resolve_id(host_id)
