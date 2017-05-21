@@ -24,5 +24,9 @@ ROUTES = [
     {
         "prefix": "/api/v1/hosts",
         "controller": "api.v1.hosts"
+    },
+    {
+        "prefix": "/api/v1/open",
+        "controller": "api.v1.open"
     }
 ]
