@@ -84,7 +84,7 @@ export default class GroupForm extends Component {
     render() {
         return (
             <form onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form">
-                <h3 className="object-form_title">Group Properties</h3>
+                <h4 className="object-form_title">Group Properties</h4>
                 <div className="form-group">
                     <label htmlFor="inputGroupName" className="col-sm-3 control-label">
                         Name:

@@ -1,12 +1,12 @@
 .child-item {
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 14px;
+    line-height: 17px;
 }
 
 .child-item_delete-trigger {
     cursor: pointer;
-    padding-right: 6px;
-    font-size: 1.2em;
+    padding-right: 4px;
+    font-size: 16px;
 }
 
 .child-item_delete-trigger:hover, .child-item.removed .child-item_delete-trigger {

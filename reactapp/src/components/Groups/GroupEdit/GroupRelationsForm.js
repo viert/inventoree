@@ -87,12 +87,12 @@ export default class GroupRelationsForm extends Component {
     render() {
         return (
             <form className="object-form form-horizontal" onSubmit={preventSubmit}>
-                <h3 className="object-form_title">Group Relations</h3>
+                <h4 className="object-form_title">Group Relations</h4>
                 <div className="row">
                     <div className="col-lg-6 col-sm-12">
                         <div className="form-group">
                             <div className="col-sm-12">
-                                <h4>Children</h4>
+                                <h5>Children</h5>
                                 <GroupPicker 
                                     value=""
                                     clearOnPick={true}
@@ -109,7 +109,7 @@ export default class GroupRelationsForm extends Component {
                     <div className="col-lg-6 col-sm-12">
                         <div className="form-group">
                             <div className="col-sm-12">
-                                <h4>Hosts</h4>
+                                <h5>Hosts</h5>
                                 <HostPicker 
                                     value=""
                                     showField="fqdn"
