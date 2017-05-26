@@ -80,6 +80,8 @@ class Host(StorableModel):
 
     @property
     def group_name(self):
+        if self.group is None:
+            return ""
         return self.group.name
 
     @property
