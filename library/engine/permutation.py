@@ -4,6 +4,7 @@ lw = list(string.ascii_lowercase)
 up = list(string.ascii_uppercase)
 nums = list(string.digits)
 
+
 def succ(s):
     """Ruby String.succ implementation"""
     def get_alphabeth(sym):
@@ -17,13 +18,7 @@ def succ(s):
         alphabeth = get_alphabeth(sym)
         if alphabeth is None:
             return None, None, None
-
-        try:
-            i = alphabeth.index(sym)
-        except ValueError:
-            return None, None, alphabeth
-
-        i += 1
+        i = alphabeth.index(sym) + 1
         if i == len(alphabeth):
             carry = True
             i = 0
@@ -52,15 +47,14 @@ def succ(s):
 
     return "".join(sym_list[::-1])
 
-def sequence(fr, to, exclude=False):
 
+def sequence(fr, to, exclude=False):
     """
     Ruby-like string range generator
     ================================
     Ruby's 'a0'..'e4' equals to sequence('a0', 'e4')
     use @exclude parameter to exclude the last element (@to) from the generated sequence
     """
-
     while fr is not None and fr != to and len(fr) <= len(to):
         yield fr
         fr = succ(fr)
