@@ -42,7 +42,10 @@ def succ(s):
             break
         i += 1
         if len(sym_list) == i:
-            sym_list.append(current_alphabeth[0])
+            if current_alphabeth is nums:
+                sym_list.append(current_alphabeth[1])
+            else:
+                sym_list.append(current_alphabeth[0])
             break
 
     return "".join(sym_list[::-1])

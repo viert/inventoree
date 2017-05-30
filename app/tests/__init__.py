@@ -9,3 +9,4 @@ from app.tests.httpapi.test_group_ctrl import TestGroupCtrl
 
 from app.tests.utils.test_pbkdf2 import TestPBKDF2
 from app.tests.utils.test_diff import TestDiff
+from app.tests.utils.test_permutation import TestPermutation
