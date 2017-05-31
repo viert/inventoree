@@ -135,10 +135,10 @@ def set_hosts(group_id):
 def create():
     from app.models import Group
     group_attrs = dict([x for x in request.json.items() if x[0] in Group.FIELDS])
+    if "project_id" not in group_attrs or group_attrs["project_id"] is None:
+        return json_response({ "errors": [ "No project provided for the group" ] }, 400)
     try:
         group_attrs["project_id"] = ObjectId(group_attrs["project_id"])
-    except KeyError:
-        return json_response({ "errors": [ "No project provided for the group" ] }, 400)
     except InvalidId as e:
         return json_response({ "errors": [ "Invalid project_id provided" ] }, 400)
     # TODO: check permissions!
