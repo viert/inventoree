@@ -1,5 +1,9 @@
 import string
 
+
+class InvalidPattern(Exception):
+    pass
+
 lw = list(string.ascii_lowercase)
 up = list(string.ascii_uppercase)
 nums = list(string.digits)
@@ -63,3 +67,56 @@ def sequence(fr, to, exclude=False):
         fr = succ(fr)
     if fr == to and not exclude:
         yield fr
+
+
+def expand_single_pattern(pattern):
+    import re
+    single_expr = re.compile('([0-9a-zA-Z]+)\-([0-9a-zA-Z]+)')
+
+    if pattern.startswith('[') and pattern.endswith(']'):
+        pattern = pattern[1:-1]
+
+    tokens = pattern.split(',')
+    results = []
+    for token in tokens:
+        corners = single_expr.search(token)
+        if corners is None:
+            yield token
+        else:
+            for item in sequence(*corners.groups()):
+                yield item
+
+
+def get_braces_indices(pattern):
+    stack = list()
+    indices = []
+    current_index = []
+    for ind, sym in enumerate(pattern):
+        if sym == '[':
+            stack.append(True)
+            current_index.append(ind)
+        elif sym == ']':
+            try:
+                stack.pop()
+            except IndexError:
+                raise InvalidPattern('Closing brace without opening one')
+            current_index.append(ind)
+        if len(current_index) == 2:
+            if len(stack) != 0:
+                raise InvalidPattern('Nested patterns are not allowed')
+            indices.append(current_index)
+            current_index = []
+    if len(stack) > 0:
+        raise InvalidPattern('Closing brace is absent')
+    return indices
+
+
+def expand_pattern(pattern):
+    indices = get_braces_indices(pattern)
+    if len(indices) == 0:
+        yield pattern
+        return
+    fr, to = indices[0]
+    for token in expand_single_pattern(pattern[fr+1:to]):
+        for result in expand_pattern(pattern[:fr] + token + pattern[to+1:]):
+            yield result
