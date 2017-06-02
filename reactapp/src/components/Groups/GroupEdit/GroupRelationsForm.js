@@ -92,13 +92,13 @@ export default class GroupRelationsForm extends Component {
                     <div className="col-lg-6 col-sm-12">
                         <div className="form-group">
                             <div className="col-sm-12">
-                                <h5>Children</h5>
                                 <GroupPicker 
                                     value=""
                                     clearOnPick={true}
-                                    placeholder="Add Group"
+                                    placeholder="Add Child Group"
                                     onDataPicked={this.groupAddPicked.bind(this)} />
                                 <div className="children-list">
+                                    <h5>Children</h5>
                                 {
                                     this.state.children.map( child => <ChildGroupItem onRemoveTrigger={this.handleGroupRemoveTrigger.bind(this)} key={child._id} group={child} />)
                                 }
@@ -109,7 +109,6 @@ export default class GroupRelationsForm extends Component {
                     <div className="col-lg-6 col-sm-12">
                         <div className="form-group">
                             <div className="col-sm-12">
-                                <h5>Hosts</h5>
                                 <HostPicker 
                                     value=""
                                     showField="fqdn"
@@ -117,6 +116,7 @@ export default class GroupRelationsForm extends Component {
                                     placeholder="Add Host"
                                     onDataPicked={this.hostAddPicked.bind(this)} />
                                 <div className="children-list">
+                                    <h5>Hosts</h5>
                                 {
                                     this.state.hosts.map( host => <ChildHostItem onRemoveTrigger={this.handleHostRemoveTrigger.bind(this)} key={host._id} host={host} />)
                                 }

@@ -31,8 +31,21 @@ export default class TagEditor extends Component {
         super(props)
         this.state = {
             value: "",
-            size: 5
+            size: 5,
+            focused: false
         }
+    }
+
+    handleInputFocus() {
+        this.setState({
+            focused: true
+        })
+    }
+
+    handleInputBlur() {
+        this.setState({
+            focused: false
+        })
     }
 
     handleRemoveTag(tag) {
@@ -97,12 +110,23 @@ export default class TagEditor extends Component {
     }
 
     render() {
+        let classNames = "tag-editor" + (this.state.focused ? " has-focus": "")
         return ( 
-            <div className="tag-editor" onClick={this.handleEditorDefaultClick.bind(this)}>
+            <div className={classNames} onClick={this.handleEditorDefaultClick.bind(this)}>
                 {
                     this.props.tags.map( tag => <Tag key={tag} tag={tag} onRemoveTag={this.handleRemoveTag.bind(this)} /> )
                 }
-                <input size={this.state.size} ref="tagInput" className="tag-editor_input" type="text" value={this.state.value} onKeyDown={this.handleInputKeyDown.bind(this)} onChange={this.handleInputChange.bind(this)} />
+                <input  
+                    size={this.state.size} 
+                    ref="tagInput" 
+                    className="tag-editor_input" 
+                    type="text" 
+                    value={this.state.value} 
+                    onKeyDown={this.handleInputKeyDown.bind(this)} 
+                    onChange={this.handleInputChange.bind(this)} 
+                    onFocus={this.handleInputFocus.bind(this)}
+                    onBlur={this.handleInputBlur.bind(this)}
+                    />
             </div> 
         )
     }

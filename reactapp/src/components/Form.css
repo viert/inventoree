@@ -1,8 +1,5 @@
 .object-form {
-    padding: 30px 20px;
-    border: 1px solid #cccccc;
-    background-color: #fafafa;
-    border-radius: 5px;
+    padding: 30px 8px;
     margin-bottom: 30px;
 }
 
@@ -12,4 +9,41 @@
     top: -14px;
     font-weight: 300;
     text-transform: uppercase;
+}
+
+.object-form.form-horizontal .control-label {
+    text-align: left;
+}
+
+.object-form.form-horizontal .has-success input.form-control {
+    border-color: #3c763d;
+    background-color: #f9fef9;
+}
+.object-form.form-horizontal .has-success input.form-control:focus {
+    border-color: #2b542c;
+    background-color: #fcfffc;
+}
+
+.object-form.form-horizontal input.form-control {
+    border: none; 
+    border-bottom: 1px solid #ccc;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: #f9f9f9;
+}
+
+.object-form.form-horizontal input.form-control:focus {
+    border-color: #9c9;
+    background-color: white;
+}
+
+.object-form .tag-editor {
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    background-color: #f9f9f9;
+}
+
+.object-form .tag-editor.has-focus {
+    background-color: white;
 }

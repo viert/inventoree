@@ -15,6 +15,10 @@ export default class GroupForm extends Component {
         }
     }
 
+    componentDidMount() {
+        this.refs.firstInput.focus();
+    }
+
     handleFieldChange(e) {
         let group = this.state.group;
         switch (e.target.id) {
