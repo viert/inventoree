@@ -47,10 +47,17 @@ def show(host_id=None):
 def create():
     from app.models import Host
     hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
+
     try:
         hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
     except InvalidId:
         hosts_attrs["group_id"] = None
+
+    try:
+        hosts_attrs["datacenter_id"] = ObjectId(hosts_attrs["datacenter_id"])
+    except InvalidId:
+        hosts_attrs["datacenter_id"] = None
+
     host = Host(**hosts_attrs)
     try:
         host.save()
@@ -68,8 +75,21 @@ def update(host_id):
     host = _get_host_by_id(host_id)
     if host is None:
         return json_response({ "errors": [ "Host not found" ] }, 404)
+
+    from app.models import Host
+    hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
+
     try:
-        host.update(request.json)
+        hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
+    except InvalidId:
+        hosts_attrs["group_id"] = None
+    try:
+        hosts_attrs["datacenter_id"] = ObjectId(hosts_attrs["datacenter_id"])
+    except InvalidId:
+        hosts_attrs["datacenter_id"] = None
+
+    try:
+        host.update(hosts_attrs)
     except Exception as e:
         return json_exception(e, 500)
     if "_fields" in request.values:

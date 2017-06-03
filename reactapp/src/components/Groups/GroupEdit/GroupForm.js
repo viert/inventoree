@@ -106,7 +106,7 @@ export default class GroupForm extends Component {
                     </div>
                 </div>
                 <div className="form-group">
-                    <label htmlFor="inputGroupDesc" className="col-sm-3 control-label">
+                    <label className="col-sm-3 control-label">
                         Tags:
                     </label>
                     <div className="col-sm-9">
