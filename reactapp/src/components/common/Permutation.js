@@ -72,7 +72,7 @@ export const sequence = function* (fr, to, exclude) {
 export const expandSinglePattern = function* (pattern) {
     let singleExpr = /([0-9a-zA-Z]+)-([0-9a-zA-Z]+)/
     if (pattern.startsWith("[") && pattern.endsWith("]"))
-        pattern = pattern.slice(1, pattern.length-2)
+        pattern = pattern.slice(1, pattern.length-1)
 
     let tokens = pattern.split(",")
     for (var token of tokens) {
@@ -83,6 +83,52 @@ export const expandSinglePattern = function* (pattern) {
             for (var item of sequence(corners[1], corners[2])) {
                 yield item
             }
+        }
+    }
+}
+
+export const getBracesIndices = pattern => {
+    let stack = Array()
+    let indices = Array()
+    let currentIndex = Array()
+    pattern.split("").forEach( (sym, ind) => {
+        if (sym === "[") {
+            stack.push(true)
+            currentIndex.push(ind)
+        } else if (sym === "]") {
+            let test = stack.pop()
+            if (test === undefined) {
+                // Closing brace without opening one
+                return []
+            }
+            currentIndex.push(ind)
+        }
+        if (currentIndex.length === 2) {
+            if (stack.length !== 0) {
+                // Nested patterns are prohibited
+                return []
+            }
+            indices.push(currentIndex)
+            currentIndex = Array()
+        }
+    })
+    if (stack.length > 0) {
+        // Closing brace is absent
+        return []
+    }
+    return indices
+}
+
+export const expandPattern = function* (pattern) {
+    let indices = getBracesIndices(pattern)
+    if (indices.length === 0) {
+        yield pattern
+        return
+    }
+    let fr = indices[0][0], to = indices[0][1]
+    for (var token of expandSinglePattern(pattern.slice(fr+1, to))) {
+        for (var result of expandPattern(pattern.slice(0, fr) + token + pattern.slice(to+1))) {
+            yield result
         }
     }
 }
