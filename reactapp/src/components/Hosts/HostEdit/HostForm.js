@@ -90,7 +90,6 @@ export default class HostForm extends Component {
     }
 
     handleDatacenterPicked(datacenter) {
-        console.log(datacenter)
         let { host } = this.state
         host.datacenter_id = datacenter._id
         this.setState({

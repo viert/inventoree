@@ -77,7 +77,6 @@ def expand_single_pattern(pattern):
         pattern = pattern[1:-1]
 
     tokens = pattern.split(',')
-    results = []
     for token in tokens:
         corners = single_expr.search(token)
         if corners is None:
