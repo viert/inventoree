@@ -5,6 +5,7 @@ import AlertStore from '../../../library/AlertBox'
 import Loading from '../../common/Loading'
 
 import HostForm from './HostForm'
+import MultipleHosts from './MultipleHosts'
 
 export default class HostEditor extends Component {
     constructor(props) {
@@ -23,7 +24,8 @@ export default class HostEditor extends Component {
                 }
             },
             isNew: true,
-            isLoading: true
+            isLoading: true,
+            pattern: null
         }
     }
 
@@ -53,6 +55,12 @@ export default class HostEditor extends Component {
     }
 
     handleSubmit(host) {
+        if (this.state.pattern !== null) {
+            host.fqdn_pattern = this.state.pattern
+            delete(host.fqdn)
+            delete(host.short_name)
+        }
+
         let { id } = this.props.match.params
         let { fqdn } = host
         let action = this.state.isNew ? Axios.post("/api/v1/hosts/", host) : Axios.put(`/api/v1/hosts/${id}`, host)
@@ -75,7 +83,34 @@ export default class HostEditor extends Component {
             .catch(HttpErrorHandler)
     }
 
+    handleSetPattern(pattern) {
+        this.setState({ pattern })
+    }
+
+    handleClearPattern() {
+        this.setState({ pattern: null })
+    }
+
     render() {
+
+        var patternBlock = "";
+        if (this.state.pattern !== null) {
+            if (this.state.isNew) {
+                patternBlock = (
+                    <div>
+                        <MultipleHosts pattern={this.state.pattern} />
+                    </div>
+                )
+            } else {
+                patternBlock = (
+                    <div className="alert alert-danger">
+                        Patterns are only allowed in Create mode.
+                    </div>
+                )
+            }
+        }
+        
+
         return (
             <div className="max vertcenter">
             {
@@ -88,10 +123,12 @@ export default class HostEditor extends Component {
                                     host={this.state.host}
                                     isNew={this.state.isNew}
                                     onSubmit={this.handleSubmit.bind(this)}
-                                    onDestroy={this.handleDestroy.bind(this)} />
+                                    onDestroy={this.handleDestroy.bind(this)}
+                                    onSetPattern={this.handleSetPattern.bind(this)}
+                                    onClearPattern={this.handleClearPattern.bind(this)} />
                         </div>
                         <div className="col-sm-7">
-                            Placeholder for fqdn pattern expander
+                            { patternBlock }            
                         </div>
                     </div>
                 </div>

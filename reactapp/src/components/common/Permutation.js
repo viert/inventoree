@@ -88,9 +88,9 @@ export const expandSinglePattern = function* (pattern) {
 }
 
 export const getBracesIndices = pattern => {
-    let stack = Array()
-    let indices = Array()
-    let currentIndex = Array()
+    let stack = []
+    let indices = []
+    let currentIndex = []
     pattern.split("").forEach( (sym, ind) => {
         if (sym === "[") {
             stack.push(true)
@@ -109,7 +109,7 @@ export const getBracesIndices = pattern => {
                 return []
             }
             indices.push(currentIndex)
-            currentIndex = Array()
+            currentIndex = []
         }
     })
     if (stack.length > 0) {
@@ -132,3 +132,5 @@ export const expandPattern = function* (pattern) {
         }
     }
 }
+
+export const hasValidPatterns = pattern => getBracesIndices(pattern).length > 0

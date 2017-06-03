@@ -20,16 +20,16 @@ export default class GroupForm extends Component {
     }
 
     handleFieldChange(e) {
-        let group = this.state.group;
+        let { group } = this.state
         switch (e.target.id) {
             case "inputGroupName":
-                group.name = e.target.value;
-                break;
+                group.name = e.target.value
+                break
             case "inputGroupDesc":
-                group.description = e.target.value;
-                break;
+                group.description = e.target.value
+                break
             default:
-                break;
+                break
         }
         this.setState({
             group

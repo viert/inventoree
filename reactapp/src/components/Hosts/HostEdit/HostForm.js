@@ -5,6 +5,7 @@ import ConfirmButton from '../../common/ConfirmButton'
 import TagEditor from '../../common/TagEditor'
 import GroupPicker from '../../Groups/GroupEdit/GroupPicker'
 import DatacenterPicker from '../../Datacenters/DatacenterPicker'
+import { hasValidPatterns } from '../../common/Permutation'
 
 export default class HostForm extends Component {
     constructor(props) {
@@ -16,7 +17,8 @@ export default class HostForm extends Component {
         this.state = {
             host,
             groupPicked,
-            datacenterPicked
+            datacenterPicked,
+            multiHost: false
         }
     }
 
@@ -25,19 +27,29 @@ export default class HostForm extends Component {
     }
 
     handleFieldChange(e) {
-        let host = this.state.host;
+        let { host, multiHost } = this.state
         switch (e.target.id) {
             case "inputHostFqdn":
-                host.fqdn = e.target.value;
-                break;
+                host.fqdn = e.target.value
+                let multiHost = hasValidPatterns(host.fqdn)
+                if (multiHost) {
+                    this.props.onSetPattern(host.fqdn)
+                } else {
+                    this.props.onClearPattern()
+                }
+                break
+            case "inputHostShortname":
+                host.short_name = e.target.value
+                break
             case "inputHostDesc":
                 host.description = e.target.value;
-                break;
+                break
             default:
-                break;
+                break
         }
         this.setState({
-            host
+            host,
+            multiHost
         })
     }
 
@@ -59,7 +71,6 @@ export default class HostForm extends Component {
             })
         }
     }
-
 
     handleSubmit(e) {
         e.preventDefault();
@@ -127,7 +138,7 @@ export default class HostForm extends Component {
                         Short Name:
                     </label>
                     <div className="col-sm-9">
-                        <input onChange={this.handleFieldChange.bind(this)} type="text" value={this.state.host.short_name} id="inputHostShortname" className="form-control" placeholder="Description" />
+                        <input onChange={this.handleFieldChange.bind(this)} type="text" value={this.state.host.short_name} id="inputHostShortname" className="form-control" placeholder="Host short name" />
                     </div>
                 </div>
                 <div className="form-group">
@@ -193,5 +204,7 @@ HostForm.propTypes = {
         tags: PropTypes.array
     }),
     onSubmit: PropTypes.func.isRequired,
-    onDestroy: PropTypes.func.isRequired
+    onDestroy: PropTypes.func.isRequired,
+    onSetPattern: PropTypes.func.isRequired,
+    onClearPattern: PropTypes.func.isRequired
 }
