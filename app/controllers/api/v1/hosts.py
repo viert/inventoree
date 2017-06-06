@@ -1,5 +1,6 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, json_exception
+from library.engine.permutation import expand_pattern
 from flask import request
 from bson.objectid import ObjectId, InvalidId
 
@@ -48,6 +49,17 @@ def create():
     from app.models import Host
     hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
+    if "fqdn_pattern" in request.json:
+        if "fqdn" in hosts_attrs:
+            return json_response({ "errors": ["fqdn field is not allowed due to fqdn_pattern param presence"] })
+        try:
+            hostnames = list(expand_pattern(request.json["fqdn_pattern"]))
+        except Exception as e:
+            return json_exception(e)
+    else:
+        hostnames = [hosts_attrs["fqdn"]]
+        del(hosts_attrs["fqdn"])
+
     try:
         hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
     except InvalidId:
@@ -58,17 +70,18 @@ def create():
     except InvalidId:
         hosts_attrs["datacenter_id"] = None
 
-    host = Host(**hosts_attrs)
-    try:
-        host.save()
-    except Exception as e:
-        return json_exception(e, 500)
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
-    return json_response({ "data": host.to_dict(fields) }, 201)
+    for fqdn in hostnames:
+        attrs = hosts_attrs
+        attrs["fqdn"] = fqdn
+        host = Host(**attrs)
+        try:
+            host.save()
+        except Exception as e:
+            return json_exception(e, 500)
 
+    hosts = Host.find({"fqdn": {"$in": list(hostnames) }})
+    data = paginated_data(hosts.sort("fqdn"))
+    return json_response(data)
 
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
 def update(host_id):

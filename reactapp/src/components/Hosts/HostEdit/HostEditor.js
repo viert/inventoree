@@ -66,6 +66,9 @@ export default class HostEditor extends Component {
         let action = this.state.isNew ? Axios.post("/api/v1/hosts/", host) : Axios.put(`/api/v1/hosts/${id}`, host)
         let message = `Host ${fqdn} has been successfully ` + (this.state.isNew ? "created" : "updated")
         action.then( response => {
+            if (response.data.count && response.data.count > 1) {
+                message = `${response.data.count} hosts have been created`
+            }
             AlertStore.Notice(message)
             this.props.history.push("/hosts")
         })
