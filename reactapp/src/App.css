@@ -33,6 +33,7 @@ a {
 .table>thead>tr>th {
     background-color: #eeeeef;
     border-bottom: none;
+    padding: 4px 8px 2px;
 }
 
 .form-buttons .btn {
@@ -61,7 +62,7 @@ a {
 }
 
 .table>tbody>tr>td {
-    padding: 6px 8px;
+    padding: 4px 8px;
 }
 
 .max {

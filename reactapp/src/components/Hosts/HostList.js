@@ -13,7 +13,8 @@ const HostFields = [
     "short_name",
     "group_name",
     "datacenter_name",
-    "description"
+    "description",
+    "all_tags"
 ]
 
 export default class HostList extends Component {

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import './TagEditor.css'
+import Tag from './Tag'
 
 const Key = {
     BACKSPACE: 8,
@@ -8,21 +9,6 @@ const Key = {
     ENTER: 13,
     SPACE: 32,
     DELETE: 46,
-}
-
-class Tag extends Component {
-    onRemoveClick() {
-        this.props.onRemoveTag(this.props.tag)
-    }
-
-    render() {
-        return (
-            <div className="tag-editor_tag">
-                {this.props.tag} 
-                <i className="fa fa-remove tag-editor_tag-remove" onClick={this.onRemoveClick.bind(this)}></i>
-            </div>
-        )
-    }
 }
 
 export default class TagEditor extends Component {

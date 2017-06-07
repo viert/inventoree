@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import TagList from '../common/TagList'
 
 export default class HostListItem extends Component {
     render() {
@@ -13,6 +14,7 @@ export default class HostListItem extends Component {
                 </td>
                 <td>{this.props.host.datacenter_name}</td>
                 <td>{this.props.host.group_name}</td>
+                <td><TagList tags={this.props.host.all_tags} /></td>
                 <td>{this.props.host.description}</td>
             </tr>
         )
