@@ -90,7 +90,7 @@ export default class GroupList extends Component {
 
     render() {
         let inSelectMode = this.state.selectedGroupsCount > 0
-        let tableWrapperClass = inSelectMode ? "col-sm-9" : "col-sm-12"
+        let tableWrapperClass = inSelectMode ? "col-sm-8" : "col-sm-12"
 
         return (
             <div>
@@ -112,7 +112,7 @@ export default class GroupList extends Component {
                     </div>
                     {
                         inSelectMode ? 
-                        <div className="col-sm-3">
+                        <div className="col-sm-4">
                             <GroupMassSelectionForm onDestroy={this.massDestroy.bind(this)} onMoveToProject={this.massMove.bind(this)} groups={this.state.selectedGroupsMap} onRemove={this.handleDeselect.bind(this)} />
                         </div> : ""
                     }

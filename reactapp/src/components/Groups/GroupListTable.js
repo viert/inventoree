@@ -7,17 +7,25 @@ import CheckBoxIcon from '../common/CheckBoxIcon'
 export default class GroupListTable extends Component {
     constructor(props) {
         super(props)
-        let selectedLen = props.groups.filter( group => group.selected === true ).length
-        let allSelected = selectedLen === props.groups.length
+        let allSelected = this.allSelectedOnPage(props)
         this.state = {
             allSelected,
             selectionMode: false
         }
     }
 
+    allSelectedOnPage(props) {
+        for (var i = 0; i < props.groups.length; i++) {
+            let group = props.groups[i]
+            if (!(group._id in props.selected)) {
+                return false
+            }
+        }
+        return true
+    }
+
     componentWillReceiveProps(props) {
-        let selectedLen = props.groups.filter( group => group.selected === true ).length
-        let allSelected = selectedLen === props.groups.length
+        let allSelected = this.allSelectedOnPage(props)
         this.setState({ allSelected })
     }
 
@@ -27,7 +35,7 @@ export default class GroupListTable extends Component {
         if (allSelected) {
             let groupsToSelect = []
             this.props.groups.forEach( group => {
-                if (!group.selected) {
+                if (!(group._id in this.props.selected)) {
                     groupsToSelect.push(group)
                 }
             })
@@ -35,7 +43,7 @@ export default class GroupListTable extends Component {
         } else {
             let groupsToDeselect = []
             this.props.groups.forEach( group => {
-                if (group.selected) {
+                if (group._id in this.props.selected) {
                     groupsToDeselect.push(group)
                 }
             })
