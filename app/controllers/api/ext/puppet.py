@@ -3,6 +3,17 @@
 # To be removed from conductor to remain as an API plugin
 # in the future
 #
+#   Adds /api/ext/puppet/enc/<host_id> url which acts as puppet ENC
+#   Puppet data is encoded in conductor tags the following way:
+#
+#   Tag $puppet_class:<class_name> adds specified class
+#   Tag $puppet_param:<param_key>=<param_value> adds classifier parameter
+#   Tag $puppet_env:<environment_name> adds classifier environment
+#
+#   All tags are processed sequentally in random order, having several parameters
+#   with the same key results in undefined behaviour: you'll never be sure what
+#   exact value is used
+#
 
 import re
 import yaml
