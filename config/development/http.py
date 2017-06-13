@@ -28,5 +28,9 @@ ROUTES = [
     {
         "prefix": "/api/v1/open",
         "controller": "api.v1.open"
+    },
+    {
+        "prefix": "/api/ext/puppet",
+        "controller": "api.ext.puppet"
     }
 ]
