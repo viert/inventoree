@@ -121,7 +121,7 @@ export default class HostEditor extends Component {
                 <div className="max">
                     <h2>{this.state.title}</h2>
                     <div className="row">
-                        <div className="col-sm-5">
+                        <div className="col-sm-7">
                             <HostForm 
                                     host={this.state.host}
                                     isNew={this.state.isNew}
@@ -130,7 +130,7 @@ export default class HostEditor extends Component {
                                     onSetPattern={this.handleSetPattern.bind(this)}
                                     onClearPattern={this.handleClearPattern.bind(this)} />
                         </div>
-                        <div className="col-sm-7">
+                        <div className="col-sm-5">
                             { patternBlock }            
                         </div>
                     </div>

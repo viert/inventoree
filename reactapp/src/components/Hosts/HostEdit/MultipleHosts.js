@@ -32,7 +32,7 @@ export default class MultipleHost extends Component {
     render() {
         return (
             <div className="multiple-hosts">
-                <h4>Warning: multiple host records will be created</h4>
+                <h5>Warning: multiple host records will be created</h5>
                 <ul className="multiple-hosts-list">
                     {
                         this.state.hosts.map( host => <li key={host}>{ host }</li> )

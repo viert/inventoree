@@ -1,9 +1,9 @@
-.multiple-hosts h4 {
+.multiple-hosts h5 {
     text-transform: uppercase;
     color: #900;
 }
 .multiple-hosts-list {
-    padding-left: 20px;
+    padding-left: 0;
     list-style: none;
 }
 
