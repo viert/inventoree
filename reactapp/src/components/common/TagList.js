@@ -4,9 +4,10 @@ import './TagList.css'
 
 export default class TagList extends Component {
     render() {
+        let tags = this.props.tags || []
         return (
             <div className="tag-list">
-                { this.props.tags.map( tag => <Tag id={tag} tag={tag} />)}
+                { tags.map( tag => <Tag key={tag} tag={tag} />)}
             </div>
         )
     }

@@ -62,12 +62,12 @@ def create():
 
     try:
         hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
-    except InvalidId:
+    except (KeyError, InvalidId):
         hosts_attrs["group_id"] = None
 
     try:
         hosts_attrs["datacenter_id"] = ObjectId(hosts_attrs["datacenter_id"])
-    except InvalidId:
+    except (KeyError, InvalidId):
         hosts_attrs["datacenter_id"] = None
 
     for fqdn in hostnames:

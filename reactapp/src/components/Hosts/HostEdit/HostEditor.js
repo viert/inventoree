@@ -46,8 +46,11 @@ export default class HostEditor extends Component {
     }
 
     onDataLoaded(response) {
+        let host = response.data.data[0]
+        if (!host.group) { host.group = { name: "" } }
+        if (!host.datacenter) { host.datacenter = { name: "" }}
         this.setState({
-            host: response.data.data[0],
+            host,
             title: "Edit Host",
             isNew: false,
             isLoading: false
