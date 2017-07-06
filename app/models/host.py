@@ -33,7 +33,6 @@ class Host(StorableModel):
     REJECTED_FIELDS = (
         "created_at",
         "updated_at",
-        "group_id",
     )
 
     DEFAULTS = {
