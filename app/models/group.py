@@ -62,7 +62,9 @@ class Group(StorableModel):
     INDEXES = (
         "parent_ids",
         "child_ids",
-        ["name", { "unique": True }]
+        ["name", { "unique": True }],
+        "tags",
+        "custom_fields"
     )
 
     __slots__ = FIELDS

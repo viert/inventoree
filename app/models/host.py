@@ -49,6 +49,7 @@ class Host(StorableModel):
         "group_id",
         "datacenter_id",
         "tags",
+        "custom_fields"
     )
 
     __slots__ = FIELDS
