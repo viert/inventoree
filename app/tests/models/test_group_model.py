@@ -153,6 +153,14 @@ class TestGroupModel(TestCase):
         import flask.json as json
         json.dumps(dictg2, default=app.flask.json_encoder().default)
 
+    def test_custom_fields(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields={ "field1": 1, "field2": 2 })
+        g1.save()
+        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields={ "field2": "overriden 2", "field3": 3})
+        g2.save()
+        g1.add_child(g2)
+        self.assertDictEqual(g2.all_custom_fields, { "field1": 1, "field2": "overriden 2", "field3": 3})
+
     def test_invalid_tags(self):
         g1 = TestGroup(name="g1", project_id=self.tproject._id, tags="invalid tags")
         self.assertRaises(InvalidTags, g1.save)

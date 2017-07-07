@@ -104,3 +104,25 @@ class TestHostModel(TestCase):
         h = TestHost(fqdn="host.example.com", group_id=g._id, datacenter_id=dc11._id)
         h.save()
         self.assertEqual(h.root_datacenter, dc1)
+
+    def test_tags(self):
+        g1 = TestGroup(name="test_group", project_id=self.tproject._id, tags=["tag1", "tag2"])
+        g1.save()
+        g2 = TestGroup(name="test_group2", project_id=self.tproject._id, tags=["tag2", "tag3"])
+        g2.save()
+        h = TestHost(fqdn="host.example.com", group_id=g2._id, tags=["tag4"])
+        h.save()
+        self.assertItemsEqual(["tag2", "tag3", "tag4"], h.all_tags)
+        g1.add_child(g2)
+        self.assertItemsEqual(["tag1", "tag2", "tag3", "tag4"], h.all_tags)
+
+    def test_custom_fields(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields={ "field1": 1, "field2": 2 })
+        g1.save()
+        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields={ "field2": "overriden 2", "field3": 3})
+        g2.save()
+        h = TestHost(fqdn="host.example.com", group_id=g2._id, custom_fields={ "hostfield": "value" })
+        h.save()
+        self.assertDictEqual(h.all_custom_fields, { "field2": "overriden 2", "field3": 3, "hostfield": "value" })
+        g1.add_child(g2)
+        self.assertDictEqual(h.all_custom_fields, { "field1": 1, "field2": "overriden 2", "field3": 3, "hostfield": "value" })

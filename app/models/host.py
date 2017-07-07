@@ -22,6 +22,7 @@ class Host(StorableModel):
         "datacenter_id",
         "description",
         "tags",
+        "custom_fields",
         "created_at",
         "updated_at",
     )
@@ -38,7 +39,8 @@ class Host(StorableModel):
     DEFAULTS = {
         "created_at": now,
         "updated_at": now,
-        "tags": []
+        "tags": [],
+        "custom_fields": {}
     }
 
     INDEXES = (
@@ -130,9 +132,23 @@ class Host(StorableModel):
     @property
     def all_tags(self):
         tags = set(self.tags)
-        if self.is_new:
+        if self.is_new or self.group is None:
             return tags
         return tags.union(self.group.all_tags)
+
+    @property
+    def all_custom_fields(self):
+        # the handler may be a bit heavy, be sure to benchmark it
+        if self.is_new or self.group is None:
+            return self.custom_fields
+
+        # get parent custom fields
+        custom_fields = self.group.all_custom_fields.copy()
+        # override parent custom fields by local
+        # or add new ones
+        custom_fields.update(self.custom_fields)
+
+        return custom_fields
 
     @classmethod
     def unset_datacenter(cls, datacenter_id):

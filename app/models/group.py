@@ -33,6 +33,7 @@ class Group(StorableModel):
         "parent_ids",
         "child_ids",
         "tags",
+        "custom_fields",
     )
 
     DEFAULTS = {
@@ -40,7 +41,8 @@ class Group(StorableModel):
         "updated_at": now,
         "parent_ids": [],
         "child_ids": [],
-        "tags": []
+        "tags": [],
+        "custom_fields": {}
     }
 
     REQUIRED_FIELDS = (
@@ -205,6 +207,24 @@ class Group(StorableModel):
         for parent in self.parents:
             tags = tags.union(parent.all_tags)
         return tags
+
+    @property
+    def all_custom_fields(self):
+        # this handler can be a bit heavy.
+        # should check if building parent tree into a flat array could do the trick
+
+        if len(self.parent_ids) == 0:
+            return self.custom_fields
+
+        custom_fields = {}
+        # merging custom fields from all the parents
+        for parent in self.parents:
+            custom_fields.update(parent.all_custom_fields)
+
+        # merging results with local custom_fields
+        custom_fields.update(self.custom_fields)
+
+        return custom_fields
 
     @property
     def project_name(self):
