@@ -38,3 +38,33 @@ def executer_data():
         query["name"] = { "$in": project_names }
     results = get_executer_data(query)
     return json_response({ "data": results })
+
+@open_ctrl.route("/conductor")
+def version():
+    from app import app
+
+    results = {
+        "app": {
+            "name": "conductor"
+        }
+    }
+    if "VERSION" in dir(app):
+        results["app"]["version"] = app.VERSION
+    else:
+        results["app"]["version"] = "unknown"
+
+    from library.db import db
+    results["mongodb"] = db.conn.client.server_info()
+
+    import flask
+    results["flask_version"] = flask.__version__
+
+    from library.engine.cache import check_cache
+    results["cache"] = {
+        "type": app.cache.__class__.__name__,
+        "active": check_cache()
+    }
+
+    results["endpoints"] = app.config.http["ROUTES"]
+
+    return json_response({ "conductor_info": results })

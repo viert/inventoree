@@ -42,3 +42,17 @@ def cached_function(cache_key_prefix=DEFAULT_CACHE_PREFIX, cache_timeout=DEFAULT
             return value
         return wrapper
     return cache_decorator
+
+
+def check_cache():
+    from app import app
+    from hashlib import md5
+    from random import randint
+    k = md5(str(randint(0, 1000000))).hexdigest()
+    v = md5(str(randint(0, 1000000))).hexdigest()
+    app.cache.set(k, v)
+    if app.cache.get(k) != v:
+        return False
+    else:
+        app.cache.delete(k)
+        return True

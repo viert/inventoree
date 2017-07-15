@@ -69,10 +69,15 @@ class BaseApp(object):
 
         self.logger.info("Loading routes...")
         for route in self.config.http["ROUTES"]:
+            route["active"] = True
             if not "controller" in route:
+                route["active"] = False
+                route["error"] = "Invalid route %s: no controller found" % route
                 self.logger.error("Invalid route %s: no controller found" % route)
                 continue
             if not "prefix" in route:
+                route["active"] = False
+                route["error"] = "Invalid route %s: no prefix found" % route
                 self.logger.error("Invalid route %s: no prefix found" % route)
                 continue
 
@@ -82,11 +87,15 @@ class BaseApp(object):
             try:
                 module = importlib.import_module(module_name)
             except ImportError as e:
+                route["active"] = False
+                route["error"] = "Error loading controller module %s: %s" % (module_name, e)
                 self.logger.error("Error loading controller module %s: %s" % (module_name, e))
                 continue
             try:
                 blueprint = getattr(module, blueprint_name)
             except AttributeError:
+                route["active"] = False
+                route["error"] = "No blueprint named %s found in module %s" % (blueprint_name, module_name)
                 self.logger.error("No blueprint named %s found in module %s" % (blueprint_name, module_name))
                 continue
             self.flask.register_blueprint(blueprint, url_prefix=route["prefix"])

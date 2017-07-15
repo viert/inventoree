@@ -4,4 +4,4 @@ main_ctrl = Blueprint("main", __name__)
 
 @main_ctrl.route("/")
 def index():
-    return "Hello world"
+    return "Hello world, you shouldn't ever see this string"
