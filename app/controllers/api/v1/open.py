@@ -34,8 +34,9 @@ def get_executer_data(query):
 def executer_data():
     query = {}
     if "projects" in request.values:
-        project_names = request.values["projects"].split(",")
-        query["name"] = { "$in": project_names }
+        project_names = [x for x in request.values["projects"].split(",") if x != ""]
+        if len(project_names) > 0:
+            query["name"] = { "$in": project_names }
     results = get_executer_data(query)
     return json_response({ "data": results })
 
