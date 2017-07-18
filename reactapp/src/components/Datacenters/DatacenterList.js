@@ -31,9 +31,9 @@ export default class DatacenterList extends Component {
     render() {
         return (
             <div>
-                <ListPageHeader title="Datacenter List" 
+                <ListPageHeader title="Location List" 
                                 noFilter={true}
-                                createButtonText="New Datacenter" 
+                                createButtonText="New Location" 
                                 createLink="/datacenters/new" />
                 { 
                     this.state.loading ? 'Loading' :

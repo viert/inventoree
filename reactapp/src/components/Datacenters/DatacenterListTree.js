@@ -34,7 +34,7 @@ export default class DatacenterListTree extends Component {
     }
 
     buildTree(dcList) {
-        let tree = [{ name: 'root', human_readable: 'Root Datacenter', _id: "root", level: 0 }]
+        let tree = [{ name: 'root', human_readable: 'Root Location', _id: "root", level: 0 }]
         let children = this._buildTreeRecursive(dcList, null, 1)
         if (children.length > 0) {
             tree = tree.concat(children)

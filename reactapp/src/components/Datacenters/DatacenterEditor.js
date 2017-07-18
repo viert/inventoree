@@ -10,7 +10,7 @@ export default class DatacenterEditor extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            title: "New Datacenter",
+            title: "New Location",
             datacenter: {},
             isNew: true,
             isLoading: true
@@ -24,7 +24,7 @@ export default class DatacenterEditor extends Component {
                 .then((response) => {
                     this.setState({
                         datacenter: response.data.data[0],
-                        title: "Edit Datacenter",
+                        title: "Edit Location",
                         isNew: false,
                         isLoading: false
                     })
@@ -57,7 +57,7 @@ export default class DatacenterEditor extends Component {
 
         action
             .then( response => {
-                AlertStore.Notice(`Datacenter ${datacenter.name} has been saved successfully`)
+                AlertStore.Notice(`Location ${datacenter.name} has been saved successfully`)
                 this.props.history.push("/datacenters")
             })
             .catch(HttpErrorHandler)
@@ -66,7 +66,7 @@ export default class DatacenterEditor extends Component {
     handleDestroy(datacenter) {
         Axios.delete(`/api/v1/datacenters/${datacenter._id}`)
             .then( response => {
-                AlertStore.Notice(`Datacenter ${datacenter.name} has been successfully deleted`)
+                AlertStore.Notice(`Location ${datacenter.name} has been successfully deleted`)
                 this.props.history.push("/datacenters")
             })
             .catch(HttpErrorHandler)

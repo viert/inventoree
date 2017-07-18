@@ -101,7 +101,7 @@ export default class DatacenterForm extends Component {
                                     value={this.getParentName()} 
                                     onDataClear={this.parentClear.bind(this)} 
                                     onDataPicked={this.parentSelected.bind(this)} 
-                                    placeholder="Parent Datacenter" />
+                                    placeholder="Parent Location" />
                     </div>
                 </div>
                 <div className="form-group">
@@ -109,7 +109,7 @@ export default class DatacenterForm extends Component {
                         Name:
                     </label>
                     <div className="col-sm-9">
-                        <input ref="firstInput" type="text" value={this.state.datacenter.name} id="inputDatacenterName" className="form-control" placeholder="Datacenter name" />
+                        <input ref="firstInput" type="text" value={this.state.datacenter.name} id="inputDatacenterName" className="form-control" placeholder="Location name" />
                     </div>
                 </div>
                 <div className="form-group">
