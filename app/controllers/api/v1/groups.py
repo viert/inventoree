@@ -82,7 +82,7 @@ def set_children(group_id):
         except Exception as e:
             exs.append(e)
     if len(exs) > 0:
-        return json_response({ "errors": ["%s: %s" % (x.__class__.__name__, x.message) for x in exs] })
+        return json_response({ "errors": ["%s: %s" % (x.__class__.__name__, x.message) for x in exs] }, 400)
     else:
         if "_fields" in request.values:
             fields = request.values["_fields"].split(",")
@@ -122,7 +122,7 @@ def set_hosts(group_id):
         except Exception as e:
             exs.append(e)
     if len(exs) > 0:
-        return json_response({ "errors": ["%s: %s" % (x.__class__.__name__, x.message) for x in exs] })
+        return json_response({ "errors": ["%s: %s" % (x.__class__.__name__, x.message) for x in exs] }, 400)
     else:
         if "_fields" in request.values:
             fields = request.values["_fields"].split(",")
