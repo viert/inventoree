@@ -137,6 +137,14 @@ class Group(StorableModel):
         child.save()
         self.save()
 
+    @save_required
+    def remove_all_children(self):
+        for child in self.children:
+            self.child_ids.remove(child._id)
+            child.parent_ids.remove(self._id)
+            child.save()
+        self.save()
+
     @property
     def hosts(self):
         return self.host_class.find({ "group_id": self._id })

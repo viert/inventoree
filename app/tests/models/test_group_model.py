@@ -161,6 +161,22 @@ class TestGroupModel(TestCase):
         g1.add_child(g2)
         self.assertDictEqual(g2.all_custom_fields, { "field1": 1, "field2": "overriden 2", "field3": 3})
 
+    def test_custom_fields_remove_intermediate_parent(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields={ "field1": 1, "field2": 2 })
+        g1.save()
+        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields={ "field2": "overriden 2", "field3": 3})
+        g2.save()
+        g1.add_child(g2)
+        g3 = TestGroup(name="g3", project_id=self.tproject._id, custom_fields={ "field4": 4 })
+        g3.save()
+        g2.add_child(g3)
+        self.assertDictEqual(g3.all_custom_fields, { "field1": 1, "field2": "overriden 2", "field3": 3, "field4": 4})
+        g2.remove_all_children()
+        g2.destroy()
+        self.assertDictEqual(g3.all_custom_fields, { "field4": 4 })
+        g1.add_child(g3)
+        self.assertDictEqual(g3.all_custom_fields, {'field1': 1, 'field2': 2, 'field4': 4})
+
     def test_invalid_tags(self):
         g1 = TestGroup(name="g1", project_id=self.tproject._id, tags="invalid tags")
         self.assertRaises(InvalidTags, g1.save)
