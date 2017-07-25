@@ -4,6 +4,8 @@ from time import mktime
 
 class User(StorableModel):
 
+    _token_class = None
+
     FIELDS = (
         "_id",
         "username",
@@ -80,3 +82,23 @@ class User(StorableModel):
 
     def check_password(self, password_raw):
         return pbkdf2_hex(password_raw, self.salt) == self.password_hash
+
+    @property
+    def token_class(self):
+        if self._token_class is None:
+            from app.models import Token
+            self.__class__._token_class = Token
+        return self._token_class
+
+    @property
+    def tokens(self):
+        return self.token_class.find({ "user_id": self._id })
+
+    def get_auth_token(self):
+        tokens = self.token_class.find({ "type": "auth", "user_id": self._id })
+        for token in tokens:
+            if not token.expired:
+                return token
+        token = self.token_class(type="auth", user_id=self._id)
+        token.save()
+        return token

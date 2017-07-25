@@ -1,6 +1,7 @@
 from flask import make_response, request
 from bson.objectid import ObjectId, InvalidId
 from collections import namedtuple
+from uuid import uuid4
 import flask.json as json
 import os
 import math
@@ -118,3 +119,6 @@ def diff(original, updated):
     add = [x for x in u if x not in o]
     remove = [x for x in o if x not in u]
     return Diff(add=add, remove=remove)
+
+def uuid4_string():
+    return str(uuid4())
