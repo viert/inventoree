@@ -9,24 +9,38 @@ class AuthController(Blueprint):
         Blueprint.__init__(self, *args, **kwargs)
         self.before_request(self.set_current_user)
 
-    def set_current_user(self):
-        from app.models import User
-        g.user = None
-
+    @staticmethod
+    def _get_user_from_authorization_header():
         if "Authorization" in request.headers:
             auth = request.headers["Authorization"].split()
             if len(auth) == 2 and auth[0] == "Token":
                 from app.models import Token
                 token = Token.find_one({ "token": auth[1] })
                 if token is not None and not token.expired:
-                    g.user = token.user
+                    return token.user
+        return None
 
-        if g.user is None:
-            user_id = session.get("user_id")
-            if user_id:
-                user = User.find_one({ "_id": user_id })
-                if user:
-                    g.user = user
+    @staticmethod
+    def _get_user_from_session():
+        from app.models import User
+        user_id = session.get("user_id")
+        if user_id:
+            user = User.find_one({"_id": user_id})
+            if user:
+                g.user = user
+
+    @staticmethod
+    def _get_user_from_x_api_auth_token():
+        if "X-Api-Auth-Token" in request.headers:
+            from app.models import Token
+            token = Token.find_one({ "token": request.headers["X-Api-Auth-Token"] })
+            if token is not None and not token.expired:
+                return token.user
+
+    def set_current_user(self):
+        g.user = self._get_user_from_session() or \
+                    self._get_user_from_x_api_auth_token() or \
+                    self._get_user_from_authorization_header()
 
         if g.user is None and self.require_auth:
             return json_response({ "errors": [ "You must be authenticated first" ], "state": "logged out" }, 403)
