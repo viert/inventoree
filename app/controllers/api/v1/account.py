@@ -21,7 +21,10 @@ def me():
 @account_ctrl.route("/authenticate", methods=["POST"])
 def authenticate():
     if g.user:
-        return json_response({ "errors": ["Already authenticated. Use /api/v1/account/logout handler first"]}, 400)
+        user_data = g.user.to_dict()
+        if "password_hash" in user_data:
+            del (user_data["password_hash"])
+        return json_response({ "status": "authenticated", "data": user_data })
     from app.models import User
     data = request.json
     if data is None:

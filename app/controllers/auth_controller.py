@@ -26,8 +26,8 @@ class AuthController(Blueprint):
         user_id = session.get("user_id")
         if user_id:
             user = User.find_one({"_id": user_id})
-            if user:
-                g.user = user
+            return user
+
 
     @staticmethod
     def _get_user_from_x_api_auth_token():
@@ -36,11 +36,13 @@ class AuthController(Blueprint):
             token = Token.find_one({ "token": request.headers["X-Api-Auth-Token"] })
             if token is not None and not token.expired:
                 return token.user
+            else:
+                return None
 
     def set_current_user(self):
         g.user = self._get_user_from_session() or \
                     self._get_user_from_x_api_auth_token() or \
                     self._get_user_from_authorization_header()
-
+        print g.user
         if g.user is None and self.require_auth:
             return json_response({ "errors": [ "You must be authenticated first" ], "state": "logged out" }, 403)
