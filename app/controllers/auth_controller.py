@@ -43,6 +43,5 @@ class AuthController(Blueprint):
         g.user = self._get_user_from_session() or \
                     self._get_user_from_x_api_auth_token() or \
                     self._get_user_from_authorization_header()
-        print g.user
         if g.user is None and self.require_auth:
             return json_response({ "errors": [ "You must be authenticated first" ], "state": "logged out" }, 403)
