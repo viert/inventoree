@@ -89,6 +89,9 @@ def update(host_id):
     if host is None:
         return json_response({ "errors": [ "Host not found" ] }, 404)
 
+    if not host.modification_allowed:
+        return json_response({ "errors": [ "You don't have permissions to modify this host" ] }, 403)
+
     from app.models import Host
     hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
@@ -115,8 +118,13 @@ def update(host_id):
 @hosts_ctrl.route("/<host_id>", methods=["DELETE"])
 def delete(host_id):
     host = _get_host_by_id(host_id)
+
     if host is None:
         return json_response({ "errors": [ "Host not found" ] }, 404)
+
+    if not host.destruction_allowed:
+        return json_response({ "errors": [ "You don't have permissions to delete this host" ] }, 403)
+
     try:
         host.destroy()
     except Exception as e:

@@ -174,6 +174,10 @@ class Group(StorableModel):
     def project(self):
         return self.project_class.find_one({ "_id": self.project_id })
 
+    @property
+    def modification_allowed(self):
+        return self.project.modification_allowed
+
     def get_all_children(self):
         children = self.children[:]
         for child in self.children:

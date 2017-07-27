@@ -120,5 +120,18 @@ def diff(original, updated):
     remove = [x for x in o if x not in u]
     return Diff(add=add, remove=remove)
 
+
 def uuid4_string():
     return str(uuid4())
+
+
+def get_user_from_app_context():
+    from app import app
+    from flask import g
+    user = None
+    try:
+        with app.flask.app_context():
+            user = g.user
+    except AttributeError:
+        pass
+    return user

@@ -1,5 +1,5 @@
 from storable_model import StorableModel, InvalidTags, now
-
+from library.engine.utils import get_user_from_app_context
 
 class InvalidGroup(Exception):
     pass
@@ -129,6 +129,22 @@ class Host(StorableModel):
             from app.models import Datacenter
             self.__class__._datacenter_class = Datacenter
         return self._datacenter_class
+
+    @property
+    def modification_allowed(self):
+        if self.group is None:
+            return True
+        return self.group.modification_allowed
+
+    @property
+    def destruction_allowed(self):
+        if self.group is None:
+            user = get_user_from_app_context()
+            if user is not None and user.supervisor:
+                return True
+            else:
+                return False
+        return self.group.modification_allowed
 
     @property
     def all_tags(self):
