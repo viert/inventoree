@@ -3,6 +3,42 @@ from app.tests.models.test_models import TestProject, TestGroup, TestHost, TestU
 from app.models.storable_model import FieldRequired, ParentCycle,\
     ChildAlreadyExists, ParentAlreadyExists, InvalidTags
 
+TEST_CUSTOM_FIELDS_G1 = [
+    { "key": "field1", "value": 1 },
+    { "key": "field2", "value": 2 }
+]
+TEST_CUSTOM_FIELDS_G2 = [
+    { "key": "field2", "value": "overriden 2" },
+    { "key": "field3", "value": 3 }
+]
+TEST_CUSTOM_FIELDS_RESULT = [
+    {"key": "field1", "value": 1},
+    {"key": "field2", "value": "overriden 2"},
+    {"key": "field3", "value": 3}
+]
+
+TEST_CUSTOM_FIELDS_RIP_G1 = [
+    {"key": "field1", "value": 1},
+    {"key": "field2", "value": 2}
+]
+TEST_CUSTOM_FIELDS_RIP_G2 = [
+    { "key": "field2", "value": "overriden 2" },
+    { "key": "field3", "value": 3 }
+]
+TEST_CUSTOM_FIELDS_RIP_G3 = [
+    { "key": "field4", "value": 4 }
+]
+TEST_CUSTOM_FIELDS_RIP_RESULT1 = [
+    {"key": "field1", "value": 1},
+    {"key": "field2", "value": "overriden 2"},
+    {"key": "field3", "value": 3},
+    {"key": "field4", "value": 4}
+]
+TEST_CUSTOM_FIELDS_RIP_RESULT2 = [
+    {"key": "field1", "value": 1},
+    {"key": "field2", "value": 2},
+    {"key": "field4", "value": 4}
+]
 
 class TestGroupModel(TestCase):
 
@@ -154,28 +190,28 @@ class TestGroupModel(TestCase):
         json.dumps(dictg2, default=app.flask.json_encoder().default)
 
     def test_custom_fields(self):
-        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields={ "field1": 1, "field2": 2 })
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields=TEST_CUSTOM_FIELDS_G1)
         g1.save()
-        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields={ "field2": "overriden 2", "field3": 3})
+        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields=TEST_CUSTOM_FIELDS_G2)
         g2.save()
         g1.add_child(g2)
-        self.assertDictEqual(g2.all_custom_fields, { "field1": 1, "field2": "overriden 2", "field3": 3})
+        self.assertItemsEqual(g2.all_custom_fields, TEST_CUSTOM_FIELDS_RESULT)
 
     def test_custom_fields_remove_intermediate_parent(self):
-        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields={ "field1": 1, "field2": 2 })
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields=TEST_CUSTOM_FIELDS_RIP_G1)
         g1.save()
-        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields={ "field2": "overriden 2", "field3": 3})
+        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields=TEST_CUSTOM_FIELDS_RIP_G2)
         g2.save()
         g1.add_child(g2)
-        g3 = TestGroup(name="g3", project_id=self.tproject._id, custom_fields={ "field4": 4 })
+        g3 = TestGroup(name="g3", project_id=self.tproject._id, custom_fields=TEST_CUSTOM_FIELDS_RIP_G3)
         g3.save()
         g2.add_child(g3)
-        self.assertDictEqual(g3.all_custom_fields, { "field1": 1, "field2": "overriden 2", "field3": 3, "field4": 4})
+        self.assertItemsEqual(g3.all_custom_fields, TEST_CUSTOM_FIELDS_RIP_RESULT1)
         g2.remove_all_children()
         g2.destroy()
-        self.assertDictEqual(g3.all_custom_fields, { "field4": 4 })
+        self.assertItemsEqual(g3.all_custom_fields, TEST_CUSTOM_FIELDS_RIP_G3)
         g1.add_child(g3)
-        self.assertDictEqual(g3.all_custom_fields, {'field1': 1, 'field2': 2, 'field4': 4})
+        self.assertItemsEqual(g3.all_custom_fields, TEST_CUSTOM_FIELDS_RIP_RESULT2)
 
     def test_invalid_tags(self):
         g1 = TestGroup(name="g1", project_id=self.tproject._id, tags="invalid tags")

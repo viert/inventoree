@@ -1,4 +1,4 @@
-from storable_model import StorableModel, InvalidTags, now
+from storable_model import StorableModel, InvalidTags, now, InvalidCustomFields
 from library.engine.utils import get_user_from_app_context
 
 class InvalidGroup(Exception):
@@ -40,7 +40,7 @@ class Host(StorableModel):
         "created_at": now,
         "updated_at": now,
         "tags": [],
-        "custom_fields": {}
+        "custom_fields": []
     }
 
     INDEXES = (
@@ -49,7 +49,7 @@ class Host(StorableModel):
         "group_id",
         "datacenter_id",
         "tags",
-        "custom_fields"
+        [ "custom_fields.key", "custom_fields.value" ]
     )
 
     __slots__ = FIELDS
@@ -64,6 +64,22 @@ class Host(StorableModel):
             raise InvalidDatacenter("Can not find datacenter with id %s" % self.datacenter_id)
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("Tags must be of array type")
+
+        # Custom fields validation
+        if type(self.custom_fields) is not list:
+            raise InvalidCustomFields("Custom fields must be of array type")
+        custom_keys = set()
+        for cf in self.custom_fields:
+            if type(cf) is not dict:
+                raise InvalidCustomFields("Custom field must be a dict")
+            if "key" not in cf or "value" not in cf:
+                raise InvalidCustomFields("Custom field must contain key and value fields")
+            else:
+                if cf["key"] in custom_keys:
+                    raise InvalidCustomFields("Key '%s' is provided more than once" % cf["key"])
+                else:
+                    custom_keys.add(cf["key"])
+
         if self.short_name is None:
             self._guess_short_name()
         self.touch()
@@ -159,11 +175,14 @@ class Host(StorableModel):
         if self.is_new or self.group is None:
             return self.custom_fields
 
-        # get parent custom fields
-        custom_fields = self.group.all_custom_fields.copy()
-        # override parent custom fields by local
-        # or add new ones
-        custom_fields.update(self.custom_fields)
+        cf_dict = {}
+        for cf in self.group.all_custom_fields:
+            cf_dict[cf["key"]] = cf["value"]
+        for cf in self.custom_fields:
+            cf_dict[cf["key"]] = cf["value"]
+        custom_fields = []
+        for k,v in cf_dict.items():
+            custom_fields.append({ "key": k, "value": v })
 
         return custom_fields
 

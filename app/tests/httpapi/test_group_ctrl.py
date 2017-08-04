@@ -14,15 +14,14 @@ class TestGroupCtrl(HttpApiTestCase):
             "project_id": self.project1._id,
             "tags": [ "meaw", "gang", "boo" ]
         }
-        with self.authenticated_client() as ac:
-            r = self.post_json(ac, "/api/v1/groups/", payload)
-            self.assertEqual(r.status_code, 201)
-            data = json.loads(r.data)
-            self.assertIn("data", data)
-            group = data["data"]
-            self.assertEqual(group["name"], payload["name"])
-            self.assertEqual(group["project_id"], str(payload["project_id"]))
-            self.assertItemsEqual(group["tags"], payload["tags"])
+        r = self.post_json("/api/v1/groups/", payload)
+        self.assertEqual(r.status_code, 201)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        group = data["data"]
+        self.assertEqual(group["name"], payload["name"])
+        self.assertEqual(group["project_id"], str(payload["project_id"]))
+        self.assertItemsEqual(group["tags"], payload["tags"])
 
     def test_update_group(self):
         self.test_create_group()
@@ -32,28 +31,26 @@ class TestGroupCtrl(HttpApiTestCase):
             "name": "group2",
             "description": "my mega description"
         }
-        with self.authenticated_client() as ac:
-            r = self.put_json(ac, "/api/v1/groups/%s" % group._id, payload)
-            self.assertEqual(r.status_code, 200)
-            data = json.loads(r.data)
-            self.assertIn("data", data)
-            group = data["data"]
-            self.assertEqual(group["name"], payload["name"])
-            self.assertEqual(group["description"], payload["description"])
-            self.assertItemsEqual(group["tags"], payload["tags"])
+        r = self.put_json("/api/v1/groups/%s" % group._id, payload)
+        self.assertEqual(r.status_code, 200)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        group = data["data"]
+        self.assertEqual(group["name"], payload["name"])
+        self.assertEqual(group["description"], payload["description"])
+        self.assertItemsEqual(group["tags"], payload["tags"])
 
     def test_delete_group(self):
         self.test_create_group()
         group = Group.find_one({"name": "group1"})
-        with self.authenticated_client() as ac:
-            r = ac.delete("/api/v1/groups/%s" % group._id)
-            self.assertEqual(r.status_code, 200)
-            data = json.loads(r.data)
-            self.assertIn("data", data)
-            group_data = data["data"]
-            self.assertEqual(group_data["_id"], None)
-            group = Group.find_one({"_id": group._id})
-            self.assertIsNone(group)
+        r = self.delete("/api/v1/groups/%s" % group._id)
+        self.assertEqual(r.status_code, 200)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        group_data = data["data"]
+        self.assertEqual(group_data["_id"], None)
+        group = Group.find_one({"_id": group._id})
+        self.assertIsNone(group)
 
     def test_set_children(self):
         g1 = Group(name="g1", project_id=self.project1._id)
@@ -70,13 +67,12 @@ class TestGroupCtrl(HttpApiTestCase):
             "child_ids": child_ids
         }
 
-        with self.authenticated_client() as ac:
-            r = self.put_json(ac, "/api/v1/groups/%s/set_children" % g1._id, payload)
-            self.assertEqual(r.status_code, 200)
-            data = json.loads(r.data)
-            self.assertIn("data", data)
-            group_data = data["data"]
-            self.assertEqual(group_data["_id"], str(g1._id))
-            self.assertItemsEqual(group_data["child_ids"], child_ids)
-            g1 = Group.find_one({ "_id": g1._id })
-            self.assertItemsEqual([str(x) for x in g1.child_ids], child_ids)
+        r = self.put_json("/api/v1/groups/%s/set_children" % g1._id, payload)
+        self.assertEqual(r.status_code, 200)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        group_data = data["data"]
+        self.assertEqual(group_data["_id"], str(g1._id))
+        self.assertItemsEqual(group_data["child_ids"], child_ids)
+        g1 = Group.find_one({ "_id": g1._id })
+        self.assertItemsEqual([str(x) for x in g1.child_ids], child_ids)

@@ -47,7 +47,7 @@ def update(group_id):
     if group is None:
         return json_response({ "errors": ["Group not found"] }, 404)
     if not group.modification_allowed:
-        return json_exception({ "errors": ["You don't have permissions to modify this group"]}, 403)
+        return json_response({ "errors": ["You don't have permissions to modify this group"]}, 403)
     try:
         group.update(request.json)
     except Exception as e:
@@ -64,7 +64,7 @@ def set_children(group_id):
     if group is None:
         return json_response({ "errors": ["Group not found"] }, 404)
     if not group.modification_allowed:
-        return json_exception({ "errors": ["You don't have permissions to modify this group"]}, 403)
+        return json_response({ "errors": ["You don't have permissions to modify this group"]}, 403)
     orig = group.child_ids
     upd = request.json["child_ids"]
     try:
@@ -99,7 +99,7 @@ def set_hosts(group_id):
     if group is None:
         return json_response({ "errors": ["Group not found"] }, 404)
     if not group.modification_allowed:
-        return json_exception({ "errors": ["You don't have permissions to modify this group"]}, 403)
+        return json_response({ "errors": ["You don't have permissions to modify this group"]}, 403)
     orig = group.host_ids
     upd = request.json["host_ids"]
     try:
@@ -147,9 +147,9 @@ def create():
 
     project = Project.find_one({ "_id": group_attrs["project_id"]})
     if project is None:
-        return json_exception({ "errors": ["Project provided has not been found"]}, 403)
+        return json_response({ "errors": ["Project provided has not been found"]}, 404)
     if not project.modification_allowed:
-        return json_exception({ "errors": ["You don't have permissions to create groups in this project"]}, 403)
+        return json_response({ "errors": ["You don't have permissions to create groups in this project"]}, 403)
     group = Group(**group_attrs)
     try:
         group.save()
@@ -167,7 +167,7 @@ def delete(group_id):
     if group is None:
         return json_response({ "errors": ["Group not found"] }, 404)
     if not group.modification_allowed:
-        return json_exception({ "errors": ["You don't have permissions to modify this group"]}, 403)
+        return json_response({ "errors": ["You don't have permissions to modify this group"]}, 403)
     try:
         group.destroy()
     except Exception as e:

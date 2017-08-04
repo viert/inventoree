@@ -3,6 +3,31 @@ from app.tests.models.test_models import TestHost, TestGroup, TestDatacenter, Te
 from app.models.host import InvalidGroup, InvalidDatacenter, InvalidTags
 from pymongo.errors import DuplicateKeyError
 
+TEST_CUSTOM_FIELDS_G1 = [
+    { "key": "field1", "value": 1 },
+    { "key": "field2", "value": 2 }
+]
+TEST_CUSTOM_FIELDS_G2 = [
+    { "key": "field2", "value": "overriden 2" },
+    { "key": "field3", "value": 3 }
+]
+TEST_CUSTOM_FIELDS_H = [
+    { "key": "hostfield", "value": "hostvalue" },
+    { "key": "field3", "value": "host overriden 3"}
+]
+
+TEST_CUSTOM_FIELDS_RESULT1 = [
+    {"key": "field2", "value": "overriden 2"},
+    {"key": "hostfield", "value": "hostvalue"},
+    {"key": "field3", "value": "host overriden 3"}
+]
+TEST_CUSTOM_FIELDS_RESULT2 = [
+    {"key": "field1", "value": 1},
+    {"key": "field2", "value": "overriden 2"},
+    {"key": "hostfield", "value": "hostvalue"},
+    {"key": "field3", "value": "host overriden 3"}
+]
+
 class TestHostModel(TestCase):
 
     @classmethod
@@ -117,12 +142,12 @@ class TestHostModel(TestCase):
         self.assertItemsEqual(["tag1", "tag2", "tag3", "tag4"], h.all_tags)
 
     def test_custom_fields(self):
-        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields={ "field1": 1, "field2": 2 })
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields=TEST_CUSTOM_FIELDS_G1)
         g1.save()
-        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields={ "field2": "overriden 2", "field3": 3})
+        g2 = TestGroup(name="g2", project_id=self.tproject._id, custom_fields=TEST_CUSTOM_FIELDS_G2)
         g2.save()
-        h = TestHost(fqdn="host.example.com", group_id=g2._id, custom_fields={ "hostfield": "value" })
+        h = TestHost(fqdn="host.example.com", group_id=g2._id, custom_fields=TEST_CUSTOM_FIELDS_H)
         h.save()
-        self.assertDictEqual(h.all_custom_fields, { "field2": "overriden 2", "field3": 3, "hostfield": "value" })
+        self.assertItemsEqual(h.all_custom_fields, TEST_CUSTOM_FIELDS_RESULT1)
         g1.add_child(g2)
-        self.assertDictEqual(h.all_custom_fields, { "field1": 1, "field2": "overriden 2", "field3": 3, "hostfield": "value" })
+        self.assertItemsEqual(h.all_custom_fields, TEST_CUSTOM_FIELDS_RESULT2)

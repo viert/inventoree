@@ -14,9 +14,11 @@ class HttpApiTestCase(TestCase):
     def setUpClass(cls):
         cls.session = None
         User.destroy_all()
-        supervisor = User(username=HttpApiTestCase.SUPERVISOR["username"], password_raw=HttpApiTestCase.SUPERVISOR["password"])
+        supervisor = User(username=HttpApiTestCase.SUPERVISOR["username"], supervisor=True, password_raw=HttpApiTestCase.SUPERVISOR["password"])
         supervisor.save()
+        token = supervisor.get_auth_token()
         cls.supervisor = supervisor
+        cls.token = token.token
         cls.project1 = Project(name="Test Project 1", owner_id=supervisor._id)
         cls.project1.save()
 
@@ -27,33 +29,21 @@ class HttpApiTestCase(TestCase):
         Group.destroy_all()
         Host.destroy_all()
 
-    @staticmethod
-    def fake_client():
+    @property
+    def fake_client(self):
         return app.flask.test_client()
 
-    def extract_session(self, response):
-        if "Set-Cookie" in response.headers:
-            from Cookie import BaseCookie
-            cookie = BaseCookie()
-            cookie.load(response.headers["Set-Cookie"])
-            self.session = cookie["session"]
+    def get(self, url):
+        return self.fake_client.get(url, headers={ "X-Api-Auth-Token": self.token })
 
-    def authenticate(self):
-        with self.fake_client() as c:
-            r = c.post("/api/v1/account/authenticate", data=json.dumps(self.SUPERVISOR), headers={ "Content-Type": "application/json" })
-            self.extract_session(r)
+    def delete(self, url):
+        return self.fake_client.delete(url, headers={ "X-Api-Auth-Token": self.token })
 
-    def post_json(self, client, url, data):
+    def post_json(self, url, data):
         data = json.dumps(data, default=app.flask.json_encoder().default)
-        return client.post(url, data=data, headers={ "Content-Type": "application/json" })
+        return self.fake_client.post(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": self.token })
 
-    def put_json(self, client, url, data):
+    def put_json(self, url, data):
         data = json.dumps(data, default=app.flask.json_encoder().default)
-        return client.put(url, data=data, headers={ "Content-Type": "application/json" })
+        return self.fake_client.put(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": self.token })
 
-    def authenticated_client(self):
-        c = app.flask.test_client()
-        if self.session is None:
-            self.authenticate()
-        c.set_cookie("localhost", "session", self.session.value, httponly=self.session["httponly"], path=self.session["path"], expires=self.session["expires"])
-        return c

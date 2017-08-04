@@ -1,7 +1,8 @@
 from app.models.storable_model import StorableModel, \
     ParentDoesNotExist, ParentAlreadyExists,\
     ChildAlreadyExists, ChildDoesNotExist,\
-    ParentCycle, InvalidTags, now, save_required
+    ParentCycle, InvalidTags, now, InvalidCustomFields,\
+    save_required
 from bson.objectid import ObjectId
 
 
@@ -42,7 +43,7 @@ class Group(StorableModel):
         "parent_ids": [],
         "child_ids": [],
         "tags": [],
-        "custom_fields": {}
+        "custom_fields": []
     }
 
     REQUIRED_FIELDS = (
@@ -64,7 +65,7 @@ class Group(StorableModel):
         "child_ids",
         ["name", { "unique": True }],
         "tags",
-        "custom_fields"
+        ["custom_fields.key", "custom_fields.value"]
     )
 
     __slots__ = FIELDS
@@ -202,8 +203,24 @@ class Group(StorableModel):
         for child in self.children:
             if child.project_id != self.project_id:
                 raise InvalidProjectId("Group can not be in a different project than it's children")
-        if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
+        if type(self.tags) is not list:
             raise InvalidTags("Tags must be of array type")
+
+        # Custom fields validation
+        if type(self.custom_fields) is not list:
+            raise InvalidCustomFields("Custom fields must be of array type")
+        custom_keys = set()
+        for cf in self.custom_fields:
+            if type(cf) is not dict:
+                raise InvalidCustomFields("Custom field must be a dict")
+            if "key" not in cf or "value" not in cf:
+                raise InvalidCustomFields("Custom field must contain key and value fields")
+            else:
+                if cf["key"] in custom_keys:
+                    raise InvalidCustomFields("Key '%s' is provided more than once" % cf["key"])
+                else:
+                    custom_keys.add(cf["key"])
+
         if not self.is_new:
             self.touch()
 
@@ -224,20 +241,15 @@ class Group(StorableModel):
 
     @property
     def all_custom_fields(self):
-        # this handler can be a bit heavy.
-        # should check if building parent tree into a flat array could do the trick
-
-        if len(self.parent_ids) == 0:
-            return self.custom_fields
-
-        custom_fields = {}
-        # merging custom fields from all the parents
+        cf_dict = {}
         for parent in self.parents:
-            custom_fields.update(parent.all_custom_fields)
-
-        # merging results with local custom_fields
-        custom_fields.update(self.custom_fields)
-
+            for cf in parent.all_custom_fields:
+                cf_dict[cf["key"]] = cf["value"]
+        for cf in self.custom_fields:
+            cf_dict[cf["key"]] = cf["value"]
+        custom_fields = []
+        for k, v in cf_dict.items():
+            custom_fields.append({ "key": k, "value": v })
         return custom_fields
 
     @property
