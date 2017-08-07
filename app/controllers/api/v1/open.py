@@ -69,3 +69,51 @@ def version():
     results["endpoints"] = app.config.http["ROUTES"]
 
     return json_response({ "conductor_info": results })
+
+def _get_hosts(group_names=None, tags=None):
+    from app.models import Group
+    if group_names is None:
+        tag_query = [{ "tags": x } for x in tags]
+        groups = Group.find({ "$or": tag_query })
+    else:
+        groups = Group.find({"name": {"$in": group_names}})
+
+    all_hosts = set()
+    for group in groups:
+        all_hosts = all_hosts.union(group.all_hosts.all())
+
+    if tags is not None:
+        hosts = []
+        for host in all_hosts:
+            for tag in tags:
+                if tag in host.all_tags:
+                    hosts.append(host)
+    else:
+        hosts = list(all_hosts)
+
+    return hosts
+
+
+@open_ctrl.route("/resolve_hosts")
+def resolve():
+    from app.models import Host
+    if "groups" not in request.values and "tags" not in request.values:
+        return json_response({ "errors": ["You must provide groups and/or tags to search with"] })
+
+    if "groups" in request.values:
+        group_names = request.values["groups"].split(",")
+    else:
+        group_names = None
+
+    if "tags" in request.values:
+        tags = request.values["tags"].split(",")
+    else:
+        tags = None
+
+    if "fields" in request.values:
+        fields = request.values["fields"].split(",")
+    else:
+        fields = list(Host.FIELDS) + ["all_tags"]
+
+    hosts = _get_hosts(group_names, tags)
+    return json_response({ "data": cursor_to_list(hosts,fields) })

@@ -57,6 +57,10 @@ class Host(StorableModel):
     def touch(self):
         self.updated_at = now()
 
+
+    def __hash__(self):
+        return hash(self.fqdn + "." + str(self._id))
+
     def _before_save(self):
         if self.group_id is not None and self.group is None:
             raise InvalidGroup("Can not find group with id %s" % self.group_id)
