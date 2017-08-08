@@ -137,17 +137,28 @@ def set_hosts(group_id):
 @groups_ctrl.route("/", methods=["POST"])
 def create():
     from app.models import Group, Project
-    group_attrs = dict([x for x in request.json.items() if x[0] in Group.FIELDS])
-    if "project_id" not in group_attrs or group_attrs["project_id"] is None:
-        return json_response({ "errors": [ "No project provided for the group" ] }, 400)
-    try:
-        group_attrs["project_id"] = ObjectId(group_attrs["project_id"])
-    except InvalidId as e:
-        return json_response({ "errors": [ "Invalid project_id provided" ] }, 400)
 
-    project = Project.find_one({ "_id": group_attrs["project_id"]})
-    if project is None:
-        return json_response({ "errors": ["Project provided has not been found"]}, 404)
+    group_attrs = request.json.copy()
+    if "project_id" not in group_attrs:
+        if "project_name" in group_attrs:
+            project = Project.find_one({ "name": group_attrs["project_name"] })
+            if project is not None:
+                group_attrs["project_id"] = project._id
+                del(group_attrs["project_name"])
+            else:
+                return json_response({"errors": ["Project provided has not been found"]}, 404)
+        else:
+            return json_response({"errors": ["No project provided for the group"]}, 400)
+    else:
+        try:
+            group_attrs["project_id"] = ObjectId(group_attrs["project_id"])
+        except InvalidId:
+            return json_response({"errors": ["Invalid project_id provided"]}, 400)
+        project = Project.find_one({ "_id": group_attrs["project_id"]})
+        if project is None:
+            return json_response({ "errors": ["Project provided has not been found"]}, 404)
+
+    group_attrs = dict([x for x in group_attrs.items() if x[0] in Group.FIELDS])
     if not project.modification_allowed:
         return json_response({ "errors": ["You don't have permissions to create groups in this project"]}, 403)
     group = Group(**group_attrs)

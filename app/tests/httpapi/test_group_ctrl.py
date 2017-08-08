@@ -23,6 +23,21 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertEqual(group["project_id"], str(payload["project_id"]))
         self.assertItemsEqual(group["tags"], payload["tags"])
 
+    def test_create_group_with_project_name(self):
+        payload = {
+            "name": "group1",
+            "project_name": self.project1.name,
+            "tags": [ "meaw", "gang", "boo" ]
+        }
+        r = self.post_json("/api/v1/groups/", payload)
+        self.assertEqual(r.status_code, 201)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        group = data["data"]
+        self.assertEqual(group["name"], payload["name"])
+        self.assertEqual(group["project_id"], str(self.project1._id))
+        self.assertItemsEqual(group["tags"], payload["tags"])
+
     def test_update_group(self):
         self.test_create_group()
         group = Group.find_one({"name": "group1"})
