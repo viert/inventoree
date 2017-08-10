@@ -95,14 +95,16 @@ def update(host_id):
     from app.models import Host
     hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
-    try:
-        hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
-    except InvalidId:
-        hosts_attrs["group_id"] = None
-    try:
-        hosts_attrs["datacenter_id"] = ObjectId(hosts_attrs["datacenter_id"])
-    except InvalidId:
-        hosts_attrs["datacenter_id"] = None
+    if hosts_attrs["group_id"] is not None:
+        try:
+            hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
+        except InvalidId:
+            hosts_attrs["group_id"] = None
+    if hosts_attrs["datacenter_id"] is not None:
+        try:
+            hosts_attrs["datacenter_id"] = ObjectId(hosts_attrs["datacenter_id"])
+        except InvalidId:
+            hosts_attrs["datacenter_id"] = None
 
     try:
         host.update(hosts_attrs)
