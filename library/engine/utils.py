@@ -40,6 +40,11 @@ def get_modules(directory):
 
 
 def resolve_id(id):
+    # ObjectId(None) apparently generates a new unique object id
+    # which is not a behaviour we need
+    if id is None:
+        return None
+
     try:
         id = ObjectId(id)
     except InvalidId:
