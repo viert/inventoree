@@ -184,3 +184,58 @@ def delete(group_id):
     except Exception as e:
         return json_exception(e, 500)
     return json_response({ "data": group.to_dict() })
+
+@groups_ctrl.route("/mass_move", methods=["POST"])
+def mass_move():
+    # every group requested will move to the indicated project with all its' children
+    # group will be detached from all its' parents due to not being able to have
+    # relations between different projects
+
+    if "project_id" not in request.json or request.json["project_id"] is None:
+        return json_response({ "errors": ["No project provided to move to"] }, 400)
+    if "group_ids" not in request.json or request.json["group_ids"] is None:
+        return json_response({ "errors": ["No group ids provided"]}, 400)
+    if type(request.json["group_ids"]) != list:
+        return json_response({ "errors": ["group_ids must be an array type"]}, 400)
+
+    from app.models import Group, Project
+
+    # resolving Project
+    project_id = resolve_id(request.json["project_id"])
+    project = Project.find_one({ "_id": project_id })
+    if project is None:
+        return json_response({ "errors": ["Project not found"]}, 404)
+
+    # resolving Groups and their children
+    group_ids = [resolve_id(x) for x in request.json["group_ids"]]
+    group_ids = set([x for x in group_ids if x is not None])
+    groups = Group.find({ "_id": { "$in": list(group_ids) }})
+    groups = [g for g in groups if g.project_id != project._id] # don't affect groups already in the project
+
+    if len(groups) == 0:
+        return json_response({ "errors": ["No groups found to be moved"]}, 404)
+
+    all_groups = set()
+    for group in groups:
+        all_groups.add(group)
+        for child in group.get_all_children():
+            all_groups.add(child)
+
+    # detaching high level groups from parents
+    for group in groups:
+        group.remove_all_parents()
+
+    # moving all groups and their children to the new project
+    for group in all_groups:
+        group.project_id = project._id
+        group.save(skip_callback=True)
+
+    result = {
+        "status": "ok",
+        "data": {
+            "project": project.to_dict(),
+            "groups": [x.to_dict() for x in all_groups]
+        }
+    }
+
+    return json_response(result)

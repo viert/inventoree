@@ -21,6 +21,8 @@ class HttpApiTestCase(TestCase):
         cls.token = token.token
         cls.project1 = Project(name="Test Project 1", owner_id=supervisor._id)
         cls.project1.save()
+        cls.project2 = Project(name="Test Project 2", owner_id=supervisor._id)
+        cls.project2.save()
 
     @classmethod
     def tearDownClass(cls):

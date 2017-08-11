@@ -70,6 +70,9 @@ class Group(StorableModel):
 
     __slots__ = FIELDS
 
+    def __hash__(self):
+        return hash(self.name + "." + str(self._id))
+
     @classmethod
     def _resolve_group(cls, group):
         # gets group or group_id or str with group_id
@@ -146,6 +149,14 @@ class Group(StorableModel):
             child.save()
         self.save()
 
+    @save_required
+    def remove_all_parents(self):
+        for parent in self.parents:
+            self.parent_ids.remove(parent._id)
+            parent.child_ids.remove(self._id)
+            parent.save()
+        self.save()
+
     @property
     def hosts(self):
         return self.host_class.find({ "group_id": self._id })
@@ -194,7 +205,11 @@ class Group(StorableModel):
     def touch(self):
         self.updated_at = now()
 
-    def _before_save(self):
+    def _check_tags(self):
+        if type(self.tags) is not list:
+            raise InvalidTags("Tags must be of array type")
+
+    def _check_project_ids(self):
         if self.project_id is not None and self.project is None:
             raise InvalidProjectId("Project with id %s doesn't exist" % self.project_id)
         for parent in self.parents:
@@ -203,9 +218,8 @@ class Group(StorableModel):
         for child in self.children:
             if child.project_id != self.project_id:
                 raise InvalidProjectId("Group can not be in a different project than it's children")
-        if type(self.tags) is not list:
-            raise InvalidTags("Tags must be of array type")
 
+    def _check_custom_fields(self):
         # Custom fields validation
         if type(self.custom_fields) is not list:
             raise InvalidCustomFields("Custom fields must be of array type")
@@ -221,6 +235,10 @@ class Group(StorableModel):
                 else:
                     custom_keys.add(cf["key"])
 
+    def _before_save(self):
+        self._check_project_ids()
+        self._check_tags()
+        self._check_custom_fields()
         if not self.is_new:
             self.touch()
 

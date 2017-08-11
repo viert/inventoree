@@ -1,7 +1,7 @@
 from httpapi_testcase import HttpApiTestCase
 from flask import json
 from app.models import Group
-
+from bson.objectid import ObjectId
 
 class TestGroupCtrl(HttpApiTestCase):
 
@@ -91,3 +91,69 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertItemsEqual(group_data["child_ids"], child_ids)
         g1 = Group.find_one({ "_id": g1._id })
         self.assertItemsEqual([str(x) for x in g1.child_ids], child_ids)
+
+
+    def test_mass_move(self):
+        g1 = Group(name="g1", project_id=self.project1._id)
+        g1.save()
+        g2 = Group(name="g2", project_id=self.project1._id)
+        g2.save()
+        g3 = Group(name="g3", project_id=self.project1._id)
+        g3.save()
+        g4 = Group(name="g4", project_id=self.project1._id)
+        g4.save()
+
+        g1.add_child(g2)
+        g2.add_child(g3)
+        g3.add_child(g4)
+
+        # 400, no group_ids given
+        r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(self.project2._id) })
+        self.assertEqual(r.status_code, 400)
+
+        # 400, no project_id given
+        r = self.post_json("/api/v1/groups/mass_move", { "group_ids": [str(g2._id)] })
+        self.assertEqual(r.status_code, 400)
+
+        # 400, invalid group_ids type
+        r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(self.project2._id), "group_ids": str(g2._id) })
+        self.assertEqual(r.status_code, 400)
+
+        # group is already in the project - 404, no group suitable for moving found
+        r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(self.project1._id), "group_ids": [str(g2._id)] })
+        self.assertEqual(r.status_code, 404)
+
+        # no project found
+        r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(ObjectId()), "group_ids": [str(g2._id)] })
+        self.assertEqual(r.status_code, 404)
+
+        # real case
+        payload = {
+            "group_ids": [str(g2._id)],
+            "project_id": str(self.project2._id)
+        }
+
+        r = self.post_json("/api/v1/groups/mass_move", payload)
+        self.assertEqual(r.status_code, 200)
+
+        # reload groups
+        g1 = Group.find_one({ "_id": g1._id })
+        g2 = Group.find_one({ "_id": g2._id })
+        g3 = Group.find_one({ "_id": g3._id })
+        g4 = Group.find_one({ "_id": g4._id })
+
+        # group 1 should have remained in project1
+        self.assertEqual(g1.project_id, self.project1._id)
+
+        # groups 2, 3, 4 should have been moved to project2
+        self.assertEqual(g2.project_id, self.project2._id)
+        self.assertEqual(g3.project_id, self.project2._id)
+        self.assertEqual(g4.project_id, self.project2._id)
+
+        # group 2 should have been detached from g1
+        self.assertItemsEqual([], g2.parent_ids)
+        self.assertItemsEqual([], g1.child_ids)
+
+        # groups 3, 4 should have kept its' parents
+        self.assertItemsEqual([g2._id], g3.parent_ids)
+        self.assertItemsEqual([g3._id], g4.parent_ids)
