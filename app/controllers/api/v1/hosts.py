@@ -132,3 +132,44 @@ def delete(host_id):
     except Exception as e:
         return json_exception(e, 500)
     return json_response({ "data": host.to_dict() })
+
+
+@hosts_ctrl.route("/mass_move", methods=["POST"])
+def mass_move():
+    if "host_ids" not in request.json or request.json["host_ids"] is None:
+        return json_response({ "errors": ["No host_ids provided"]}, 400)
+    if "group_id" not in request.json or request.json["group_id"] is None:
+        return json_response({ "errors": ["No group_id provided"]}, 400)
+    if type(request.json["host_ids"]) != list:
+        return json_response({ "errors": ["host_ids must be an array type"]}, 400)
+
+    from app.models import Host, Group
+
+    # resolving group
+    group_id = resolve_id(request.json["group_id"])
+    group = Group.find_one({ "_id": group_id })
+    if group is None:
+        return json_response({ "errors": ["Group not found"] }, 404)
+
+    # resolving hosts
+    host_ids = [resolve_id(x) for x in request.json["host_ids"]]
+    host_ids = set([x for x in host_ids if x is not None])
+    hosts = Host.find({"_id":{"$in": host_ids}})
+    hosts = [h for h in hosts if h is not None and h.group_id != group._id]
+    if len(hosts) == 0:
+        return json_response({"errors":["No hosts found to be moved"]}, 404)
+
+    # moving hosts
+    for host in hosts:
+        host.group_id = group._id
+        host.save()
+
+    result = {
+        "status": "ok",
+        "data": {
+            "group": group.to_dict(),
+            "hosts": [host.to_dict() for host in hosts]
+        }
+    }
+
+    return json_response(result)

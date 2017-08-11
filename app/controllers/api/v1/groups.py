@@ -210,7 +210,7 @@ def mass_move():
     group_ids = [resolve_id(x) for x in request.json["group_ids"]]
     group_ids = set([x for x in group_ids if x is not None])
     groups = Group.find({ "_id": { "$in": list(group_ids) }})
-    groups = [g for g in groups if g.project_id != project._id] # don't affect groups already in the project
+    groups = [g for g in groups if g is not None and g.project_id != project._id] # don't affect groups already in the project
 
     if len(groups) == 0:
         return json_response({ "errors": ["No groups found to be moved"]}, 404)
