@@ -83,3 +83,11 @@ a {
 .selection-actions {
     margin-top: 40px;
 }
+
+ul.list-bold-no-style {
+    list-style: none
+}
+
+ul.list-bold-no-style li {
+    font-weight: bold;
+}

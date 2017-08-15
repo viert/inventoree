@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Axios from 'axios'
+import AlertStore from '../../library/AlertBox'
 
 import ListPageHeader from '../common/ListPageHeader'
 import GroupListTable from './GroupListTable'
@@ -34,6 +35,13 @@ export default class GroupList extends Component {
             });
         })
         .catch(HttpErrorHandler)
+    }
+
+    resetSelectedGroups() {
+        this.setState({
+            selectedGroupsMap: {},
+            selectedGroupsCount: 0
+        })
     }
 
     componentDidMount() {
@@ -85,7 +93,32 @@ export default class GroupList extends Component {
     }
 
     massMove(project) {
-        console.log("massMove", project)
+        const payload = {
+            project_id: project._id,
+            group_ids: Object.keys(this.state.selectedGroupsMap)
+        }
+        Axios.post("/api/v1/groups/mass_move", payload)
+            .then((response) => {
+                let { project, groups } = response.data.data
+                let project_name = project.name
+                let group_names = groups.map(group => group.name)
+                AlertStore.Info(
+                    <div>
+                        <div>Successfully moved groups:</div>
+                        <ul className="list-bold-no-style">
+                        {
+                            group_names.map(
+                                name => <li key={name}>{name}</li>
+                            )
+                        }
+                        </ul>
+                        <div>to project <b>{project_name}</b></div>
+                    </div>
+                )
+                this.loadData(this.page, this.state.filter)
+                this.resetSelectedGroups()
+            })
+            .catch(HttpErrorHandler)
     }
 
     render() {
