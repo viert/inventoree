@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
 import Axios from 'axios'
 import HttpErrorHandler from '../../../library/HttpErrorHandler'
 import AlertStore from '../../../library/AlertBox'
@@ -112,7 +113,14 @@ export default class GroupEditor extends Component {
             {
                 this.state.isLoading ? <Loading /> :
                 <div className="max">
-                    <h2>{this.state.title}</h2>
+                    <div className="listpage-header">
+                        <h2>{this.state.title}</h2>
+                        { this.state.isNew ? "" : 
+                            <div className="listpage-header_buttons">
+                                <Link to="/groups/new" className="btn btn-success">New Group</Link>
+                            </div>
+                        }
+                    </div>
                     <div className="row">
                         <div className="col-sm-5">
                             <GroupForm 
