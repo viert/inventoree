@@ -6,6 +6,7 @@ from app.tests.models.test_storable_model import TestStorableModel
 
 from app.tests.httpapi.test_account_ctrl import TestAccountCtrl
 from app.tests.httpapi.test_group_ctrl import TestGroupCtrl
+from app.tests.httpapi.test_host_ctrl import TestHostCtrl
 
 from app.tests.utils.test_pbkdf2 import TestPBKDF2
 from app.tests.utils.test_diff import TestDiff
