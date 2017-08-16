@@ -81,7 +81,7 @@ def create():
 
     hosts = Host.find({"fqdn": {"$in": list(hostnames) }})
     data = paginated_data(hosts.sort("fqdn"))
-    return json_response(data)
+    return json_response(data, 201)
 
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
 def update(host_id):
@@ -95,12 +95,12 @@ def update(host_id):
     from app.models import Host
     hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
-    if hosts_attrs["group_id"] is not None:
+    if "group_id" in hosts_attrs and hosts_attrs["group_id"] is not None:
         try:
             hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
         except InvalidId:
             hosts_attrs["group_id"] = None
-    if hosts_attrs["datacenter_id"] is not None:
+    if "datacenter_id" in hosts_attrs and hosts_attrs["datacenter_id"] is not None:
         try:
             hosts_attrs["datacenter_id"] = ObjectId(hosts_attrs["datacenter_id"])
         except InvalidId:
