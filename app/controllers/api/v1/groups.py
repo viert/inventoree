@@ -239,3 +239,34 @@ def mass_move():
     }
 
     return json_response(result)
+
+@groups_ctrl.route("/mass_delete", methods=["POST"])
+def mass_delete():
+    if "group_ids" not in request.json or request.json["group_ids"] is None:
+        return json_response({ "errors": ["No group ids provided"]}, 400)
+    if type(request.json["group_ids"]) != list:
+        return json_response({ "errors": ["group_ids must be an array type"]}, 400)
+
+    from app.models import Group
+
+    # resolving Groups
+    group_ids = [resolve_id(x) for x in request.json["group_ids"]]
+    group_ids = set([x for x in group_ids if x is not None])
+    groups = Group.find({"_id": {"$in": list(group_ids)}})
+
+    if groups.count() == 0:
+        return json_response({"errors":["No groups found to be deleted"]})
+
+    groups = groups.all()
+
+    for group in groups:
+        group.remove_all_children()
+        group.destroy()
+
+    result = {
+        "status": "ok",
+        "data": {
+            "groups": [x.to_dict() for x in groups]
+        }
+    }
+    return json_response(result)

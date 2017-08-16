@@ -42,6 +42,22 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertEqual(payload["description"], host.description)
         self.assertItemsEqual(payload["tags"], host.tags)
 
+    def test_show_host(self):
+        h = Host(**TEST_HOST_1)
+        h.save()
+        r = self.get("/api/v1/hosts/%s" % h._id)
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        data = data["data"]
+        self.assertIs(list, type(data))
+        self.assertEqual(1, len(data))
+        host_attrs = data[0]
+        self.assertEqual(h.fqdn, host_attrs["fqdn"])
+        self.assertEqual(h.short_name, host_attrs["short_name"])
+        self.assertItemsEqual(h.tags, host_attrs["tags"])
+        self.assertEqual(h.description, host_attrs["description"])
+
     def test_update_host(self):
         self.test_create_host()
         host = Host.find_one({ "fqdn": TEST_HOST_1["fqdn"] })
@@ -64,3 +80,58 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertEqual(host_data["_id"], None)
         host = Host.find_one({"_id": host._id})
         self.assertIsNone(host)
+
+    def test_mass_delete(self):
+        from app.models import Group
+        g1 = Group(name="g1", project_id=self.project1._id)
+        g1.save()
+        h1 = Host(fqdn="host1", group_id=g1._id)
+        h1.save()
+        h2 = Host(fqdn="host2", group_id=g1._id)
+        h2.save()
+        h3 = Host(fqdn="host3", group_id=g1._id)
+        h3.save()
+        h4 = Host(fqdn="host4", group_id=g1._id)
+        h4.save()
+        r = self.post_json("/api/v1/hosts/mass_delete", { "host_ids": [str(h2._id), str(h3._id)]})
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        hosts_data = data["data"]
+        self.assertIn("hosts", hosts_data)
+        hosts_data = hosts_data["hosts"]
+        self.assertIs(list, type(hosts_data))
+        self.assertEqual(2, len(hosts_data))
+        deleted_hosts = Host.find({"_id":{"$in":[h2._id, h3._id]}})
+        self.assertEqual(0, deleted_hosts.count())
+        g1 = Group.find_one({"_id": g1._id})
+        self.assertItemsEqual([h1._id, h4._id], g1.host_ids)
+
+    def test_mass_move(self):
+        from app.models import Group
+        g1 = Group(name="g1", project_id=self.project1._id)
+        g1.save()
+        g2 = Group(name="g2", project_id=self.project1._id)
+        g2.save()
+        h1 = Host(fqdn="host1", group_id=g1._id)
+        h1.save()
+        h2 = Host(fqdn="host2", group_id=g1._id)
+        h2.save()
+        h3 = Host(fqdn="host3", group_id=g1._id)
+        h3.save()
+        h4 = Host(fqdn="host4", group_id=g1._id)
+        h4.save()
+        r = self.post_json("/api/v1/hosts/mass_move",
+                           { "host_ids": [str(h2._id), str(h3._id)], "group_id": str(g2._id)})
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        hosts_data = data["data"]
+        self.assertIn("hosts", hosts_data)
+        hosts_data = hosts_data["hosts"]
+        self.assertIs(list, type(hosts_data))
+        self.assertEqual(2, len(hosts_data))
+        g1 = Group.find_one({"_id": g1._id})
+        g2 = Group.find_one({"_id": g2._id})
+        self.assertItemsEqual([h1._id, h4._id], g1.host_ids)
+        self.assertItemsEqual([h2._id, h3._id], g2.host_ids)

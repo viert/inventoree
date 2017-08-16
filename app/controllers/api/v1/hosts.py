@@ -154,8 +154,8 @@ def mass_move():
     # resolving hosts
     host_ids = [resolve_id(x) for x in request.json["host_ids"]]
     host_ids = set([x for x in host_ids if x is not None])
-    hosts = Host.find({"_id":{"$in": host_ids}})
-    hosts = [h for h in hosts if h is not None and h.group_id != group._id]
+    hosts = Host.find({"_id":{"$in": list(host_ids)}})
+    hosts = [h for h in hosts if h.group_id != group._id]
     if len(hosts) == 0:
         return json_response({"errors":["No hosts found to be moved"]}, 404)
 
@@ -169,6 +169,37 @@ def mass_move():
         "data": {
             "group": group.to_dict(),
             "hosts": [host.to_dict() for host in hosts]
+        }
+    }
+
+    return json_response(result)
+
+@hosts_ctrl.route("/mass_delete", methods=["POST"])
+def mass_delete():
+    if "host_ids" not in request.json or request.json["host_ids"] is None:
+        return json_response({ "errors": ["No host ids provided"]}, 400)
+    if type(request.json["host_ids"]) != list:
+        return json_response({ "errors": ["host_ids must be an array type"]}, 400)
+
+    from app.models import Host
+
+    # resolving Groups
+    host_ids = [resolve_id(x) for x in request.json["host_ids"]]
+    host_ids = set([x for x in host_ids if x is not None])
+    hosts = Host.find({"_id": {"$in": list(host_ids)}})
+
+    if hosts.count() == 0:
+        return json_response({"errors":["No hosts found to be deleted"]})
+
+    hosts = hosts.all()
+
+    for host in hosts:
+        host.destroy()
+
+    result = {
+        "status": "ok",
+        "data": {
+            "hosts": [x.to_dict() for x in hosts]
         }
     }
 

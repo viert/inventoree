@@ -8,6 +8,26 @@ class TestGroupCtrl(HttpApiTestCase):
     def setUp(self):
         Group.destroy_all()
 
+    def test_show_group(self):
+        payload = {
+            "name": "group1",
+            "project_id": self.project1._id,
+            "tags": [ "meaw", "gang", "boo" ]
+        }
+        g = Group(**payload)
+        g.save()
+        r = self.get("/api/v1/groups/%s" % g._id)
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        data = data["data"]
+        self.assertIs(list, type(data))
+        self.assertEqual(1, len(data))
+        group_attrs = data[0]
+        self.assertEqual(group_attrs["name"], g.name)
+        self.assertItemsEqual(group_attrs["tags"], g.tags)
+        self.assertEqual(group_attrs["project_id"], str(g.project_id))
+
     def test_create_group(self):
         payload = {
             "name": "group1",
@@ -66,6 +86,29 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertEqual(group_data["_id"], None)
         group = Group.find_one({"_id": group._id})
         self.assertIsNone(group)
+
+    def test_mass_delete(self):
+        g1 = Group(name="g1", project_id=self.project1._id)
+        g1.save()
+        g2 = Group(name="g2", project_id=self.project1._id)
+        g2.save()
+        g3 = Group(name="g3", project_id=self.project1._id)
+        g3.save()
+        g4 = Group(name="g4", project_id=self.project1._id)
+        g4.save()
+        g1.add_child(g2)
+        g2.add_child(g3)
+        g3.add_child(g4)
+        group_ids = [str(g2._id), str(g3._id)]
+        r = self.post_json("/api/v1/groups/mass_delete", { "group_ids": group_ids })
+        self.assertEqual(200, r.status_code)
+        deleted_groups = Group.find({"_id": {"$in":[g2._id, g3._id]}})
+        self.assertEqual(0, deleted_groups.count())
+        g1 = Group.find_one({"_id":g1._id})
+        self.assertEqual(0, len(g1.child_ids))
+        g4 = Group.find_one({"_id":g4._id})
+        self.assertEqual(0, len(g4.parent_ids))
+
 
     def test_set_children(self):
         g1 = Group(name="g1", project_id=self.project1._id)
