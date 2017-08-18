@@ -3,25 +3,34 @@ from app.controllers.auth_controller import AuthController
 from library.engine.utils import json_response, cursor_to_list
 from library.engine.cache import cached_function
 
+EXECUTER_DATA_CACHE_TIMEOUT = 300 # 5 minutes
+
 open_ctrl = AuthController("open", __name__, require_auth=False)
 
-@cached_function(positive_only=True)
-def get_executer_data(query):
+@cached_function(positive_only=True, cache_timeout=EXECUTER_DATA_CACHE_TIMEOUT)
+def get_executer_data(query, recursive=False):
     from app.models import Project, Datacenter, Group, Host
+
+    host_fields = list(Host.FIELDS)
+    group_fields = list(Group.FIELDS)
+
+    if recursive:
+        host_fields += ["all_tags", "all_custom_fields"]
+        group_fields += ["all_tags", "all_custom_fields"]
+
     projects = Project.find(query)
     projects = cursor_to_list(projects)
     project_ids = [x["_id"] for x in projects]
 
     groups = Group.find({ "project_id": { "$in": project_ids }})
-    groups = cursor_to_list(groups)
+    groups = cursor_to_list(groups, fields=group_fields)
     group_ids = [x["_id"] for x in groups]
 
     hosts = Host.find({ "group_id": { "$in": group_ids }})
-    hosts = cursor_to_list(hosts)
+    hosts = cursor_to_list(hosts, fields=host_fields)
 
     datacenters = Datacenter.find({})
     datacenters = cursor_to_list(datacenters)
-
     return {
         "datacenters": datacenters,
         "projects": projects,
@@ -37,11 +46,18 @@ def executer_data():
         project_names = [x for x in request.values["projects"].split(",") if x != ""]
         if len(project_names) > 0:
             query["name"] = { "$in": project_names }
-    results = get_executer_data(query)
+
+    recursive = False
+    if "recursive" in request.values:
+        recursive = request.values["recursive"].lower()
+        if recursive in ["1","yes","true"]:
+            recursive = True
+
+    results = get_executer_data(query, recursive)
     return json_response({ "data": results })
 
 @open_ctrl.route("/conductor")
-def version():
+def conductor():
     from app import app
 
     results = {
