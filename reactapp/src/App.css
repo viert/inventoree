@@ -70,6 +70,10 @@ a {
     min-height: 100%;
 }
 
+.screen-height {
+    height: 100vh;
+}
+
 .vertcenter {
     display: flex;
     justify-content: space-around;

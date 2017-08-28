@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import './Login.css'
+import { AlertBox } from '../../library/AlertBox'
 
 class Login extends Component {
 
@@ -40,6 +41,9 @@ class Login extends Component {
                             </form>
                         </div>
                     </div>
+                </div>
+                <div className="login-alertbox-wrapper">
+                    <AlertBox />
                 </div>
             </div>
         )

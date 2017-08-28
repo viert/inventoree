@@ -2,6 +2,7 @@
     height: 100vh;
     box-sizing: border-box;
     padding: 25vh 0;
+    position: relative;
 }
 
 .login-wrapper h3 {
@@ -19,4 +20,15 @@
     padding: 20px;
     box-sizing: border-box;
     border-radius: 4px;
+}
+
+.login-alertbox-wrapper {
+    position: absolute;
+    width: 100vw;
+    height: 130px;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 10px 40px;
+    top: 0;
+    left: 0;
 }

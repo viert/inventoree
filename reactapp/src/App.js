@@ -9,6 +9,7 @@ import Login from './components/Account/Login'
 import AlertStore from './library/AlertBox'
 import AuthState from './library/AuthState'
 import HttpErrorHandler from './library/HttpErrorHandler'
+import Loading from './components/common/Loading'
 import { observer } from 'mobx-react'
 
 
@@ -41,15 +42,19 @@ const App = observer(class App extends Component {
                 })
                 AlertStore.Notice("You're successfully logged in");
             })
-            .catch( (error) => {
-                console.log(error.response);
-            })
+            .catch(HttpErrorHandler)
     } 
 
     getRenderContent() {
         switch (AuthState.authState) {
             case 'authenticating':
-                return <div>Loading</div>
+                return (
+                    <div className="screen-height">
+                        <div className="max vertcenter">
+                            <Loading />
+                        </div>
+                    </div>
+                )
             case 'login':
                 return <Login onSubmit={this.userDataSubmit.bind(this)} />
             case 'authenticated':
