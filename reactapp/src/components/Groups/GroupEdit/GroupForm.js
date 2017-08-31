@@ -12,8 +12,15 @@ export default class GroupForm extends Component {
         let projectPicked = props.group.project._id ? true : false
         this.state = {
             group: props.group,
-            projectPicked
+            projectPicked,
         }
+    }
+
+    componentWillReceiveProps(props) {
+        console.log("GroupForm received props", props)
+        let projectPicked = props.group.project._id ? true : false
+        let { group } = props
+        this.setState({ group, projectPicked })
     }
 
     componentDidMount() {
@@ -121,6 +128,7 @@ export default class GroupForm extends Component {
                     <div className="col-sm-9">
                         <ProjectPicker
                                     value={this.state.group.project.name}
+                                    shouldClear={this.state.shouldClear}
                                     onDataPicked={this.handleProjectPicked.bind(this)}
                                     onDataClear={this.handleProjectClear.bind(this)}
                                     placeholder="Choose project" />

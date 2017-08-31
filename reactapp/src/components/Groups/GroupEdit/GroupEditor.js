@@ -17,12 +17,34 @@ export default class GroupEditor extends Component {
                 name: "",
                 description: "",
                 tags: [],
+                custom_fields: [],
                 project: {
                     name: ""
-                }
+                }                
             },
             isNew: true,
             isLoading: true
+        }
+    }
+
+    componentWillReceiveProps(props) {
+        let { id } = props.match.params
+        if (id && id === "new") {
+            console.log("changing to new")
+            this.setState({
+                group: {
+                    name: "",
+                    description: "",
+                    tags: [],
+                    custom_fields: [],
+                    project: {
+                        name: "",
+                        _id: null
+                    }                
+                },
+                title: "New Group",
+                isNew: true,
+            })
         }
     }
 

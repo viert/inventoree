@@ -43,13 +43,25 @@ def show(group_id=None):
 
 @groups_ctrl.route("/<group_id>", methods=["PUT"])
 def update(group_id):
+    from app.models import Project
     group = _get_group_by_id(group_id)
     if group is None:
         return json_response({ "errors": ["Group not found"] }, 404)
     if not group.modification_allowed:
         return json_response({ "errors": ["You don't have permissions to modify this group"]}, 403)
+    group_attrs = request.json.copy()
+    if "project_id" in group_attrs:
+        try:
+            project_id = group_attrs["project_id"]
+            project_id = ObjectId(project_id)
+        except InvalidId:
+            return json_response({"errors": ["Invalid project_id provided"]}, 400)
+        project = Project.find_one({"_id": project_id})
+        if project is None:
+            return json_response({"errors": ["Project provided has not been found"]}, 404)
+        group_attrs["project_id"] = project_id
     try:
-        group.update(request.json)
+        group.update(group_attrs)
     except Exception as e:
         return json_exception(e, 500)
     if "_fields" in request.values:

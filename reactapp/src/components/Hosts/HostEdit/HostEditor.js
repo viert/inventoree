@@ -16,6 +16,7 @@ export default class HostEditor extends Component {
                 fqdn: "",
                 short_name: "",
                 tags: [],
+                custom_fields: [],
                 group: {
                     name: ""
                 },

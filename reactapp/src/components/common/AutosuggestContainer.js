@@ -8,7 +8,18 @@ export default class AutosuggestContainer extends Component {
         super(props)
         this.state = {
             suggestions: [],
-            value: this.props.value
+            value: props.value
+        }
+        this.originalValue = props.value
+    }
+
+    componentWillReceiveProps(props) {
+        console.log("AutosuggestContainer receiving props", props)
+        if (props.value !== this.originalValue) {
+            this.originalValue = props.value
+            this.setState({
+                value: props.value
+            })
         }
     }
 
