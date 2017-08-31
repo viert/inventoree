@@ -17,7 +17,6 @@ export default class GroupForm extends Component {
     }
 
     componentWillReceiveProps(props) {
-        console.log("GroupForm received props", props)
         let projectPicked = props.group.project._id ? true : false
         let { group } = props
         this.setState({ group, projectPicked })

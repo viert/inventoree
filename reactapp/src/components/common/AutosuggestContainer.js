@@ -14,7 +14,6 @@ export default class AutosuggestContainer extends Component {
     }
 
     componentWillReceiveProps(props) {
-        console.log("AutosuggestContainer receiving props", props)
         if (props.value !== this.originalValue) {
             this.originalValue = props.value
             this.setState({
