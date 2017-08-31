@@ -29,7 +29,7 @@ export default class GroupEditor extends Component {
     componentDidMount() {
         let { id } = this.props.match.params
         if (id && id !== "new") {
-            Axios.get(`/api/v1/groups/${id}?_fields=children,name,description,project,tags,hosts`)
+            Axios.get(`/api/v1/groups/${id}?_fields=children,name,description,project,tags,custom_fields,hosts`)
                 .then( this.onDataLoaded.bind(this) )
                 .catch( error => {
                     HttpErrorHandler(error)

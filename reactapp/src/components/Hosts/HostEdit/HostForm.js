@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import '../../Form.css';
 import ConfirmButton from '../../common/ConfirmButton'
 import TagEditor from '../../common/TagEditor'
+import FieldsEditor from '../../common/FieldsEditor'
 import GroupPicker from '../../Groups/GroupEdit/GroupPicker'
 import DatacenterPicker from '../../Datacenters/DatacenterPicker'
 import { hasValidPatterns } from '../../common/Permutation'
@@ -118,6 +119,12 @@ export default class HostForm extends Component {
         })
     }
 
+    handleFieldsChanged(fields) {
+        let { host } = this.state
+        host.custom_fields = fields
+        this.setState({ host })
+    }
+
 
     render() {
         let { description } = this.state.host
@@ -149,17 +156,6 @@ export default class HostForm extends Component {
                         <input onChange={this.handleFieldChange.bind(this)} type="text" value={description} id="inputHostDesc" className="form-control" placeholder="Description" />
                     </div>
                 </div>
-                <div className="form-group">
-                    <label className="col-sm-3 control-label">
-                        Tags:
-                    </label>
-                    <div className="col-sm-9">
-                        <TagEditor 
-                                tags={this.state.host.tags}
-                                onAdd={this.addTag.bind(this)}
-                                onRemove={this.removeTag.bind(this)} />
-                    </div>
-                </div>
                 <div className={"form-group" + (this.state.groupPicked ? " has-success": "")}>
                     <label className="col-sm-3 control-label">
                         Group:
@@ -182,6 +178,27 @@ export default class HostForm extends Component {
                                     onDataPicked={this.handleDatacenterPicked.bind(this)}
                                     onDataClear={this.handleDatacenterClear.bind(this)}
                                     placeholder="Choose datacenter" />
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label className="col-sm-3 control-label">
+                        Tags:
+                    </label>
+                    <div className="col-sm-9">
+                        <TagEditor 
+                                tags={this.state.host.tags}
+                                onAdd={this.addTag.bind(this)}
+                                onRemove={this.removeTag.bind(this)} />
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label className="col-sm-3 control-label">
+                        Fields:
+                    </label>
+                    <div className="col-sm-9">
+                        <FieldsEditor
+                                fields={this.state.host.custom_fields.slice()}
+                                onChange={this.handleFieldsChanged.bind(this)} />
                     </div>
                 </div>
                 <div className="form-group">

@@ -32,7 +32,7 @@ export default class HostEditor extends Component {
     componentDidMount() {
         let { id } = this.props.match.params
         if (id && id !== "new") {
-            Axios.get(`/api/v1/hosts/${id}?_fields=fqdn,short_name,description,datacenter,group,datacenter_id,group_id,tags`)
+            Axios.get(`/api/v1/hosts/${id}?_fields=fqdn,short_name,description,datacenter,group,datacenter_id,group_id,tags,custom_fields`)
                 .then( this.onDataLoaded.bind(this) )
                 .catch( error => {
                     HttpErrorHandler(error)

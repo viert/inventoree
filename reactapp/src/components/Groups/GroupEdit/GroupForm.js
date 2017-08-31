@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import '../../Form.css';
 import ConfirmButton from '../../common/ConfirmButton'
 import TagEditor from '../../common/TagEditor'
+import FieldsEditor from '../../common/FieldsEditor'
 import ProjectPicker from './ProjectPicker'
 
 export default class GroupForm extends Component {
@@ -84,6 +85,14 @@ export default class GroupForm extends Component {
         })
     }
 
+    handleFieldsChanged(fields) {
+        let { group } = this.state
+        group.custom_fields = fields
+        this.setState({
+            group
+        })
+    }
+
 
     render() {
         return (
@@ -105,17 +114,6 @@ export default class GroupForm extends Component {
                         <input onChange={this.handleFieldChange.bind(this)} type="text" value={this.state.group.description} id="inputGroupDesc" className="form-control" placeholder="Description" />
                     </div>
                 </div>
-                <div className="form-group">
-                    <label className="col-sm-3 control-label">
-                        Tags:
-                    </label>
-                    <div className="col-sm-9">
-                        <TagEditor 
-                                tags={this.state.group.tags}
-                                onAdd={this.addTag.bind(this)}
-                                onRemove={this.removeTag.bind(this)} />
-                    </div>
-                </div>
                 <div className={"form-group" + (this.state.projectPicked ? " has-success": "")}>
                     <label className="col-sm-3 control-label">
                         Project:
@@ -128,6 +126,29 @@ export default class GroupForm extends Component {
                                     placeholder="Choose project" />
                     </div>
                 </div>
+
+                <div className="form-group">
+                    <label className="col-sm-3 control-label">
+                        Tags:
+                    </label>
+                    <div className="col-sm-9">
+                        <TagEditor 
+                                tags={this.state.group.tags}
+                                onAdd={this.addTag.bind(this)}
+                                onRemove={this.removeTag.bind(this)} />
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label className="col-sm-3 control-label">
+                        Fields:
+                    </label>
+                    <div className="col-sm-9">
+                        <FieldsEditor
+                                fields={this.state.group.custom_fields.slice()}
+                                onChange={this.handleFieldsChanged.bind(this)} />
+                    </div>
+                </div>
+
                 <div className="form-group">
                     <div className="col-sm-9 col-sm-offset-3 form-buttons">
                         <button type="submit" className="btn btn-primary">Save</button>
