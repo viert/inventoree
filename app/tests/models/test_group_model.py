@@ -4,40 +4,40 @@ from app.models.storable_model import FieldRequired, ParentCycle,\
     ChildAlreadyExists, ParentAlreadyExists, InvalidTags
 
 TEST_CUSTOM_FIELDS_G1 = [
-    { "key": "field1", "value": 1 },
-    { "key": "field2", "value": 2 }
+    { "key": "field1", "value": "1" },
+    { "key": "field2", "value": "2" }
 ]
 TEST_CUSTOM_FIELDS_G2 = [
     { "key": "field2", "value": "overriden 2" },
-    { "key": "field3", "value": 3 }
+    { "key": "field3", "value": "3" }
 ]
 TEST_CUSTOM_FIELDS_RESULT = [
-    {"key": "field1", "value": 1},
+    {"key": "field1", "value": "1"},
     {"key": "field2", "value": "overriden 2"},
-    {"key": "field3", "value": 3}
+    {"key": "field3", "value": "3"}
 ]
 
 TEST_CUSTOM_FIELDS_RIP_G1 = [
-    {"key": "field1", "value": 1},
-    {"key": "field2", "value": 2}
+    {"key": "field1", "value": "1"},
+    {"key": "field2", "value": "2"}
 ]
 TEST_CUSTOM_FIELDS_RIP_G2 = [
     { "key": "field2", "value": "overriden 2" },
-    { "key": "field3", "value": 3 }
+    { "key": "field3", "value": "3" }
 ]
 TEST_CUSTOM_FIELDS_RIP_G3 = [
-    { "key": "field4", "value": 4 }
+    { "key": "field4", "value": "4" }
 ]
 TEST_CUSTOM_FIELDS_RIP_RESULT1 = [
-    {"key": "field1", "value": 1},
+    {"key": "field1", "value": "1"},
     {"key": "field2", "value": "overriden 2"},
-    {"key": "field3", "value": 3},
-    {"key": "field4", "value": 4}
+    {"key": "field3", "value": "3"},
+    {"key": "field4", "value": "4"}
 ]
 TEST_CUSTOM_FIELDS_RIP_RESULT2 = [
-    {"key": "field1", "value": 1},
-    {"key": "field2", "value": 2},
-    {"key": "field4", "value": 4}
+    {"key": "field1", "value": "1"},
+    {"key": "field2", "value": "2"},
+    {"key": "field4", "value": "4"}
 ]
 
 class TestGroupModel(TestCase):
