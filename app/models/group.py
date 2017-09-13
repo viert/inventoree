@@ -254,6 +254,11 @@ class Group(StorableModel):
         for parent in self.parents[:]:
             self.remove_parent(parent)
 
+    def unattach_and_destroy(self, skip_callback=False):
+        self.remove_all_parents()
+        self.remove_all_children()
+        self.destroy(skip_callback)
+
     @property
     def all_tags(self):
         tags = set(self.tags)
