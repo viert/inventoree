@@ -2,4 +2,3 @@ pymongo
 flask
 coverage
 PyYAML
-ipython >= 5.0, < 6.0

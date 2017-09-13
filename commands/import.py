@@ -2,7 +2,6 @@ from commands import Command
 import sys
 import json
 from copy import copy
-from bson.objectid import ObjectId, InvalidId
 
 MODEL_PRIMARY_KEY_NAMES = {
     "host": "fqdn",
