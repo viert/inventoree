@@ -8,7 +8,7 @@ EXECUTER_DATA_CACHE_TIMEOUT = 300 # 5 minutes
 open_ctrl = AuthController("open", __name__, require_auth=False)
 
 @cached_function(positive_only=True, cache_timeout=EXECUTER_DATA_CACHE_TIMEOUT)
-def get_executer_data(query, recursive=False):
+def get_executer_data(query, recursive=False, include_unattached=False):
     from app.models import Project, Datacenter, Group, Host
 
     host_fields = list(Host.FIELDS)
@@ -26,7 +26,10 @@ def get_executer_data(query, recursive=False):
     groups = cursor_to_list(groups, fields=group_fields)
     group_ids = [x["_id"] for x in groups]
 
-    hosts = Host.find({ "group_id": { "$in": group_ids }})
+    if include_unattached:
+        hosts = Host.find({})
+    else:
+        hosts = Host.find({ "group_id": { "$in": group_ids }})
     hosts = cursor_to_list(hosts, fields=host_fields)
 
     datacenters = Datacenter.find({})
@@ -48,15 +51,25 @@ def executer_data():
             query["name"] = { "$in": project_names }
 
     recursive = False
+    include_unattached = False
     if "recursive" in request.values:
         recursive = request.values["recursive"].lower()
         if recursive in ["1","yes","true"]:
             recursive = True
+        else:
+            recursive = False
 
-    results = get_executer_data(query, recursive)
+    if "include_unattached" in request.values:
+        include_unattached = request.values["include_unattached"].lower()
+        if include_unattached in ["1", "yes", "true"]:
+            include_unattached = True
+        else:
+            include_unattached = False
+
+    results = get_executer_data(query, recursive, include_unattached)
     return json_response({ "data": results })
 
-@open_ctrl.route("/conductor")
+@open_ctrl.route("/app")
 def conductor():
     from app import app
 
