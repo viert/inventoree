@@ -75,7 +75,7 @@ export default class HostList extends Component {
                                 createButtonText="Add Host(s)" 
                                 createLink="/hosts/new" />
                 { 
-                    this.state.loading ? <Loading /> :
+                    this.state.loading ? <div className="max vertcenter"><Loading /></div> :
                         <HostListTable hosts={this.state.hosts} />
                 }
                 <Pagination className="text-center" current={this.state.currentPage} total={this.state.totalPages} onChangePage={this.handlePageChanged.bind(this)} />
