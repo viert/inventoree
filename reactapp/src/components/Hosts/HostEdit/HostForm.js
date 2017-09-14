@@ -39,9 +39,6 @@ export default class HostForm extends Component {
                     this.props.onClearPattern()
                 }
                 break
-            case "inputHostShortname":
-                host.short_name = e.target.value
-                break
             case "inputHostDesc":
                 host.description = e.target.value;
                 break
@@ -141,14 +138,6 @@ export default class HostForm extends Component {
                     </div>
                 </div>
                 <div className="form-group">
-                    <label htmlFor="inputHostShortname" className="col-sm-3 control-label">
-                        Short Name:
-                    </label>
-                    <div className="col-sm-9">
-                        <input onChange={this.handleFieldChange.bind(this)} type="text" value={this.state.host.short_name} id="inputHostShortname" className="form-control" placeholder="Host short name" />
-                    </div>
-                </div>
-                <div className="form-group">
                     <label htmlFor="inputHostDesc" className="col-sm-3 control-label">
                         Description:
                     </label>
@@ -216,7 +205,6 @@ HostForm.propTypes = {
     isNew: PropTypes.bool.isRequired,
     host: PropTypes.shape({
         fqdn: PropTypes.string,
-        short_name: PropTypes.string,
         description: PropTypes.string,
         tags: PropTypes.array
     }),

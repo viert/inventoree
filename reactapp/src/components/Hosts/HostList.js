@@ -10,7 +10,6 @@ import Loading from '../common/Loading'
 const HostFields = [
     "_id",
     "fqdn",
-    "short_name",
     "group_name",
     "datacenter_name",
     "description",

@@ -9,8 +9,6 @@ TEST_HOST_1 = {
     "tags": ["boo", "meow", "roar"]
 }
 
-TEST_HOST_1_SHORT_NAME = "host1"
-
 TEST_HOST_2 = {
     "fqdn": "host2.example.com",
     "description": "test host 2",
@@ -38,7 +36,6 @@ class TestHostCtrl(HttpApiTestCase):
         host = Host.find_one({"_id": ObjectId(host["_id"])})
         self.assertIsNotNone(host)
         self.assertEqual(payload["fqdn"], host.fqdn)
-        self.assertEqual(TEST_HOST_1_SHORT_NAME, host.short_name)
         self.assertEqual(payload["description"], host.description)
         self.assertItemsEqual(payload["tags"], host.tags)
 
@@ -54,7 +51,6 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertEqual(1, len(data))
         host_attrs = data[0]
         self.assertEqual(h.fqdn, host_attrs["fqdn"])
-        self.assertEqual(h.short_name, host_attrs["short_name"])
         self.assertItemsEqual(h.tags, host_attrs["tags"])
         self.assertEqual(h.description, host_attrs["description"])
 

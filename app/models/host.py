@@ -17,7 +17,6 @@ class Host(StorableModel):
     FIELDS = (
         "_id",
         "fqdn",
-        "short_name",
         "group_id",
         "datacenter_id",
         "description",
@@ -45,7 +44,6 @@ class Host(StorableModel):
 
     INDEXES = (
         [ "fqdn", { "unique": True } ],
-        [ "short_name", { "unique": True } ],
         "group_id",
         "datacenter_id",
         "tags",
@@ -88,17 +86,7 @@ class Host(StorableModel):
                 else:
                     custom_keys.add(cf["key"])
 
-        if self.short_name is None:
-            self._guess_short_name()
         self.touch()
-
-    def _guess_short_name(self):
-        short_name_domains = self.fqdn.split(".")[:-2]
-        if len(short_name_domains) == 0:
-            short_name = self.fqdn
-        else:
-            short_name = '.'.join(short_name_domains)
-        self.short_name = short_name
 
     @property
     def group(self):

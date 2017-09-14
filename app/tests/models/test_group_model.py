@@ -164,9 +164,9 @@ class TestGroupModel(TestCase):
         g2.save()
         g1.add_child(g2)
 
-        host1 = TestHost(fqdn="host1.example.com", short_name='host1', group_id=g1._id)
+        host1 = TestHost(fqdn="host1.example.com", group_id=g1._id)
         host1.save()
-        host2 = TestHost(fqdn="host2.example.com", short_name='host2', group_id=g2._id)
+        host2 = TestHost(fqdn="host2.example.com", group_id=g2._id)
         host2.save()
 
         self.assertItemsEqual([host1], g1.hosts)

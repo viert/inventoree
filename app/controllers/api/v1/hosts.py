@@ -37,10 +37,12 @@ def show(host_id=None):
         host_id = resolve_id(host_id)
         hosts = Host.find({ "$or": [
             { "_id": host_id },
-            { "fqdn": host_id },
-            { "short_name": host_id }
+            { "fqdn": host_id }
         ]})
-    data = paginated_data(hosts.sort("fqdn"))
+    try:
+        data = paginated_data(hosts.sort("fqdn"))
+    except AttributeError as e:
+        return json_exception(e, 500)
     return json_response(data)
 
 
@@ -80,7 +82,10 @@ def create():
             return json_exception(e, 500)
 
     hosts = Host.find({"fqdn": {"$in": list(hostnames) }})
-    data = paginated_data(hosts.sort("fqdn"))
+    try:
+        data = paginated_data(hosts.sort("fqdn"))
+    except AttributeError as e:
+        return json_exception(e, 500)
     return json_response(data, 201)
 
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
@@ -114,7 +119,12 @@ def update(host_id):
         fields = request.values["_fields"].split(",")
     else:
         fields = None
-    return json_response({ "data": host.to_dict(fields) })
+
+    try:
+        data = { "data": host.to_dict(fields) }
+    except AttributeError as e:
+        return json_exception(e, 500)
+    return json_response(data)
 
 
 @hosts_ctrl.route("/<host_id>", methods=["DELETE"])

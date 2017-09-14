@@ -82,40 +82,12 @@ class TestHostModel(TestCase):
         h = TestHost(fqdn="host.example.com", group_id=g._id, tags="invalid_tags")
         self.assertRaises(InvalidTags, h.save)
 
-    def test_short_name(self):
-        g = TestGroup(name="test_group", project_id=self.tproject._id)
-        g.save()
-
-        h = TestHost(fqdn="host.example.com", group_id=g._id)
-        h.save()
-        self.assertEqual(h.short_name, "host")
-
-        h = TestHost(fqdn="host.subdomain.example.com", group_id=g._id)
-        h.save()
-        self.assertEqual(h.short_name, "host.subdomain")
-
-        h = TestHost(fqdn="host.example", group_id=g._id)
-        h.save()
-        self.assertEqual(h.short_name, "host.example")
-
-        h = TestHost(fqdn="host2", group_id=g._id)
-        h.save()
-        self.assertEqual(h.short_name, "host2")
-
     def test_duplicate_fqdn(self):
         g = TestGroup(name="test_group", project_id=self.tproject._id)
         g.save()
         h = TestHost(fqdn="host.example.com", group_id=g._id)
         h.save()
         h = TestHost(fqdn="host.example.com", group_id=g._id)
-        self.assertRaises(DuplicateKeyError, h.save)
-
-    def test_duplicate_short_name(self):
-        g = TestGroup(name="test_group", project_id=self.tproject._id)
-        g.save()
-        h = TestHost(fqdn="host.example.com", group_id=g._id)
-        h.save()
-        h = TestHost(fqdn="host.example2.info", group_id=g._id)
         self.assertRaises(DuplicateKeyError, h.save)
 
     def test_root_datacenter(self):

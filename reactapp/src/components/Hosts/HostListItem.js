@@ -25,7 +25,6 @@ HostListItem.propTypes = {
     host: PropTypes.shape({
         _id: PropTypes.string.isRequired,
         fqdn: PropTypes.string.isRequired,
-        short_name: PropTypes.string,
         group_name: PropTypes.string,
     })
 }

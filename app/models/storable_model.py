@@ -84,7 +84,8 @@ class StorableModel(object):
         if "_id" not in kwargs:
             self._id = None
         for field, value in kwargs.iteritems():
-            setattr(self, field, value)
+            if field in self.FIELDS:
+                setattr(self, field, value)
         for field in self.FIELDS:
             if field not in kwargs:
                 value = self.DEFAULTS.get(field)

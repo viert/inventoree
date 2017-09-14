@@ -39,8 +39,7 @@ def enc(host_id):
     host_id = resolve_id(host_id)
     host = Host.find_one({"$or": [
         {"_id": host_id},
-        {"fqdn": host_id},
-        {"short_name": host_id}
+        {"fqdn": host_id}
     ]})
     if host is None:
         return json_response({ "errors": [ "Host not found" ]}, 404)

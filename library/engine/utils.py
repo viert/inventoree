@@ -95,12 +95,12 @@ def paginated_data(data, page=None, limit=None, fields=None):
     if "_fields" in request.values:
         fields = request.values["_fields"].split(",")
 
-    try:
+    if hasattr(data, "count"):
         count = data.count()
         if limit is not None and page is not None:
             data = data.skip((page-1)*limit).limit(limit)
         data = cursor_to_list(data, fields=fields)
-    except AttributeError:
+    else:
         count = len(data)
         data = data[(page-1)*limit:page*limit]
 

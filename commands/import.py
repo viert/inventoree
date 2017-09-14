@@ -140,7 +140,7 @@ class Import(Command):
                 del(project["_id"])
                 del(project["created_at"])
                 del(project["updated_at"])
-                project["owner_id"] = User.find_one({})
+                project["owner_id"] = User.find_one({})._id
                 project["member_ids"] = []
                 new_project = Project(**project)
                 new_project.save()

@@ -14,7 +14,6 @@ export default class HostEditor extends Component {
             title: "Add Host(s)",
             host: {
                 fqdn: "",
-                short_name: "",
                 tags: [],
                 custom_fields: [],
                 group: {
@@ -33,7 +32,7 @@ export default class HostEditor extends Component {
     componentDidMount() {
         let { id } = this.props.match.params
         if (id && id !== "new") {
-            Axios.get(`/api/v1/hosts/${id}?_fields=fqdn,short_name,description,datacenter,group,datacenter_id,group_id,tags,custom_fields`)
+            Axios.get(`/api/v1/hosts/${id}?_fields=fqdn,description,datacenter,group,datacenter_id,group_id,tags,custom_fields`)
                 .then( this.onDataLoaded.bind(this) )
                 .catch( error => {
                     HttpErrorHandler(error)
@@ -62,7 +61,6 @@ export default class HostEditor extends Component {
         if (this.state.pattern !== null) {
             host.fqdn_pattern = this.state.pattern
             delete(host.fqdn)
-            delete(host.short_name)
         }
 
         let { id } = this.props.match.params
