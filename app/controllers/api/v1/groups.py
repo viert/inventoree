@@ -37,6 +37,9 @@ def show(group_id=None):
             { "_id": group_id },
             { "name": group_id }
         ]})
+        if groups.count() == 0:
+            return json_response({"errors": ["Group not found"]}, 404)
+
 
     data = paginated_data(groups.sort("name"))
     return json_response(data)

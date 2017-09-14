@@ -23,6 +23,8 @@ def show(project_id=None):
             { "_id": project_id },
             { "name": project_id }
         ] })
+        if projects.count() == 0:
+            return json_response({"errors":["Project not found"]}, 404)
     return json_response(paginated_data(projects.sort("name")))
 
 

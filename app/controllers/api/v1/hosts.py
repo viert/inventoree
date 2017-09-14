@@ -39,6 +39,8 @@ def show(host_id=None):
             { "_id": host_id },
             { "fqdn": host_id }
         ]})
+        if hosts.count() == 0:
+            return json_response({"errors": ["Host not found"]}, 404)
     try:
         data = paginated_data(hosts.sort("fqdn"))
     except AttributeError as e:
