@@ -49,7 +49,6 @@ class TestStorableModel(TestCase):
         TestModel.destroy_all()
 
     def test_init(self):
-        self.assertRaises(AttributeError, TestModel, nosuchfield='value')
         model = TestModel(field1='value')
         self.assertFalse(hasattr(model, '__dict__'), msg='StorableModel is not a slots class')
         self.assertEqual(model.field1, 'value')
