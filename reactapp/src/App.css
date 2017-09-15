@@ -95,3 +95,7 @@ ul.list-bold-no-style {
 ul.list-bold-no-style li {
     font-weight: bold;
 }
+
+.noselect {
+    user-select: none;
+}

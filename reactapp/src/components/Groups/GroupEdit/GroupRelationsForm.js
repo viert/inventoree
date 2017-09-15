@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import '../../Form.css'
 import './GroupRelationsForm.css'
 
-import ChildGroupItem from './ChildGroupItem'
-import ChildHostItem from './ChildHostItem'
+import ChildItem from './ChildItem'
 import GroupPicker from './GroupPicker'
 import HostPicker from './HostPicker'
 
@@ -18,8 +17,10 @@ export default class GroupRelationsForm extends Component {
         hosts.forEach( item => { item.removed = false })
         this.state = {
             children,
-            hosts
+            hosts,
+            disableSelect: false
         }
+        this.timeout = null
     }
 
     componentWillReceiveProps(props) {
@@ -84,6 +85,21 @@ export default class GroupRelationsForm extends Component {
         this.props.onSubmitData(child_ids, host_ids)
     }
 
+    onTriggerMouseEnter(e) {
+        if (this.timeout) {
+            clearTimeout(this.timeout)
+            this.timeout = null
+        }
+        this.setState({ disableSelect: true })
+    }
+
+    onTriggerMouseLeave(e) {
+        this.timeout = setTimeout(
+            this.setState.bind(this, { disableSelect: false }),
+            50
+        )
+    }
+
     render() {
         return (
             <form className="object-form form-horizontal" onSubmit={preventSubmit}>
@@ -99,9 +115,17 @@ export default class GroupRelationsForm extends Component {
                                     onDataPicked={this.groupAddPicked.bind(this)} />
                                 <div className="children-list">
                                     <h5>Children</h5>
-                                {
-                                    this.state.children.map( child => <ChildGroupItem onRemoveTrigger={this.handleGroupRemoveTrigger.bind(this)} key={child._id} group={child} />)
-                                }
+                                    {
+                                    this.state.children.map( child => 
+                                        <ChildItem 
+                                            key={child._id}
+                                            onRemoveTrigger={this.handleGroupRemoveTrigger.bind(this, child)} 
+                                            text={child.name}
+                                            removed={child.removed}
+                                            disableSelect={this.state.disableSelect}
+                                            onMouseEnter={this.onTriggerMouseEnter.bind(this)}
+                                            onMouseLeave={this.onTriggerMouseLeave.bind(this)} /> )
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -117,9 +141,17 @@ export default class GroupRelationsForm extends Component {
                                     onDataPicked={this.hostAddPicked.bind(this)} />
                                 <div className="children-list">
                                     <h5>Hosts</h5>
-                                {
-                                    this.state.hosts.map( host => <ChildHostItem onRemoveTrigger={this.handleHostRemoveTrigger.bind(this)} key={host._id} host={host} />)
-                                }
+                                    {
+                                    this.state.hosts.map( host =>
+                                        <ChildItem
+                                            key={host._id}
+                                            onRemoveTrigger={this.handleHostRemoveTrigger.bind(this, host)}
+                                            text={host.fqdn}
+                                            removed={host.removed}
+                                            disableSelect={this.state.disableSelect}
+                                            onMouseEnter={this.onTriggerMouseEnter.bind(this)}
+                                            onMouseLeave={this.onTriggerMouseLeave.bind(this)} /> )
+                                    }
                                 </div>
                             </div>
                         </div>
