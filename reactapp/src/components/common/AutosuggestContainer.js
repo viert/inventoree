@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import Autosuggest from 'react-autosuggest'
 import './AutosuggestContainer.css'
 
+const KEYCODE_ENTER = 13
+
 export default class AutosuggestContainer extends Component {
     constructor(props) {
         super(props)
@@ -74,6 +76,12 @@ export default class AutosuggestContainer extends Component {
         )
     }
 
+    onKeyDown(e) {
+        if (e.keyCode === KEYCODE_ENTER) {
+            e.preventDefault()
+        }
+    }
+
     render() {
         const { value, suggestions } = this.state
         const inputProps = {
@@ -81,6 +89,7 @@ export default class AutosuggestContainer extends Component {
             id: 'inputDatacenterParent',
             className: 'form-control',
             value,
+            onKeyDown: this.onKeyDown,
             onChange: this.handleChange.bind(this),
             onBlur: this.handleBlur.bind(this)
         }
