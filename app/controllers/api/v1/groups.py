@@ -237,6 +237,9 @@ def mass_move():
             all_groups.add(child)
 
     # detaching high level groups from parents
+    # TODO: fix algorithm, if we move group and it's child to a new project
+    # we don't have to detach children from it's parent, this is to be resolved
+    # properly
     for group in groups:
         group.remove_all_parents()
 
