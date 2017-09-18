@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Axios from 'axios'
 import HttpErrorHandler from '../../../library/HttpErrorHandler'
+import Api from '../../../library/Api'
 import AlertStore from '../../../library/AlertBox'
 import Loading from '../../common/Loading'
 
@@ -10,6 +11,8 @@ import MultipleHosts from './MultipleHosts'
 export default class HostEditor extends Component {
     constructor(props) {
         super(props)
+        const { EditorFields } = Api.Hosts
+        this.editorFields = EditorFields.join(",")
         this.state = {
             title: "Add Host(s)",
             host: {
@@ -32,7 +35,7 @@ export default class HostEditor extends Component {
     componentDidMount() {
         let { id } = this.props.match.params
         if (id && id !== "new") {
-            Axios.get(`/api/v1/hosts/${id}?_fields=fqdn,description,datacenter,group,datacenter_id,group_id,tags,custom_fields`)
+            Axios.get(`/api/v1/hosts/${id}?_fields=${this.editorFields}`)
                 .then( this.onDataLoaded.bind(this) )
                 .catch( error => {
                     HttpErrorHandler(error)

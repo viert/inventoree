@@ -1,0 +1,16 @@
+.custom_field {
+    color: #373;
+}
+
+.custom_field--derived {
+    color: #337;
+}
+
+.custom_field-key {
+    padding-right: 4px;
+    font-weight: bold;
+}
+
+.custom_field-value {
+    padding-left: 4px;
+}

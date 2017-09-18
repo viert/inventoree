@@ -159,7 +159,7 @@ export default class HostForm extends Component {
                 </div>
                 <div className={"form-group" + (this.state.datacenterPicked ? " has-success": "")}>
                     <label className="col-sm-3 control-label">
-                        Datacenter:
+                        Location:
                     </label>
                     <div className="col-sm-9">
                         <DatacenterPicker

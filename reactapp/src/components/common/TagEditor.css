@@ -21,10 +21,20 @@
     display: inline-block;
     padding: 1px 8px;
     border: 1px solid #ccc;
-    background-color: #efe;
+    background-color: #e0ffe0;
     margin-right: 8px;
     overflow-wrap: normal;
     line-height: 1.5em;
+}
+
+.tag-editor_tag--derived {
+    background-color: #e0e0ff;
+}
+
+.tag-editor_tag--mini {
+    padding: 1px 4px 0;
+    line-height: 1.2em;
+    margin-right: 4px;
 }
 
 .tag-editor_tag-remove {

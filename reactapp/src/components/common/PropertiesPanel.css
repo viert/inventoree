@@ -1,0 +1,15 @@
+.properties-panel {
+    padding: 30px 8px;
+}
+
+.properties-panel .properties-line {
+    padding: 6px 0;
+}
+
+.properties-panel .properties-line .form-buttons {
+    margin-top: 76px;
+}
+
+.properties-panel .properties-line .properties-key {
+    font-weight: bold;
+}

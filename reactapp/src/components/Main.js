@@ -11,6 +11,7 @@ import DatacenterList from './Datacenters/DatacenterList'
 import DatacenterEditor from './Datacenters/DatacenterEditor'
 import HostList from './Hosts/HostList'
 import HostEditor from './Hosts/HostEdit/HostEditor'
+import HostView from './Hosts/HostView'
 import { AlertBox } from '../library/AlertBox'
 
 class Main extends Component {
@@ -21,13 +22,14 @@ class Main extends Component {
                 <div className="content">
                     <AlertBox />
                     <Route exact path="/projects" component={ProjectList} />
-                    <Route path="/projects/:id" component={ProjectEditor} />
+                    <Route exact path="/projects/:id" component={ProjectEditor} />
                     <Route exact path="/groups" component={GroupList} />
-                    <Route path="/groups/:id" component={GroupEditor} />
+                    <Route exact path="/groups/:id" component={GroupEditor} />
                     <Route exact path="/datacenters" component={DatacenterList} />
-                    <Route path="/datacenters/:id" component={DatacenterEditor} />
+                    <Route exact path="/datacenters/:id" component={DatacenterEditor} />
                     <Route exact path="/hosts" component={HostList} />
-                    <Route path="/hosts/:id" component={HostEditor} />
+                    <Route exact path="/hosts/:id" component={HostView} />
+                    <Route exact path="/hosts/:id/edit" component={HostEditor} />
                 </div>
             </div>
         )
