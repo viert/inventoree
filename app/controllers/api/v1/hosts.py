@@ -171,6 +171,17 @@ def mass_move():
     if len(hosts) == 0:
         return json_response({"errors":["No hosts found to be moved"]}, 404)
 
+    if not group.modification_allowed:
+        return json_response({"errors":["You don't have permissions to move hosts to group %s" % group.name]}, 403)
+
+    failed_hosts = []
+    for host in hosts:
+        if not host.modification_allowed:
+            failed_hosts.append(host)
+    if len(failed_hosts) > 0:
+        failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
+        return json_response({"errors":["You don't have permissions to modify hosts: %s" % failed_hosts]}, 403)
+
     # moving hosts
     for host in hosts:
         host.group_id = group._id
@@ -180,6 +191,44 @@ def mass_move():
         "status": "ok",
         "data": {
             "group": group.to_dict(),
+            "hosts": [host.to_dict() for host in hosts]
+        }
+    }
+
+    return json_response(result)
+
+@hosts_ctrl.route("/mass_detach", methods=["POST"])
+def mass_detach():
+    if "host_ids" not in request.json or request.json["host_ids"] is None:
+        return json_response({ "errors": ["No host_ids provided"]}, 400)
+    if type(request.json["host_ids"]) != list:
+        return json_response({ "errors": ["host_ids must be an array type"]}, 400)
+
+    from app.models import Host
+
+    # resolving hosts
+    host_ids = [resolve_id(x) for x in request.json["host_ids"]]
+    host_ids = set([x for x in host_ids if x is not None])
+    hosts = Host.find({"_id":{"$in": list(host_ids)}})
+    if len(hosts) == 0:
+        return json_response({"errors":["No hosts found to be moved"]}, 404)
+
+    failed_hosts = []
+    for host in hosts:
+        if not host.modification_allowed:
+            failed_hosts.append(host)
+    if len(failed_hosts) > 0:
+        failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
+        return json_response({"errors":["You don't have permissions to modify hosts: %s" % failed_hosts]}, 403)
+
+    # moving hosts
+    for host in hosts:
+        host.group_id = None
+        host.save()
+
+    result = {
+        "status": "ok",
+        "data": {
             "hosts": [host.to_dict() for host in hosts]
         }
     }
@@ -202,6 +251,14 @@ def mass_delete():
 
     if hosts.count() == 0:
         return json_response({"errors":["No hosts found to be deleted"]})
+
+    failed_hosts = []
+    for host in hosts:
+        if not host.modification_allowed:
+            failed_hosts.append(host)
+    if len(failed_hosts) > 0:
+        failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
+        return json_response({"errors":["You don't have permissions to modify hosts: %s" % failed_hosts]}, 403)
 
     hosts = hosts.all()
 
