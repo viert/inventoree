@@ -105,12 +105,20 @@ class Host(StorableModel):
         return self.datacenter_class.find_one({ "_id": self.datacenter_id })
 
     @property
+    def location(self):
+        return self.datacenter()
+
+    @property
     def datacenter_name(self):
         dc = self.datacenter
         if dc is None:
             return None
         else:
             return dc.name
+
+    @property
+    def location_name(self):
+        return self.datacenter_name()
 
     @property
     def root_datacenter(self):
@@ -123,6 +131,10 @@ class Host(StorableModel):
             return self.datacenter_class.find_one({ "_id": dc.root_id })
 
     @property
+    def root_location(self):
+        return self.root_datacenter()
+
+    @property
     def root_datacenter_name(self):
         rdc = self.root_datacenter
         if rdc is None:
@@ -131,11 +143,19 @@ class Host(StorableModel):
             return rdc.name
 
     @property
+    def root_location_name(self):
+        return self.root_datacenter_name()
+
+    @property
     def group_class(self):
         if self._group_class is None:
             from app.models import Group
             self.__class__._group_class = Group
         return self._group_class
+
+    @property
+    def location_class(self):
+        return self.datacenter_class()
 
     @property
     def datacenter_class(self):
@@ -188,3 +208,7 @@ class Host(StorableModel):
     def unset_datacenter(cls, datacenter_id):
         from library.db import db
         db.conn[cls.collection].update_many({ "datacenter_id": datacenter_id }, { "$set": { "datacenter_id": None }})
+
+    @classmethod
+    def unset_location(cls, location_id):
+        cls.unset_datacenter(location_id)
