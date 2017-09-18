@@ -37,6 +37,8 @@ class Group(StorableModel):
         "custom_fields",
     )
 
+    KEY_FIELD = "name"
+
     DEFAULTS = {
         "created_at": now,
         "updated_at": now,

@@ -71,9 +71,11 @@ class ModelMeta(type):
 class StorableModel(object):
 
     __metaclass__ = ModelMeta
+
     FIELDS = []
     REJECTED_FIELDS = []
     REQUIRED_FIELDS = set()
+    KEY_FIELD = None
     DEFAULTS = {}
     INDEXES = []
 
@@ -185,6 +187,19 @@ class StorableModel(object):
     def find_one(cls, query, **kwargs):
         from library.db import db
         return db.get_obj(cls, cls.collection, query, **kwargs)
+
+    @classmethod
+    def get(cls, expression):
+        from bson.objectid import ObjectId, InvalidId
+        if type(expression) == ObjectId:
+            query = {"_id": expression}
+        elif type(expression) == str:
+            try:
+                objid_expr = ObjectId(expression)
+                query = {"_id": objid_expr}
+            except InvalidId:
+                query = {cls.KEY_FIELD: expression}
+        return cls.find_one(query)
 
     @classmethod
     def destroy_all(cls):

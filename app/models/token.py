@@ -14,6 +14,8 @@ class Token(StorableModel):
         "created_at"
     )
 
+    KEY_FIELD = "token"
+
     REQUIRED_FIELDS = (
         "type",
         "token",
@@ -28,7 +30,7 @@ class Token(StorableModel):
     }
 
     INDEXES = (
-        "token",
+        ["token", {"unique": True}],
         ["user_id", "type"]
     )
 

@@ -9,7 +9,7 @@ export default class HostListTable extends Component {
                 <thead>
                 <tr>
                     <th className="th-host-fqdn">fqdn</th>
-                    <th>datacenter</th>
+                    <th>location</th>
                     <th>group</th>
                     <th>tags</th>
                     <th>description</th>

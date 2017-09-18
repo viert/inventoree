@@ -26,6 +26,8 @@ class Host(StorableModel):
         "updated_at",
     )
 
+    KEY_FIELD = "fqdn"
+
     REQUIRED_FIELDS = (
         "fqdn",
     )

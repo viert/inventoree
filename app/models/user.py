@@ -18,6 +18,8 @@ class User(StorableModel):
         "supervisor",
     )
 
+    KEY_FIELD = "username"
+
     DEFAULTS = {
         "first_name": "",
         "last_name": "",
@@ -38,7 +40,7 @@ class User(StorableModel):
     )
 
     INDEXES = (
-        "username",
+        ["username",{"unique":True}],
         "supervisor",
     )
 

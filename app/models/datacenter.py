@@ -26,6 +26,8 @@ class Datacenter(StorableModel):
         "created_at",
         "updated_at",
     )
+
+    KEY_FIELD = "name"
     
     REQUIRED_FIELDS = (
         "name",

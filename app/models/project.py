@@ -25,6 +25,8 @@ class Project(StorableModel):
         "created_at",
     )
 
+    KEY_FIELD = "name"
+
     REQUIRED_FIELDS = (
         "name",
         "created_at",
