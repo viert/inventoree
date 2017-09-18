@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import ChildGroupItem from './GroupEdit/ChildGroupItem'
+import ChildItem from './GroupEdit/ChildItem'
 import ProjectPicker from './GroupEdit/ProjectPicker'
 import ConfirmButton from '../common/ConfirmButton'
 import AlertStore from '../../library/AlertBox'
@@ -12,8 +12,10 @@ export default class GroupMassSelectionForm extends Component {
         super(props)
         this.state = {
             project: { name: "" },
-            projectPicked: false
+            projectPicked: false,
+            disableSelect: false
         }
+        this.timeout = null
     }
 
     handleProjectPicked(project) {
@@ -38,6 +40,25 @@ export default class GroupMassSelectionForm extends Component {
         }
     }
 
+    onTriggerMouseEnter(e) {
+        if (this.timeout) {
+            clearTimeout(this.timeout)
+            this.timeout = null
+        }
+        this.setState({ disableSelect: true })
+    }
+
+    onTriggerMouseLeave(e) {
+        this.timeout = setTimeout(
+            this.setState.bind(this, { disableSelect: false }),
+            50
+        )
+    }
+
+    onRemove(group) {
+        this.props.onRemove(group)
+    }
+
     render() {
         return (
             <div className="selection-table">
@@ -45,7 +66,13 @@ export default class GroupMassSelectionForm extends Component {
                 {
                     Object.values(this.props.groups).map( group => {
                         group.removed = false
-                        return <ChildGroupItem key={group._id} onRemoveTrigger={this.props.onRemove} group={group} />
+                        return <ChildItem key={group._id}
+                                    text={group.name}
+                                    removed={group.removed}
+                                    onRemoveTrigger={this.onRemove.bind(this, group)}
+                                    disableSelect={this.state.disableSelect}
+                                    onMouseEnter={this.onTriggerMouseEnter.bind(this)}
+                                    onMouseLeave={this.onTriggerMouseLeave.bind(this)} />
                     })
                 }
                 <div className="selection-actions">
