@@ -5,6 +5,11 @@ import os.path
 
 
 class Index(Command):
+
+    def init_argument_parser(self, parser):
+        parser.add_argument("-w", "--overwrite", dest="overwrite", action="store_true", default=False,
+                            help="Overwrite existing indexes in case of conflicts")
+
     def run(self):
         from app import app
         app.logger.info("Creating indexes")
@@ -18,7 +23,7 @@ class Index(Command):
                 obj = getattr(module, attr)
                 if hasattr(obj, "ensure_indexes"):
                     app.logger.info("Creating indexes for %s, collection %s" % (attr, obj.collection))
-                    obj.ensure_indexes(True)
+                    obj.ensure_indexes(True, self.args.overwrite)
         from library.db import db
         app.logger.info("Creating sessions indexes")
         db.conn["sessions"].create_index("sid", unique=True, sparse=False)

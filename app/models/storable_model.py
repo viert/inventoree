@@ -208,12 +208,13 @@ class StorableModel(object):
         db.delete_query(cls.collection, {})
 
     @classmethod
-    def ensure_indexes(cls, loud=False):
+    def ensure_indexes(cls, loud=False, overwrite=False):
 
         if type(cls.INDEXES) != list and type(cls.INDEXES) != tuple:
             raise TypeError("INDEXES field must be of type list or tuple")
 
         from pymongo import ASCENDING, DESCENDING, HASHED
+        from pymongo.errors import OperationFailure
         from library.db import db
         from app import app
 
@@ -244,7 +245,20 @@ class StorableModel(object):
                         options[key] = value
             if loud:
                 app.logger.debug("Creating index with options: %s, %s" % (keys, options))
-            db.conn[cls.collection].create_index(keys, **options)
+
+            try:
+                db.conn[cls.collection].create_index(keys, **options)
+            except OperationFailure as e:
+                if e.details["codeName"] == "IndexOptionsConflict":
+                    if overwrite:
+                        if loud:
+                            app.logger.debug("Dropping index %s as conflicting" % keys)
+                        db.conn[cls.collection].drop_index(keys)
+                        if loud:
+                            app.logger.debug("Creating index with options: %s, %s" % (keys, options))
+                        db.conn[cls.collection].create_index(keys, **options)
+                    else:
+                        app.logger.error("Index %s conflicts with exising one, use overwrite param to fix it" % keys)
 
 
 def save_required(func):
