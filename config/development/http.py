@@ -22,6 +22,10 @@ ROUTES = [
         "controller": "api.v1.datacenters"
     },
     {
+        "prefix": "/api/v1/locations",
+        "controller": "api.v1.datacenters"
+    },
+    {
         "prefix": "/api/v1/hosts",
         "controller": "api.v1.hosts"
     },
