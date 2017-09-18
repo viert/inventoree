@@ -5,7 +5,7 @@ import './AppSidebar.css'
 const AppSidebar = () => (
     <aside className="sidebar">
         <ul className="sidebar-menu">
-            <li><NavLink to="/datacenters" activeClassName="active">datacenters</NavLink></li>
+            <li><NavLink to="/datacenters" activeClassName="active">locations</NavLink></li>
             <li><NavLink to="/projects" activeClassName="active">projects</NavLink></li>
             <li><NavLink to="/groups" activeClassName="active">groups</NavLink></li>
             <li><NavLink to="/hosts" activeClassName="active">hosts</NavLink></li>
