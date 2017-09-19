@@ -25,7 +25,7 @@ const Api = {
         ListFields: [
             '_id',
             'fqdn',
-            'group_name',
+            'group',
             'datacenter_name',
             'description',
             'all_tags',
@@ -50,6 +50,7 @@ const Api = {
         ListFields: [
             '_id',
             'name',
+            'description',
             'all_tags',
             'all_custom_fields',
             'project',

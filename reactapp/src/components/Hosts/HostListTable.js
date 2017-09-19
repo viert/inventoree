@@ -14,13 +14,14 @@ export default class HostListTable extends Component {
                         <th>group</th>
                         <th>tags</th>
                         <th>custom fields</th>
+                        { this.props.includeDescription ? <th>description</th> : "" }
                     </tr>
                     </thead>
                     <tbody>
                     {
                         this.props.hosts.map((host) => {
                             return (
-                                <HostListItem host={host} key={host._id} />
+                                <HostListItem includeDescription={this.props.includeDescription} host={host} key={host._id} />
                             )
                         })
                     }
@@ -32,5 +33,6 @@ export default class HostListTable extends Component {
 }
 
 HostListTable.propTypes = {
-    hosts: PropTypes.array.isRequired
+    hosts: PropTypes.array.isRequired,
+    includeDescription: PropTypes.bool
 }

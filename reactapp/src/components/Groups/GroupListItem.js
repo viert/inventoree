@@ -40,6 +40,9 @@ export default class GroupListItem extends Component {
                 <td>
                     <CustomFieldList fields={group.all_custom_fields} mini={true} />
                 </td>
+                {
+                    this.props.includeDescription ? <td>{group.description}</td> : ""
+                }
             </tr>
         )
     }
@@ -55,5 +58,6 @@ GroupListItem.propTypes = {
     selected: PropTypes.bool.isRequired,
     onSelectStarted: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
-    onDeselect: PropTypes.func.isRequired
+    onDeselect: PropTypes.func.isRequired,
+    includeDescription: PropTypes.bool
 }

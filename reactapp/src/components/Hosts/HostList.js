@@ -59,6 +59,7 @@ export default class HostList extends Component {
     }
 
     render() {
+        let includeDescription = true
         return (
             <div>
                 <ListPageHeader title="Host List" 
@@ -68,7 +69,7 @@ export default class HostList extends Component {
                                 createLink="/hosts/new" />
                 { 
                     this.state.loading ? <div className="max vertcenter"><Loading /></div> :
-                        <HostListTable hosts={this.state.hosts} />
+                        <HostListTable hosts={this.state.hosts} includeDescription={includeDescription} />
                 }
                 <Pagination className="text-center" current={this.state.currentPage} total={this.state.totalPages} onChangePage={this.handlePageChanged.bind(this)} />
             </div>

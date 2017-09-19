@@ -3,19 +3,12 @@ import { Link } from 'react-router-dom'
 import Axios from 'axios'
 
 import Api from '../../library/Api'
+import { SortCmp } from '../../library/Utils'
 import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Loading from '../common/Loading'
 import Tag from '../common/Tag'
 import CustomField from '../common/CustomField'
 import '../common/PropertiesPanel.css'
-
-const SortCmp = (key) => {
-    return (a, b) => {
-        if (a[key] > b[key]) return 1;
-        if (a[key] < b[key]) return -1;
-        return 0;
-    }
-}
 
 export default class HostView extends Component {
 
@@ -75,18 +68,12 @@ export default class HostView extends Component {
         let { ViewFields } = Api.Hosts
         ViewFields = ViewFields.join(",")
 
-        if (id && id !== "new") {
-            Axios.get(`/api/v1/hosts/${id}?_fields=${ViewFields}`)
-                .then( this.onDataLoaded.bind(this) )
-                .catch( error => {
-                    HttpErrorHandler(error)
-                    this.props.history.push('/hosts')
-                })
-        } else {
-            this.setState({
-                isLoading: false
+        Axios.get(`/api/v1/hosts/${id}?_fields=${ViewFields}`)
+            .then( this.onDataLoaded.bind(this) )
+            .catch( error => {
+                HttpErrorHandler(error)
+                this.props.history.push('/hosts')
             })
-        }
     }
 
     render() {

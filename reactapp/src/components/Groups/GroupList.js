@@ -126,6 +126,7 @@ export default class GroupList extends Component {
     render() {
         let inSelectMode = this.state.selectedGroupsCount > 0
         let tableWrapperClass = inSelectMode ? "col-sm-8" : "col-sm-12"
+        let includeDescription = !inSelectMode
 
         return (
             <div>
@@ -142,7 +143,12 @@ export default class GroupList extends Component {
                     <div className={tableWrapperClass}>
                         { 
                             this.state.loading ? 'Loading' :
-                                <GroupListTable onSelect={this.handleSelect.bind(this)} onDeselect={this.handleDeselect.bind(this)} groups={this.state.groups} selected={this.state.selectedGroupsMap} />
+                                <GroupListTable 
+                                    onSelect={this.handleSelect.bind(this)} 
+                                    onDeselect={this.handleDeselect.bind(this)} 
+                                    groups={this.state.groups} 
+                                    includeDescription={includeDescription}
+                                    selected={this.state.selectedGroupsMap} />
                         }
                     </div>
                     {
