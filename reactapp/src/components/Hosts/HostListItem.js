@@ -1,21 +1,22 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Link } from 'react-router-dom'
 import TagList from '../common/TagList'
+import CustomFieldList from '../common/CustomFieldList'
+import TableModelLink from '../common/TableModelLink'
 
 export default class HostListItem extends Component {
     render() {
         return (
             <tr>
                 <td>
-                    <Link to={"/hosts/" + this.props.host._id}>
-                    {this.props.host.fqdn}
-                    </Link>
+                    <TableModelLink modelName="host" modelId={this.props.host._id} showEditLink={this.props.host.modification_allowed}>
+                        {this.props.host.fqdn}
+                    </TableModelLink>
                 </td>
                 <td>{this.props.host.datacenter_name}</td>
                 <td>{this.props.host.group_name}</td>
-                <td><TagList tags={this.props.host.all_tags} /></td>
-                <td>{this.props.host.description}</td>
+                <td><TagList tags={this.props.host.all_tags} nowrap={true} /></td>
+                <td><CustomFieldList fields={this.props.host.all_custom_fields} mini={true} /></td>
             </tr>
         )
     }

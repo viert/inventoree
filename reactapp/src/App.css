@@ -36,6 +36,11 @@ a {
     padding: 4px 8px 2px;
 }
 
+.table-wrapper {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 .form-buttons .btn {
     margin-right: 8px;
 }

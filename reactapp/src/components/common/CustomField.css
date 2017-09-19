@@ -6,8 +6,11 @@
     color: #337;
 }
 
+.custom_field--desaturate {
+    color: black;
+}
+
 .custom_field-key {
-    padding-right: 4px;
     font-weight: bold;
 }
 

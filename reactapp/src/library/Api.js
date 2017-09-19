@@ -21,6 +21,16 @@ const Api = {
             'custom_fields',
             'all_tags',
             'all_custom_fields',
+        ],
+        ListFields: [
+            '_id',
+            'fqdn',
+            'group_name',
+            'datacenter_name',
+            'description',
+            'all_tags',
+            'all_custom_fields',
+            'modification_allowed'
         ]
     }
 }
