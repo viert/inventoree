@@ -2,18 +2,26 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 
+import TableModelLink from '../common/TableModelLink'
+import { UserLink } from '../common/UserList'
+
 export default class ProjectListItem extends Component {
     render() {
+        let { project } = this.props
         return (
             <tr>
                 <td>
-                    <Link to={"/projects/" + this.props.project._id}>
-                    {this.props.project.name}
-                    </Link>
+                    <TableModelLink 
+                        modelName="project" 
+                        modelId={project._id} 
+                        showEditLink={project.modification_allowed}>
+                        { project.name }
+                    </TableModelLink>
                 </td>
-                <td>{this.props.project.email}</td>
-                <td>{this.props.project.root_email}</td>
-                <td>{this.props.project.description}</td>
+                <td><UserLink user={project.owner} /></td>
+                <td>{project.email}</td>
+                <td>{project.root_email}</td>
+                <td>{project.description}</td>
             </tr>
         )
     }

@@ -56,6 +56,27 @@ const Api = {
             'project',
             'modification_allowed'
         ]
+    },
+    Projects: {
+        ViewFields: [
+            '_id',
+            'name',
+            'email',
+            'owner',
+            'members',
+            'root_email',
+            'description',
+            'groups_count'
+        ],
+        ListFields: [
+            '_id',
+            'name',
+            'root_email',
+            'email',
+            'owner',
+            'description',
+            'modification_allowed'
+        ]
     }
 }
 

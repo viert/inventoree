@@ -9,6 +9,7 @@ export default class ProjectListTable extends Component {
                 <thead>
                 <tr>
                     <th className="th-name">name</th>
+                    <th className="th-email">owner</th>
                     <th className="th-email">email</th>
                     <th className="th-email">root email</th>
                     <th>description</th>

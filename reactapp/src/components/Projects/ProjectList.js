@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Axios from 'axios'
 
+import Api from '../../library/Api'
 import ProjectListTable from './ProjectListTable'
 import Pagination from '../common/Pagination'
 import ListPageHeader from '../common/ListPageHeader'
@@ -17,15 +18,15 @@ export default class ProjectList extends Component {
             loading: true,
             currentPage: 1,
             totalPages: 0,
-            filter: search.get("filter") || ""
+            filter: search.get("filter") || "",
         }
     }
 
     loadData(page, filter) {
-        this.setState({
-            loading: true
-        })
-        Axios.get(`/api/v1/projects/?_page=${page}&_filter=${filter}`).then((response) => {
+        this.setState({ loading: true })
+        let { ListFields } = Api.Projects
+        ListFields = ListFields.join(',')
+        Axios.get(`/api/v1/projects/?_page=${page}&_filter=${filter}&_fields=${ListFields}`).then((response) => {
             var projectList = response.data.data; 
             this.setState({
                 projects: projectList,
