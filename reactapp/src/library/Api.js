@@ -8,7 +8,7 @@ const Api = {
             'datacenter_id',
             'group_id',
             'tags',
-            'custom_fields'
+            'custom_fields',
         ],
         ViewFields: [
             '_id',
@@ -30,6 +30,29 @@ const Api = {
             'description',
             'all_tags',
             'all_custom_fields',
+            'modification_allowed',
+        ]
+    },
+    Groups: {
+        ViewFields: [
+            '_id',
+            'name',
+            'description',
+            'children',
+            'parents',
+            'hosts',
+            'tags',
+            'custom_fields',
+            'all_tags',
+            'all_custom_fields',
+            'project',
+        ],
+        ListFields: [
+            '_id',
+            'name',
+            'all_tags',
+            'all_custom_fields',
+            'project',
             'modification_allowed'
         ]
     }

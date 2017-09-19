@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Axios from 'axios'
 import AlertStore from '../../library/AlertBox'
 
+import HttpErrorHandler from '../../library/HttpErrorHandler'
+import Api from '../../library/Api'
 import ListPageHeader from '../common/ListPageHeader'
 import GroupListTable from './GroupListTable'
 import GroupMassSelectionForm from './GroupMassSelectionForm'
@@ -25,7 +26,9 @@ export default class GroupList extends Component {
     }
 
     loadData(page, filter) {
-        Axios.get(`/api/v1/groups/?_page=${page}&_filter=${filter}&_fields=_id,name,description,project_name`).then((response) => {
+        let { ListFields } = Api.Groups
+        ListFields = ListFields.join(',')
+        Axios.get(`/api/v1/groups/?_page=${page}&_filter=${filter}&_fields=${ListFields}`).then((response) => {
             var groupList = response.data.data.map( item => { item.selected = false; return item });
             this.setState({
                 groups: groupList,
@@ -100,7 +103,6 @@ export default class GroupList extends Component {
         Axios.post("/api/v1/groups/mass_move", payload)
             .then((response) => {
                 let { project, groups } = response.data.data
-                let project_name = project.name
                 let group_names = groups.map(group => group.name)
                 AlertStore.Info(
                     <div>
@@ -112,7 +114,7 @@ export default class GroupList extends Component {
                             )
                         }
                         </ul>
-                        <div>to project <b>{project_name}</b></div>
+                        <div>to project <b>{project.name}</b></div>
                     </div>
                 )
                 this.loadData(this.page, this.state.filter)

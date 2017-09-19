@@ -3,31 +3,43 @@ import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 import CheckBoxIcon from '../common/CheckBoxIcon'
+import TagList from '../common/TagList'
+import TableModelLink from '../common/TableModelLink'
+import CustomFieldList from '../common/CustomFieldList'
+
 export default class GroupListItem extends Component {
 
     selectItem() {
-        let {selected} = this.props
+        let { selected, group } = this.props
         selected = !selected
         if (selected)
-            this.props.onSelect(this.props.group)
+            this.props.onSelect(group)
         else 
-            this.props.onDeselect(this.props.group)
+            this.props.onDeselect(group)
         this.props.onSelectStarted()
     }
 
     render() {
+        let { group } = this.props
         return (
             <tr>
                 <td className="td-group-select">
                     <CheckBoxIcon checked={this.props.selected} className="fa" classNameChecked="fa-folder" classNameUnchecked="fa-folder-o" onTrigger={this.selectItem.bind(this)} />
                 </td>
                 <td>
-                    <Link to={`/groups/${this.props.group._id}`}>
-                    {this.props.group.name}
-                    </Link>
+                    <TableModelLink modelName="group" modelId={group._id} showEditLink={group.modification_allowed}>
+                        {group.name}
+                    </TableModelLink>
                 </td>
-                <td>{this.props.group.project_name}</td>
-                <td>{this.props.group.description}</td>
+                <td>
+                    <Link to={group.project._id}>{group.project.name}</Link>
+                </td>
+                <td>
+                    <TagList tags={group.all_tags} nowrap={true} />
+                </td>
+                <td>
+                    <CustomFieldList fields={group.all_custom_fields} mini={true} />
+                </td>
             </tr>
         )
     }

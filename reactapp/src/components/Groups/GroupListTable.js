@@ -74,7 +74,8 @@ export default class GroupListTable extends Component {
                     </th>
                     <th className="th-group-name">name</th>
                     <th className="th-name">project</th>
-                    <th>description</th>
+                    <th>tags</th>
+                    <th>custom fields</th>
                 </tr>
                 </thead>
                 <tbody>
