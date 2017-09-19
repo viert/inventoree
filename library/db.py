@@ -132,7 +132,7 @@ class DB(object):
             inserted_id = self.conn[obj.collection].insert_one(data).inserted_id
             obj._id = inserted_id
         else:
-            self.conn[obj.collection].replace_one({'_id': obj._id}, obj.to_dict(), upsert=True)
+            self.conn[obj.collection].replace_one({'_id': obj._id}, obj.to_dict(include_restricted=True), upsert=True)
 
     @intercept_mongo_errors
     def delete_obj(self, obj):
