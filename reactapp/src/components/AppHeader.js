@@ -32,9 +32,8 @@ const AppHeader = observer(class AppHeader extends Component {
                 <div className="appheader-logo">
                     <Link to="/">Conductor</Link>
                     <small className="appheader-info">
-                        v{AppInfo.getVersion()}, 
-                        flask {AppInfo.getFlaskVersion()}, 
-                        mongodb {AppInfo.getMongoVersion()}
+                        v{AppInfo.getVersion()} (flask/{AppInfo.getFlaskVersion()}, 
+                        mongodb/{AppInfo.getMongoVersion()})
                     </small>
                 </div>
                 <div className="appheader-account">
