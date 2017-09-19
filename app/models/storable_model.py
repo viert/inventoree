@@ -150,12 +150,12 @@ class StorableModel(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def to_dict(self, fields=None):
+    def to_dict(self, fields=None, include_restricted=False):
         if fields is None:
             fields = self.FIELDS
         result = dict([(f, getattr(self, f)) for f in fields if hasattr(self, f)
                        and not (f != "_id" and f.startswith("_"))
-                       and not f in self.RESTRICTED_FIELDS
+                       and (include_restricted or f not in self.RESTRICTED_FIELDS)
                        and not callable(getattr(self, f))])
         return result
 

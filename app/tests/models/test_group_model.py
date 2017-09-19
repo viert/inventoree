@@ -50,7 +50,7 @@ class TestGroupModel(TestCase):
         TestGroup.ensure_indexes()
         TestHost.destroy_all()
         TestHost.ensure_indexes()
-        cls.tproject_owner = TestUser(username='viert', password_hash='hash')
+        cls.tproject_owner = TestUser(username='test_user', password_hash='test_hash')
         cls.tproject_owner.save()
         cls.tproject = TestProject(name="test_project", owner_id=cls.tproject_owner._id)
         cls.tproject.save()
