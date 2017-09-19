@@ -26,7 +26,11 @@ class User(StorableModel):
         "avatar_url": "",
         "supervisor": False
     }
-    
+
+    RESTRICTED_FIELDS = [
+        "password_hash"
+    ]
+
     REQUIRED_FIELDS = (
         "username",
         "password_hash"

@@ -75,6 +75,7 @@ class StorableModel(object):
     FIELDS = []
     REJECTED_FIELDS = []
     REQUIRED_FIELDS = set()
+    RESTRICTED_FIELDS = []
     KEY_FIELD = None
     DEFAULTS = {}
     INDEXES = []
@@ -154,6 +155,7 @@ class StorableModel(object):
             fields = self.FIELDS
         result = dict([(f, getattr(self, f)) for f in fields if hasattr(self, f)
                        and not (f != "_id" and f.startswith("_"))
+                       and not f in self.RESTRICTED_FIELDS
                        and not callable(getattr(self, f))])
         return result
 
