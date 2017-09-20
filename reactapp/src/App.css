@@ -108,3 +108,8 @@ ul.list-bold-no-style li {
 .mute { color: gray; }
 .text-italic { font-style: italic; }
 .text-bold { font-weight: bold; }
+
+.listtable.table>tbody>tr>td {
+    max-width: 200px;
+    overflow-x: hidden;
+}

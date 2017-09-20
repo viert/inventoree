@@ -5,7 +5,7 @@ import ProjectListItem from './ProjectListItem'
 export default class ProjectListTable extends Component {
     render() {
         return (
-            <table className="table">
+            <table className="table listtable">
                 <thead>
                 <tr>
                     <th className="th-name">name</th>

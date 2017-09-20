@@ -66,7 +66,7 @@ export default class GroupListTable extends Component {
     render() {
         let userSelect = this.state.selectionMode ? "none" : "inherit"
         return (
-            <table style={{userSelect}} className="table" onMouseUp={this.handleSelectFinished.bind(this)}>
+            <table style={{userSelect}} className="table listtable" onMouseUp={this.handleSelectFinished.bind(this)}>
                 <thead>
                 <tr>
                     <th className="th-group-select">

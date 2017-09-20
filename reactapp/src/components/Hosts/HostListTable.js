@@ -6,7 +6,7 @@ export default class HostListTable extends Component {
     render() {
         return (
             <div className="table-wrapper">
-                <table className="table">
+                <table className="table listtable">
                     <thead>
                     <tr>
                         <th className="th-host-fqdn">fqdn</th>
