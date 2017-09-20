@@ -73,9 +73,9 @@ export default class GroupListTable extends Component {
                         <CheckBoxIcon checked={this.state.allSelected} className="fa" classNameChecked="fa-folder" classNameUnchecked="fa-folder-o" onTrigger={this.triggerAll.bind(this)} />
                     </th>
                     <th className="th-group-name">name</th>
-                    <th className="th-name">project</th>
-                    <th>tags</th>
-                    <th>custom fields</th>
+                    <th className="th-project-name">project</th>
+                    <th className="th-tags">tags</th>
+                    <th className="th-custom-fields">custom fields</th>
                     { 
                         this.props.includeDescription ? <th>description</th> : ""
                     }

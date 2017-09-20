@@ -53,13 +53,25 @@ a {
     width: 180px;
 }
 
+.th-project-name {
+    width: 120px;
+}
+
+.th-custom-fields {
+    width: 200px;
+}
+
+.th-tags {
+    width: 140px;
+}
+
 .th-group-select, .td-group-select {
     width: 32px;
     text-align: center;
 }
 
 .th-group-name {
-    width: 240px;
+    width: 220px;
 }
 
 .th-host-fqdn {
@@ -112,4 +124,5 @@ ul.list-bold-no-style li {
 .listtable.table>tbody>tr>td {
     max-width: 200px;
     overflow-x: hidden;
+    white-space: nowrap;
 }

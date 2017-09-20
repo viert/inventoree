@@ -11,9 +11,9 @@ export default class HostListTable extends Component {
                     <tr>
                         <th className="th-host-fqdn">fqdn</th>
                         <th>location</th>
-                        <th>group</th>
-                        <th>tags</th>
-                        <th>custom fields</th>
+                        <th className="th-group-name">group</th>
+                        <th className="th-tags">tags</th>
+                        <th className="th-custom-fields">custom fields</th>
                         { this.props.includeDescription ? <th>description</th> : "" }
                     </tr>
                     </thead>
