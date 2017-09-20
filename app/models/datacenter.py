@@ -142,6 +142,10 @@ class Datacenter(StorableModel):
     def parent(self):
         return self.__class__.find_one({ "_id": self.parent_id })
 
+    @property
+    def root(self):
+        return self.__class__.find_one({ "_id": self.root_id })
+
     @save_required
     def _detect_root_id(self):
         if self.parent_id is None:

@@ -127,9 +127,11 @@ export default class HostView extends Component {
                                 <div className="properties-value col-sm-9">
                                     {
                                         this.state.host.datacenter._id ?
-                                        <Link to={`/datacenters/${this.state.host.datacenter._id}`}>
-                                            {this.state.host.datacenter.name}
-                                        </Link> :
+                                        <span>
+                                            <Link to={`/datacenters/${this.state.host.datacenter._id}`}>
+                                                {this.state.host.datacenter.name}
+                                            </Link> <small className="mute">({ this.state.host.datacenter.human_readable })</small>
+                                        </span> :
                                         ""
                                     }
                                 </div>

@@ -195,7 +195,8 @@ class StorableModel(object):
         from bson.objectid import ObjectId, InvalidId
         if type(expression) == ObjectId:
             query = {"_id": expression}
-        elif type(expression) == str:
+        else:
+            expression = str(expression)
             try:
                 objid_expr = ObjectId(expression)
                 query = {"_id": objid_expr}

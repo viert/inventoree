@@ -77,6 +77,16 @@ const Api = {
             'description',
             'modification_allowed'
         ]
+    },
+    Datacenters: {
+        ViewFields: [
+            '_id',
+            'name',
+            'human_readable',
+            'parent',
+            'root',
+            'children'
+        ]
     }
 }
 

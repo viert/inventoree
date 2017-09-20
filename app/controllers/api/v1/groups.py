@@ -44,6 +44,25 @@ def show(group_id=None):
     data = paginated_data(groups.sort("name"))
     return json_response(data)
 
+@groups_ctrl.route("/<group_id>/structure")
+def structure(group_id):
+    from app.models import Group
+    from library.engine.graph import group_structure
+    group = Group.get(group_id)
+    if group is None:
+        return json_response({"errors":["Group not found"]}, 404)
+    if "_fields" in request.values:
+        fields = request.values["_fields"].split(",")
+    else:
+        fields = None
+    if "_host_fields" in request.values:
+        host_fields = request.values["_host_fields"].split(",")
+    else:
+        host_fields = None
+    data = group_structure(group, fields, host_fields)
+    return json_response({ "data": data })
+
+
 @groups_ctrl.route("/<group_id>", methods=["PUT"])
 def update(group_id):
     from app.models import Project
