@@ -3,18 +3,11 @@ import HttpErrorHandler from '../../library/HttpErrorHandler'
 import Axios from 'axios'
 
 import HostListTable from './HostListTable'
+import Api from '../../library/Api'
 import Pagination from '../common/Pagination'
 import ListPageHeader from '../common/ListPageHeader'
 import Loading from '../common/Loading'
 
-const HostFields = [
-    "_id",
-    "fqdn",
-    "group_name",
-    "datacenter_name",
-    "description",
-    "all_tags"
-]
 
 export default class HostList extends Component {
     constructor(props) {
@@ -28,14 +21,14 @@ export default class HostList extends Component {
             totalPages: 0,
             filter: search.get("filter") || ""
         }
-        this.fieldList = HostFields.join(",")
     }
 
     loadData(page, filter) {
+        const fieldList = Api.Hosts.ListFields.join(",")
         this.setState({
             loading: true
         })
-        Axios.get(`/api/v1/hosts/?_page=${page}&_filter=${filter}&_fields=${this.fieldList}`).then((response) => {
+        Axios.get(`/api/v1/hosts/?_page=${page}&_filter=${filter}&_fields=${fieldList}`).then((response) => {
             var hostList = response.data.data
             this.setState({
                 hosts: hostList,
@@ -66,6 +59,7 @@ export default class HostList extends Component {
     }
 
     render() {
+        let includeDescription = true
         return (
             <div>
                 <ListPageHeader title="Host List" 
@@ -75,7 +69,7 @@ export default class HostList extends Component {
                                 createLink="/hosts/new" />
                 { 
                     this.state.loading ? <div className="max vertcenter"><Loading /></div> :
-                        <HostListTable hosts={this.state.hosts} />
+                        <HostListTable hosts={this.state.hosts} includeDescription={includeDescription} />
                 }
                 <Pagination className="text-center" current={this.state.currentPage} total={this.state.totalPages} onChangePage={this.handlePageChanged.bind(this)} />
             </div>

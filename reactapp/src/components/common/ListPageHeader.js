@@ -14,7 +14,7 @@ export default class ListPageHeader extends Component {
                         }
                     </div>
                     <div className="listpage-header_buttons">
-                        <Link to={this.props.createLink} className="btn btn-success">{this.props.createButtonText}</Link>
+                        <Link to={this.props.createLink} className="btn btn-primary">{this.props.createButtonText}</Link>
                     </div>
                 </div>            
         )

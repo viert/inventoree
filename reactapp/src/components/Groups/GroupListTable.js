@@ -74,7 +74,11 @@ export default class GroupListTable extends Component {
                     </th>
                     <th className="th-group-name">name</th>
                     <th className="th-name">project</th>
-                    <th>description</th>
+                    <th>tags</th>
+                    <th>custom fields</th>
+                    { 
+                        this.props.includeDescription ? <th>description</th> : ""
+                    }
                 </tr>
                 </thead>
                 <tbody>
@@ -82,7 +86,14 @@ export default class GroupListTable extends Component {
                     this.props.groups.map((group) => {
                         let selected = typeof this.props.selected[group._id] !== "undefined"
                         return (
-                            <GroupListItem selected={selected} onSelectStarted={this.handleSelectStarted.bind(this)} onDeselect={this.props.onDeselect} onSelect={this.props.onSelect} group={group} key={group._id} />
+                            <GroupListItem 
+                                selected={selected} 
+                                includeDescription={this.props.includeDescription} 
+                                onSelectStarted={this.handleSelectStarted.bind(this)} 
+                                onDeselect={this.props.onDeselect} 
+                                onSelect={this.props.onSelect} 
+                                group={group} 
+                                key={group._id} />
                         )
                     })
                 }
@@ -97,4 +108,5 @@ GroupListTable.propTypes = {
     selected: PropTypes.object.isRequired,
     onSelect: PropTypes.func.isRequired,
     onDeselect: PropTypes.func.isRequired,
+    includeDescription: PropTypes.bool
 }

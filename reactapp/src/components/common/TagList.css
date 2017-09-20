@@ -4,3 +4,7 @@
     margin-right: 3px;  
     font-size: 0.9em;
 }
+
+.tag-list--nowrap {
+    white-space: pre;
+}

@@ -5,30 +5,34 @@ import HostListItem from './HostListItem'
 export default class HostListTable extends Component {
     render() {
         return (
-            <table className="table">
-                <thead>
-                <tr>
-                    <th className="th-host-fqdn">fqdn</th>
-                    <th>location</th>
-                    <th>group</th>
-                    <th>tags</th>
-                    <th>description</th>
-                </tr>
-                </thead>
-                <tbody>
-                {
-                    this.props.hosts.map((host) => {
-                        return (
-                            <HostListItem host={host} key={host._id} />
-                        )
-                    })
-                }
-                </tbody>
-            </table>
+            <div className="table-wrapper">
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th className="th-host-fqdn">fqdn</th>
+                        <th>location</th>
+                        <th>group</th>
+                        <th>tags</th>
+                        <th>custom fields</th>
+                        { this.props.includeDescription ? <th>description</th> : "" }
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {
+                        this.props.hosts.map((host) => {
+                            return (
+                                <HostListItem includeDescription={this.props.includeDescription} host={host} key={host._id} />
+                            )
+                        })
+                    }
+                    </tbody>
+                </table>
+            </div>
         )
     }
 }
 
 HostListTable.propTypes = {
-    hosts: PropTypes.array.isRequired
+    hosts: PropTypes.array.isRequired,
+    includeDescription: PropTypes.bool
 }

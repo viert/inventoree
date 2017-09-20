@@ -70,6 +70,14 @@ class Project(StorableModel):
         return self.owner.username
 
     @property
+    def members(self):
+        return self.owner_class.find({"_id":{"$in":self.member_ids}})
+
+    @property
+    def member_usernames(self):
+        return [x.username for x in self.members]
+
+    @property
     def modification_allowed(self):
         user = get_user_from_app_context()
         if user is None: return False
@@ -116,6 +124,10 @@ class Project(StorableModel):
     def _before_delete(self):
         if self.groups.count() > 0:
             raise ProjectNotEmpty("Can not delete project having groups")
+
+    @property
+    def groups_count(self):
+        return self.groups.count()
 
     @property
     def groups(self):

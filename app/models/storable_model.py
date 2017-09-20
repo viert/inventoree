@@ -75,6 +75,7 @@ class StorableModel(object):
     FIELDS = []
     REJECTED_FIELDS = []
     REQUIRED_FIELDS = set()
+    RESTRICTED_FIELDS = []
     KEY_FIELD = None
     DEFAULTS = {}
     INDEXES = []
@@ -149,11 +150,12 @@ class StorableModel(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def to_dict(self, fields=None):
+    def to_dict(self, fields=None, include_restricted=False):
         if fields is None:
             fields = self.FIELDS
         result = dict([(f, getattr(self, f)) for f in fields if hasattr(self, f)
                        and not (f != "_id" and f.startswith("_"))
+                       and (include_restricted or f not in self.RESTRICTED_FIELDS)
                        and not callable(getattr(self, f))])
         return result
 
@@ -193,7 +195,8 @@ class StorableModel(object):
         from bson.objectid import ObjectId, InvalidId
         if type(expression) == ObjectId:
             query = {"_id": expression}
-        elif type(expression) == str:
+        else:
+            expression = str(expression)
             try:
                 objid_expr = ObjectId(expression)
                 query = {"_id": objid_expr}

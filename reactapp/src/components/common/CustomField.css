@@ -1,0 +1,19 @@
+.custom_field {
+    color: #373;
+}
+
+.custom_field--derived {
+    color: #337;
+}
+
+.custom_field--desaturate {
+    color: black;
+}
+
+.custom_field-key {
+    font-weight: bold;
+}
+
+.custom_field-value {
+    padding-left: 4px;
+}

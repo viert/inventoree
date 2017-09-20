@@ -252,15 +252,15 @@ def mass_delete():
     if hosts.count() == 0:
         return json_response({"errors":["No hosts found to be deleted"]})
 
+    hosts = hosts.all()
     failed_hosts = []
+
     for host in hosts:
         if not host.modification_allowed:
             failed_hosts.append(host)
     if len(failed_hosts) > 0:
         failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
         return json_response({"errors":["You don't have permissions to modify hosts: %s" % failed_hosts]}, 403)
-
-    hosts = hosts.all()
 
     for host in hosts:
         host.destroy()
