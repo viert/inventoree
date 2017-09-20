@@ -26,6 +26,10 @@ ROUTES = [
         "controller": "api.v1.hosts"
     },
     {
+        "prefix": "/api/v1/hosts",
+        "controller": "api.v1.users"
+    },
+    {
         "prefix": "/api/ext/puppet",
         "controller": "api.ext.puppet"
     }
