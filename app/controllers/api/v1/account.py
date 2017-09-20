@@ -12,8 +12,6 @@ def me():
         return json_response({ "errors": [ "You must be authenticated first" ], "state": "logged out" }, 403)
     else:
         user_data = g.user.to_dict()
-        if "password_hash" in user_data:
-            del(user_data["password_hash"])
         user_data["auth_token"] = g.user.get_auth_token().token
         return json_response({ "data": user_data })
 
