@@ -21,19 +21,23 @@ export default class ProjectEditor extends Component {
         }
     }
 
-    componentDidMount() {
+    onDataLoaded(project) {
+        this.setState({
+            project,
+            title: "Edit Project",
+            isNew: false,
+            isLoading: false
+        })
+    }
+
+    loadData() {
         let { id } = this.props.match.params
         let { EditorFields } = Api.Projects
         EditorFields = EditorFields.join(",")
         if (id && id !== "new") {
             Axios.get(`/api/v1/projects/${id}?_fields=${EditorFields}`)
-                .then((response) => {
-                    this.setState({
-                        project: response.data.data[0],
-                        title: "Edit Project",
-                        isNew: false,
-                        isLoading: false
-                    })
+                .then( response => {
+                    this.onDataLoaded(response.data.data[0])
                 })
                 .catch(HttpErrorHandler);
         } else {
@@ -41,6 +45,10 @@ export default class ProjectEditor extends Component {
                 isLoading: false
             })
         }
+    }
+
+    componentDidMount() {
+        this.loadData()
     }
 
     handleSubmit(project) {
@@ -55,8 +63,16 @@ export default class ProjectEditor extends Component {
         .catch(HttpErrorHandler)
     }
 
-    handleMembersSubmit(members) {
-        console.log(members)
+    handleMembersSubmit(member_ids) {
+        let { id } = this.props.match.params
+        let { EditorFields } = Api.Projects
+        EditorFields = EditorFields.join(",")
+       Axios.post(`/api/v1/projects/${id}/set_members?_fields=${EditorFields}`, { member_ids })
+            .then( response => {
+                AlertStore.Notice('Project members have been successfully updated')
+                this.onDataLoaded(response.data.data)
+            })
+            .catch(HttpErrorHandler)
     }
 
     handleDestroy(project) {

@@ -136,7 +136,7 @@ def set_members(id):
         return json_response({ "errors": [ "You don't have permissions to modify the project member list" ]}, 403)
     if not "member_ids" in request.json:
         return json_response({ "errors": [ "You should provide member_ids field" ]}, 400)
-    if type("member_ids") != list:
+    if type(request.json["member_ids"]) != list:
         return json_response({ "errors": [ "Invalid member_ids field type" ]}, 400)
 
     try:
@@ -152,6 +152,9 @@ def set_members(id):
 
     if len(failed_ids) > 0:
         return json_response({"errors": ["Users not found with the following ids: %s" % ", ".join([str(x) for x in failed_ids])]})
+
+    if project.owner_id in member_ids:
+        member_ids.remove(project.owner_id)
 
     project.member_ids = member_ids
     project.save()
