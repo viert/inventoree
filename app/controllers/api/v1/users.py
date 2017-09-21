@@ -116,8 +116,8 @@ def set_supervisor(user_id):
 
     if user is None:
         return json_response({"errors":["User not found"]}, 404)
-    if not g.user.supervisor:
-        return json_response({"errors":["You don't have permissions to set supervisor property"]}, 403)
+    if not user.supervisor_set_allowed:
+        return json_response({"errors":["You don't have permissions to set supervisor property for this user"]}, 403)
 
     try:
         supervisor = request.json["supervisor"]

@@ -26,7 +26,8 @@ export default class GroupView extends Component {
                 children: [],
                 project: {
                     name: ""
-                }
+                },
+                modification_allowed: false
             },
             selfTags: [],
             derivedTags: [],
@@ -143,7 +144,11 @@ export default class GroupView extends Component {
 
                             <div className="row properties-line">
                                 <div className="col-sm-12 form-buttons">
-                                    <Link to={`/groups/${this.state.group._id}/edit`} type="submit" className="btn btn-primary">Edit Group</Link>
+                                {
+                                    this.state.group.modification_allowed ?
+                                        <Link to={`/groups/${this.state.group._id}/edit`} type="submit" className="btn btn-primary">Edit Group</Link> :
+                                        ""
+                                }
                                 </div>
                             </div>
 

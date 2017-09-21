@@ -138,3 +138,10 @@ class User(StorableModel):
         if user is None: return False
         if user.supervisor or self._id == user._id: return True
         return False
+
+    @property
+    def supervisor_set_allowed(self):
+        user = get_user_from_app_context()
+        return user.supervisor and user._id != self._id
+        # user can't revoke his supervisor privileges himself
+        # just in case of misclick

@@ -21,6 +21,7 @@ const Api = {
             'custom_fields',
             'all_tags',
             'all_custom_fields',
+            'modification_allowed'
         ],
         ListFields: [
             '_id',
@@ -46,6 +47,7 @@ const Api = {
             'all_tags',
             'all_custom_fields',
             'project',
+            'modification_allowed'
         ],
         ListFields: [
             '_id',
@@ -66,7 +68,8 @@ const Api = {
             'members',
             'root_email',
             'description',
-            'groups_count'
+            'groups_count',
+            'modification_allowed'
         ],
         ListFields: [
             '_id',
@@ -89,6 +92,15 @@ const Api = {
         ]
     },
     Users: {
+        EditorFields: [
+            '_id',
+            'username',
+            'first_name',
+            'last_name',
+            'supervisor',
+            'supervisor_set_allowed',
+            'modification_allowed'
+        ],
         ListFields: [
             '_id',
             'username',

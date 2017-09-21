@@ -17,6 +17,7 @@ export default class ProjectView extends Component {
                 name: "",
                 email: "",
                 root_email: "",
+                modification_allowed: false
             },
             isLoading: true,
         }
@@ -121,7 +122,11 @@ export default class ProjectView extends Component {
 
                             <div className="row properties-line">
                                 <div className="col-sm-12 form-buttons">
-                                    <Link to={`/projects/${project._id}/edit`} type="submit" className="btn btn-primary">Edit Project</Link>
+                                    {
+                                        project.modification_allowed ?
+                                            <Link to={`/projects/${project._id}/edit`} type="submit" className="btn btn-primary">Edit Project</Link> :
+                                            ""
+                                    }
                                 </div>
                             </div>
 
