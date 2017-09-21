@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types'
-import '../Form.css';
-import ConfirmButton from '../common/ConfirmButton'
+import '../../Form.css';
+import ConfirmButton from '../../common/ConfirmButton'
 
 export default class ProjectForm extends Component {
     constructor(props) {
@@ -70,6 +70,7 @@ export default class ProjectForm extends Component {
     render() {
         return (
             <form onChange={this.handleFieldChange.bind(this)} onSubmit={this.handleSubmit.bind(this)} className="form-horizontal object-form max">
+                <h4 className="object-form_title">Project Properties</h4>
                 <div className="form-group">
                     <label htmlFor="inputProjectName" className="col-sm-3 control-label">
                         Name:

@@ -27,7 +27,8 @@ export default class HostView extends Component {
                 },
                 datacenter: {
                     name: ""
-                }
+                },
+                modification_allowed: false
             },
             selfTags: [],
             derivedTags: [],
@@ -167,7 +168,11 @@ export default class HostView extends Component {
 
                             <div className="row properties-line">
                                 <div className="col-sm-12 form-buttons">
-                                    <Link to={`/hosts/${this.state.host._id}/edit`} type="submit" className="btn btn-primary">Edit Host</Link>
+                                {
+                                    this.state.host.modification_allowed ? 
+                                        <Link to={`/hosts/${this.state.host._id}/edit`} type="submit" className="btn btn-primary">Edit Host</Link> :
+                                        ""
+                                }
                                 </div>
                             </div>
 

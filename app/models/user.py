@@ -1,6 +1,12 @@
 from storable_model import StorableModel, now
 from library.engine.pbkdf2 import pbkdf2_hex
+from library.engine.utils import get_user_from_app_context
 from time import mktime
+
+
+class UserHasProjects(Exception):
+    pass
+
 
 class User(StorableModel):
 
@@ -28,7 +34,8 @@ class User(StorableModel):
     }
 
     RESTRICTED_FIELDS = [
-        "password_hash"
+        "password_hash",
+        "tokens"
     ]
 
     REQUIRED_FIELDS = (
@@ -83,6 +90,12 @@ class User(StorableModel):
     def _before_save(self):
         self.touch()
 
+    def _before_delete(self):
+        if self.projects_owned.count() > 0:
+            raise UserHasProjects("Can't remove user with projects owned by")
+        for project in self.projects_included_into:
+            project.remove_member(self)
+
     def set_password(self, password_raw):
         self.password_hash = pbkdf2_hex(password_raw, self.salt)
 
@@ -108,3 +121,27 @@ class User(StorableModel):
         token = self.token_class(type="auth", user_id=self._id)
         token.save()
         return token
+
+    @property
+    def projects_owned(self):
+        from app.models import Project
+        return Project.find({"owner_id": self._id})
+
+    @property
+    def projects_included_into(self):
+        from app.models import Project
+        return Project.find({"member_ids": self._id})
+
+    @property
+    def modification_allowed(self):
+        user = get_user_from_app_context()
+        if user is None: return False
+        if user.supervisor or self._id == user._id: return True
+        return False
+
+    @property
+    def supervisor_set_allowed(self):
+        user = get_user_from_app_context()
+        return user.supervisor and user._id != self._id
+        # user can't revoke his supervisor privileges himself
+        # just in case of misclick

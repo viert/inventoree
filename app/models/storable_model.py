@@ -80,6 +80,17 @@ class StorableModel(object):
     DEFAULTS = {}
     INDEXES = []
 
+    AUXILIARY_SLOTS = (
+        "AUXILIARY_SLOTS",
+        "FIELDS",
+        "REJECTED_FIELDS",
+        "REQUIRED_FIELDS",
+        "RESTRICTED_FIELDS",
+        "KEY_FIELD",
+        "DEFAULTS",
+        "INDEXES",
+    )
+
     __hash__ = None
     __slots__ = FIELDS
 
@@ -153,10 +164,13 @@ class StorableModel(object):
     def to_dict(self, fields=None, include_restricted=False):
         if fields is None:
             fields = self.FIELDS
-        result = dict([(f, getattr(self, f)) for f in fields if hasattr(self, f)
-                       and not (f != "_id" and f.startswith("_"))
-                       and (include_restricted or f not in self.RESTRICTED_FIELDS)
-                       and not callable(getattr(self, f))])
+        result = dict([
+            (f, getattr(self, f)) for f in fields if hasattr(self, f)
+                        and not (f != "_id" and f.startswith("_"))
+                        and not (f in self.AUXILIARY_SLOTS)
+                        and (include_restricted or f not in self.RESTRICTED_FIELDS)
+                        and not callable(getattr(self, f))
+        ])
         return result
 
     @property

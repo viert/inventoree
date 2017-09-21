@@ -126,3 +126,7 @@ ul.list-bold-no-style li {
     overflow-x: hidden;
     white-space: nowrap;
 }
+
+.comma_separated:not(:last-child)::after {
+    content: ", "
+}

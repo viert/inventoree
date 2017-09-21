@@ -30,3 +30,9 @@
 .appheader-info {
     color: #7ebdf4;
 }
+
+.logout-icon {
+    color: white;
+    padding-left: 8px;
+    cursor: pointer;
+}

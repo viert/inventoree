@@ -6,7 +6,7 @@ import AppSidebar from './AppSidebar'
 
 import ProjectList from './Projects/ProjectList'
 import ProjectView from './Projects/ProjectView'
-import ProjectEditor from './Projects/ProjectEditor'
+import ProjectEditor from './Projects/ProjectEdit/ProjectEditor'
 
 import GroupList from './Groups/GroupList'
 import GroupView from './Groups/GroupView'
@@ -19,6 +19,11 @@ import DatacenterEditor from './Datacenters/DatacenterEditor'
 import HostList from './Hosts/HostList'
 import HostView from './Hosts/HostView'
 import HostEditor from './Hosts/HostEdit/HostEditor'
+
+import UserList from './Users/UserList'
+import UserView from './Users/UserView'
+import UserEditor from './Users/UserEdit/UserEditor'
+
 import { AlertBox } from '../library/AlertBox'
 
 class Main extends Component {
@@ -43,6 +48,10 @@ class Main extends Component {
                     <Route exact path="/hosts" component={HostList} />
                     <Route exact path="/hosts/:id" component={HostView} />
                     <Route exact path="/hosts/:id/edit" component={HostEditor} />
+
+                    <Route exact path="/users" component={UserList} />
+                    <Route exact path="/users/:id" component={UserView} />
+                    <Route exact path="/users/:id/edit" component={UserEditor} />
                 </div>
             </div>
         )

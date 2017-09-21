@@ -49,7 +49,9 @@ class Project(StorableModel):
     )
 
     INDEXES = [
-        [ "name", { "unique": True } ]
+        [ "name", { "unique": True } ],
+        "member_ids",
+        "owner_id"
     ]
 
     __slots__ = FIELDS

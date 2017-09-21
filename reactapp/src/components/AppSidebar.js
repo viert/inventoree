@@ -10,7 +10,7 @@ const AppSidebar = () => (
             <li><NavLink to="/groups" activeClassName="active">groups</NavLink></li>
             <li><NavLink to="/hosts" activeClassName="active">hosts</NavLink></li>
             <hr/>
-            <li><NavLink to="/structure/users" activeClassName="active">users</NavLink></li>
+            <li><NavLink to="/users" activeClassName="active">users</NavLink></li>
         </ul>
     </aside>
 )

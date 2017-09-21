@@ -30,6 +30,10 @@ ROUTES = [
         "controller": "api.v1.hosts"
     },
     {
+        "prefix": "/api/v1/users",
+        "controller": "api.v1.users"
+    },
+    {
         "prefix": "/api/v1/open",
         "controller": "api.v1.open"
     },

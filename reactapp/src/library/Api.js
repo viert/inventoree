@@ -21,6 +21,7 @@ const Api = {
             'custom_fields',
             'all_tags',
             'all_custom_fields',
+            'modification_allowed'
         ],
         ListFields: [
             '_id',
@@ -34,6 +35,16 @@ const Api = {
         ]
     },
     Groups: {
+        EditorFields: [
+            '_id',
+            'children',
+            'name',
+            'description',
+            'project',
+            'tags',
+            'custom_fields',
+            'hosts'
+        ],
         ViewFields: [
             '_id',
             'name',
@@ -46,6 +57,7 @@ const Api = {
             'all_tags',
             'all_custom_fields',
             'project',
+            'modification_allowed'
         ],
         ListFields: [
             '_id',
@@ -58,6 +70,14 @@ const Api = {
         ]
     },
     Projects: {
+        EditorFields: [
+            '_id',
+            'name',
+            'description',
+            'email',
+            'root_email',
+            'members'
+        ],
         ViewFields: [
             '_id',
             'name',
@@ -66,7 +86,8 @@ const Api = {
             'members',
             'root_email',
             'description',
-            'groups_count'
+            'groups_count',
+            'modification_allowed'
         ],
         ListFields: [
             '_id',
@@ -86,6 +107,35 @@ const Api = {
             'parent',
             'root',
             'children'
+        ]
+    },
+    Users: {
+        EditorFields: [
+            '_id',
+            'username',
+            'first_name',
+            'last_name',
+            'supervisor',
+            'supervisor_set_allowed',
+            'modification_allowed'
+        ],
+        ListFields: [
+            '_id',
+            'username',
+            'first_name',
+            'last_name',
+            'supervisor',
+            'modification_allowed'
+        ],
+        ViewFields: [
+            '_id',
+            'username',
+            'first_name',
+            'last_name',
+            'supervisor',
+            'modification_allowed',
+            'projects_owned',
+            'projects_included_into'
         ]
     }
 }
