@@ -19,6 +19,10 @@ import DatacenterEditor from './Datacenters/DatacenterEditor'
 import HostList from './Hosts/HostList'
 import HostView from './Hosts/HostView'
 import HostEditor from './Hosts/HostEdit/HostEditor'
+
+import UserList from './Users/UserList'
+import UserView from './Users/UserView'
+
 import { AlertBox } from '../library/AlertBox'
 
 class Main extends Component {
@@ -43,6 +47,9 @@ class Main extends Component {
                     <Route exact path="/hosts" component={HostList} />
                     <Route exact path="/hosts/:id" component={HostView} />
                     <Route exact path="/hosts/:id/edit" component={HostEditor} />
+
+                    <Route exact path="/users" component={UserList} />
+                    <Route exact path="/users/:id" component={UserView} />
                 </div>
             </div>
         )

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
-import './UserList.css'
 
 export class UserLink extends Component {
     render() {
@@ -22,7 +21,7 @@ export default class UserList extends Component {
             <span className="user_list">
                 {
                     this.props.users.map(
-                        user => <span className="user_list-user" key={user._id}><UserLink user={user} /></span>
+                        user => <span className="user_list-user comma_separated" key={user._id}><UserLink user={user} /></span>
                     )
                 }
             </span>

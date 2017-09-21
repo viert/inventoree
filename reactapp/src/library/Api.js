@@ -87,6 +87,26 @@ const Api = {
             'root',
             'children'
         ]
+    },
+    Users: {
+        ListFields: [
+            '_id',
+            'username',
+            'first_name',
+            'last_name',
+            'supervisor',
+            'modification_allowed'
+        ],
+        ViewFields: [
+            '_id',
+            'username',
+            'first_name',
+            'last_name',
+            'supervisor',
+            'modification_allowed',
+            'projects_owned',
+            'projects_included_into'
+        ]
     }
 }
 

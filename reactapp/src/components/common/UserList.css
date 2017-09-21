@@ -1,3 +1,0 @@
-.user_list-user:not(:last-child)::after {
-    content: ", "
-}

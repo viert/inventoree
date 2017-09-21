@@ -4,124 +4,138 @@ import Axios from 'axios'
 
 import Api from '../../library/Api'
 import HttpErrorHandler from '../../library/HttpErrorHandler'
-import UserList, { UserLink } from '../common/UserList'
 import Loading from '../common/Loading'
+import ModelLink from '../common/ModelLink'
 import '../common/PropertiesPanel.css'
 
-export default class ProjectView extends Component {
+export default class UserView extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            project: {
+            user: {
                 _id: "",
-                name: "",
-                email: "",
-                root_email: "",
+                username: "",
+                first_name: "",
+                last_name: "",
+                supervisor: false,
+                projects_owned: [],
+                projects_included_into: [],
+                modification_allowed: false
             },
             isLoading: true,
         }
     }
 
     onDataLoaded(response) {
-        let project = response.data.data[0]
+        let user = response.data.data[0]
         this.setState({
-            project,
+            user,
             isLoading: false
         })
     }
 
     componentDidMount() {
         let { id } = this.props.match.params
-        let { ViewFields } = Api.Projects
+        let { ViewFields } = Api.Users
         ViewFields = ViewFields.join(",")
 
-        Axios.get(`/api/v1/projects/${id}?_fields=${ViewFields}`)
+        Axios.get(`/api/v1/users/${id}?_fields=${ViewFields}`)
             .then( this.onDataLoaded.bind(this) )
             .catch( error => {
                 HttpErrorHandler(error)
-                this.props.history.push('/projects')
+                this.props.history.push('/users')
             })
     }
 
     render() {
-        let { project } = this.state
+        let { user } = this.state
         return (
             <div className="max vertcenter">
             {
                 this.state.isLoading ? <Loading /> :
                 <div className="max">
-                    <h2>View Project</h2>
+                    <h2>View User</h2>
                     <div className="row properties-panel">
                         <div className="col-sm-12">
-                            <h4 className="object-form_title">Project Properties</h4>
+                            <h4 className="object-form_title">User Properties</h4>
 
                             <div className="row properties-line">
                                 <div className="properties-key col-sm-2">
-                                    Name:
+                                    Username:
                                 </div>
                                 <div className="properties-value col-sm-10">
-                                    {project.name}
+                                    {user.username}
                                 </div>
                             </div>
 
                             <div className="row properties-line">
                                 <div className="properties-key col-sm-2">
-                                    Description:
+                                    First Name:
                                 </div>
                                 <div className="properties-value col-sm-10">
-                                    {project.description}
+                                    {user.first_name}
                                 </div>
                             </div>
 
                             <div className="row properties-line">
                                 <div className="properties-key col-sm-2">
-                                    Email:
+                                    Last Name:
                                 </div>
                                 <div className="properties-value col-sm-10">
-                                    {project.email}
+                                    {user.last_name}
                                 </div>
                             </div>
 
                             <div className="row properties-line">
                                 <div className="properties-key col-sm-2">
-                                    Root Email:
+                                    Supervisor:
                                 </div>
                                 <div className="properties-value col-sm-10">
-                                    {project.root_email}
+                                    {user.supervisor ? <i className="fa fa-check"></i> : ""}
                                 </div>
                             </div>
 
                             <div className="row properties-line">
                                 <div className="properties-key col-sm-2">
-                                    Groups Count:
+                                    Projects Owned:
                                 </div>
                                 <div className="properties-value col-sm-10">
-                                    {project.groups_count}
+                                    {
+                                        user.projects_owned.map(
+                                            project => (
+                                                <span className="comma_separated" key={project._id}>
+                                                    <ModelLink model={project} modelName="project" modelKey="name" />
+                                                </span>
+                                            )
+                                        )
+                                    }
                                 </div>
                             </div>
 
                             <div className="row properties-line">
                                 <div className="properties-key col-sm-2">
-                                    Owner:
+                                    Projects Participated In:
                                 </div>
                                 <div className="properties-value col-sm-10">
-                                    <UserLink user={project.owner} />
+                                    {
+                                        user.projects_included_into.map(
+                                            project => (
+                                                <span className="comma_separated" key={project._id}>
+                                                    <ModelLink model={project} modelName="project" modelKey="name" />
+                                                </span>
+                                            )
+                                        )
+                                    }
                                 </div>
                             </div>
-
-                            <div className="row properties-line">
-                                <div className="properties-key col-sm-2">
-                                    Members:
-                                </div>
-                                <div className="properties-value col-sm-10">
-                                    <UserList users={project.members} />
-                                </div>
-                            </div>
-
 
                             <div className="row properties-line">
                                 <div className="col-sm-12 form-buttons">
-                                    <Link to={`/projects/${project._id}/edit`} type="submit" className="btn btn-primary">Edit Project</Link>
+                                {
+                                    this.state.user.modification_allowed ? 
+                                        <Link to={`/users/${user._id}/edit`} type="submit" className="btn btn-primary">Edit User</Link> :
+                                        ""
+                                }
                                 </div>
                             </div>
 
