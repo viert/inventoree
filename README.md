@@ -39,3 +39,7 @@ user.save()
  
   * Plugin system for Authentication and additional controllers
   * Huge code refactoring
+  
+### v6.8
+
+  * Action Logging system 
