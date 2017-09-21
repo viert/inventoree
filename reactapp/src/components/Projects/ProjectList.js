@@ -63,7 +63,7 @@ export default class ProjectList extends Component {
                                 onFilterChanged={this.handleFilterChanged.bind(this)} 
                                 filter={this.state.filter} 
                                 createButtonText="New Project" 
-                                createLink="/projects/new" />
+                                createLink="/projects/new/edit" />
                 { 
                     this.state.loading ? <Loading /> :
                         <ProjectListTable projects={this.state.projects} />

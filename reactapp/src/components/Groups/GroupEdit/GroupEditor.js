@@ -139,7 +139,7 @@ export default class GroupEditor extends Component {
                         <h2>{this.state.title}</h2>
                         { this.state.isNew ? "" : 
                             <div className="listpage-header_buttons">
-                                <Link to="/groups/new" className="btn btn-primary">New Group</Link>
+                                <Link to="/groups/new/edit" className="btn btn-primary">New Group</Link>
                             </div>
                         }
                     </div>

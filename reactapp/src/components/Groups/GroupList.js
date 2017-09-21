@@ -136,7 +136,7 @@ export default class GroupList extends Component {
                                         onFilterChanged={this.handleFilterChanged.bind(this)} 
                                         filter={this.state.filter} 
                                         createButtonText="New Group" 
-                                        createLink="/groups/new" />
+                                        createLink="/groups/new/edit" />
                     </div>
                 </div>
                 <div className="row">
