@@ -35,6 +35,16 @@ const Api = {
         ]
     },
     Groups: {
+        EditorFields: [
+            '_id',
+            'children',
+            'name',
+            'description',
+            'project',
+            'tags',
+            'custom_fields',
+            'hosts'
+        ],
         ViewFields: [
             '_id',
             'name',
@@ -60,6 +70,14 @@ const Api = {
         ]
     },
     Projects: {
+        EditorFields: [
+            '_id',
+            'name',
+            'description',
+            'email',
+            'root_email',
+            'members'
+        ],
         ViewFields: [
             '_id',
             'name',

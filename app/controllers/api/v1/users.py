@@ -141,5 +141,11 @@ def delete(user_id):
     if user is None:
         return json_response({"errors":["User not found"]}, 404)
     if not g.user.supervisor:
-        return json_response({"errors":["You don't have permissions to set supervisor property"]}, 403)
+        return json_response({"errors":["You don't have permissions to delete this user"]}, 403)
 
+    try:
+        user.destroy()
+    except Exception as e:
+        return json_exception(e, 500)
+
+    return json_response({"data":user.to_dict()})

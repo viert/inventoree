@@ -30,7 +30,6 @@ export default class GroupEditor extends Component {
     componentWillReceiveProps(props) {
         let { id } = props.match.params
         if (id && id === "new") {
-            console.log("changing to new")
             this.setState({
                 group: {
                     name: "",

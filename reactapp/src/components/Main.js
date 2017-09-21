@@ -6,7 +6,7 @@ import AppSidebar from './AppSidebar'
 
 import ProjectList from './Projects/ProjectList'
 import ProjectView from './Projects/ProjectView'
-import ProjectEditor from './Projects/ProjectEditor'
+import ProjectEditor from './Projects/ProjectEdit/ProjectEditor'
 
 import GroupList from './Groups/GroupList'
 import GroupView from './Groups/GroupView'
