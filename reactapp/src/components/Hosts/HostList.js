@@ -66,7 +66,7 @@ export default class HostList extends Component {
                                 onFilterChanged={this.handleFilterChanged.bind(this)} 
                                 filter={this.state.filter} 
                                 createButtonText="Add Host(s)" 
-                                createLink="/hosts/new" />
+                                createLink="/hosts/new/edit" />
                 { 
                     this.state.loading ? <div className="max vertcenter"><Loading /></div> :
                         <HostListTable hosts={this.state.hosts} includeDescription={includeDescription} />

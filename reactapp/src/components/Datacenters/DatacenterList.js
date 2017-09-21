@@ -34,7 +34,7 @@ export default class DatacenterList extends Component {
                 <ListPageHeader title="Location List" 
                                 noFilter={true}
                                 createButtonText="New Location" 
-                                createLink="/datacenters/new" />
+                                createLink="/datacenters/new/edit" />
                 { 
                     this.state.loading ? 'Loading' :
                         <DatacenterListTree datacenters={this.state.datacenters} />
