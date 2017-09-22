@@ -1,3 +1,8 @@
 CSRF_PROTECTION = False
 DOCUMENTS_PER_PAGE = 20
+
 SECRET_KEY = "some_secret_key"
+
+FLASK_APP_SETTINGS = {
+    "SESSION_COOKIE_DOMAIN": "localhost",
+}
