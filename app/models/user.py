@@ -30,7 +30,8 @@ class User(StorableModel):
         "first_name": "",
         "last_name": "",
         "avatar_url": "",
-        "supervisor": False
+        "supervisor": False,
+        "password_hash": "-"
     }
 
     RESTRICTED_FIELDS = [
@@ -97,10 +98,14 @@ class User(StorableModel):
             project.remove_member(self)
 
     def set_password(self, password_raw):
-        self.password_hash = pbkdf2_hex(password_raw, self.salt)
+        # Attention! Here follows a HACK. Supposed to be removed or at least investigated
+        # why hmac requires str instead of unicode
+        self.password_hash = pbkdf2_hex(str(password_raw), self.salt)
 
     def check_password(self, password_raw):
-        return pbkdf2_hex(password_raw, self.salt) == self.password_hash
+        # Attention! Here follows a HACK. Supposed to be removed or at least investigated
+        # why hmac requires str instead of unicode
+        return pbkdf2_hex(str(password_raw), self.salt) == self.password_hash
 
     @property
     def token_class(self):

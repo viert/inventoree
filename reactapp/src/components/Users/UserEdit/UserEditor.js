@@ -83,7 +83,7 @@ export default class UserEditor extends Component {
 
     handleSubmitPassword(password, password_confirm) {
         let { id } = this.props.match.params
-        Axios.put(`/api/v1/users/${id}`, { password_raw: password, password_raw_confirm: password_confirm })
+        Axios.put(`/api/v1/users/${id}/set_password`, { password_raw: password, password_raw_confirm: password_confirm })
             .then( response => {
                 AlertStore.Notice("Password has been changed successfully")
                 this.props.history.push("/users")

@@ -33,9 +33,7 @@ def authenticate():
     if not user:
         return json_response({ "errors": ["Authentication error: invalid username or password"] }, 403)
 
-    # Attention! Here follows a HACK. Supposed to be removed or at least investigated
-    # why hmac requires str instead of unicode
-    if not user.check_password(str(data["password"])):
+    if not user.check_password(data["password"]):
         #  I meant this ^^^^^^^^^^^^^^^^^^
         return json_response({ "errors": ["Authentication error: invalid username or password"] }, 403)
     session["user_id"] = user._id
