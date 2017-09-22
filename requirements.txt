@@ -2,3 +2,4 @@ pymongo
 flask
 coverage
 PyYAML
+python-memcached
