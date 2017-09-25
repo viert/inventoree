@@ -149,8 +149,7 @@ def mass_move():
     from app.models import Host, Group
 
     # resolving group
-    group_id = resolve_id(request.json["group_id"])
-    group = Group.find_one({ "_id": group_id })
+    group = Group.get(request.json["group_id"])
     if group is None:
         return json_response({ "errors": ["Group not found"] }, 404)
 
@@ -200,7 +199,7 @@ def mass_detach():
     # resolving hosts
     host_ids = [resolve_id(x) for x in request.json["host_ids"]]
     host_ids = set([x for x in host_ids if x is not None])
-    hosts = Host.find({"_id":{"$in": list(host_ids)}})
+    hosts = Host.find({"_id":{"$in": list(host_ids)}}).all()
     if len(hosts) == 0:
         return json_response({"errors":["No hosts found to be moved"]}, 404)
 
