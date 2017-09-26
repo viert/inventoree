@@ -118,6 +118,10 @@ class TestHostCtrl(HttpApiTestCase):
         h4 = Host(fqdn="host4", group_id=g1._id)
         h4.save()
         r = self.post_json("/api/v1/hosts/mass_move",
+                           { "host_ids": [str(h2._id), str(h3._id)], "group_id": None })
+        self.assertEqual(400, r.status_code)
+
+        r = self.post_json("/api/v1/hosts/mass_move",
                            { "host_ids": [str(h2._id), str(h3._id)], "group_id": str(g2._id)})
         self.assertEqual(200, r.status_code)
         data = json.loads(r.data)
@@ -131,3 +135,37 @@ class TestHostCtrl(HttpApiTestCase):
         g2 = Group.find_one({"_id": g2._id})
         self.assertItemsEqual([h1._id, h4._id], g1.host_ids)
         self.assertItemsEqual([h2._id, h3._id], g2.host_ids)
+
+    def test_mass_detach(self):
+        from app.models import Group
+        g1 = Group(name="g1", project_id=self.project1._id)
+        g1.save()
+        g2 = Group(name="g2", project_id=self.project1._id)
+        g2.save()
+        h1 = Host(fqdn="host1", group_id=g1._id)
+        h1.save()
+        h2 = Host(fqdn="host2", group_id=g1._id)
+        h2.save()
+        h3 = Host(fqdn="host3", group_id=g2._id)
+        h3.save()
+        h4 = Host(fqdn="host4", group_id=g2._id)
+        h4.save()
+
+        r = self.post_json("/api/v1/hosts/mass_detach",
+                           { "host_ids": [str(h1._id), str(h2._id), str(h3._id), str(h4._id)] })
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        hosts_data = data["data"]
+        self.assertIn("hosts", hosts_data)
+        hosts_data = hosts_data["hosts"]
+        self.assertIs(list, type(hosts_data))
+        self.assertEqual(4, len(hosts_data))
+        g1 = Group.get(g1._id)
+        g2 = Group.get(g2._id)
+        self.assertItemsEqual([], g1.host_ids)
+        self.assertItemsEqual([], g2.host_ids)
+        hosts = Host.find({ "fqdn": { "$in": ["host1","host2","host3","host4"]}})
+        for host in hosts:
+            self.assertEqual(host.group_id, None)
+

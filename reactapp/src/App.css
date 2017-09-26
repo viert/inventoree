@@ -65,7 +65,7 @@ a {
     width: 140px;
 }
 
-.th-group-select, .td-group-select {
+.th-select, .td-select {
     width: 32px;
     text-align: center;
 }
@@ -97,16 +97,10 @@ a {
     flex-direction: column;
 }
 
-.selection-table h3:first-child {
-    margin-top: 0;
-}
-
-.selection-actions {
-    margin-top: 40px;
-}
-
 ul.list-bold-no-style {
-    list-style: none
+    list-style: none;
+    margin-top: 8px;
+    margin-bottom: 0;
 }
 
 ul.list-bold-no-style li {

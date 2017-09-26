@@ -10,18 +10,37 @@ class HttpApiTestCase(TestCase):
         "password": "superpasswd"
     }
 
+    GENERAL_USER = {
+        "username": "user",
+        "password": "userpassword"
+    }
+
     @classmethod
     def setUpClass(cls):
         cls.session = None
         User.destroy_all()
-        supervisor = User(username=HttpApiTestCase.SUPERVISOR["username"], supervisor=True, password_raw=HttpApiTestCase.SUPERVISOR["password"])
+        supervisor = User(username=HttpApiTestCase.SUPERVISOR["username"],
+                          supervisor=True,
+                          password_raw=HttpApiTestCase.SUPERVISOR["password"])
         supervisor.save()
-        token = supervisor.get_auth_token()
+
+        user = User(username=HttpApiTestCase.GENERAL_USER["username"],
+                    supervisor=False,
+                    password_raw=HttpApiTestCase.GENERAL_USER["password"])
+        user.save()
+
+        supertoken = supervisor.get_auth_token()
+        usertoken = user.get_auth_token()
+
         cls.supervisor = supervisor
-        cls.token = token.token
+        cls.supertoken = supertoken.token
+
+        cls.user = user
+        cls.usertoken = usertoken.token
+
         cls.project1 = Project(name="Test Project 1", owner_id=supervisor._id)
         cls.project1.save()
-        cls.project2 = Project(name="Test Project 2", owner_id=supervisor._id)
+        cls.project2 = Project(name="Test Project 2", owner_id=user._id)
         cls.project2.save()
 
     @classmethod
@@ -35,17 +54,20 @@ class HttpApiTestCase(TestCase):
     def fake_client(self):
         return app.flask.test_client()
 
-    def get(self, url):
-        return self.fake_client.get(url, headers={ "X-Api-Auth-Token": self.token })
+    def get(self, url, supervisor=True):
+        token = self.supertoken if supervisor else self.usertoken
+        return self.fake_client.get(url, headers={ "X-Api-Auth-Token": token })
 
-    def delete(self, url):
-        return self.fake_client.delete(url, headers={ "X-Api-Auth-Token": self.token })
+    def delete(self, url, supervisor=True):
+        token = self.supertoken if supervisor else self.usertoken
+        return self.fake_client.delete(url, headers={ "X-Api-Auth-Token": token })
 
-    def post_json(self, url, data):
+    def post_json(self, url, data, supervisor=True):
+        token = self.supertoken if supervisor else self.usertoken
         data = json.dumps(data, default=app.flask.json_encoder().default)
-        return self.fake_client.post(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": self.token })
+        return self.fake_client.post(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": token })
 
-    def put_json(self, url, data):
+    def put_json(self, url, data, supervisor=True):
+        token = self.supertoken if supervisor else self.usertoken
         data = json.dumps(data, default=app.flask.json_encoder().default)
-        return self.fake_client.put(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": self.token })
-
+        return self.fake_client.put(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": token })

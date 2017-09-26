@@ -23,7 +23,7 @@ export default class GroupListItem extends Component {
         let { group } = this.props
         return (
             <tr>
-                <td className="td-group-select">
+                <td className="td-select">
                     <CheckBoxIcon checked={this.props.selected} className="fa" classNameChecked="fa-folder" classNameUnchecked="fa-folder-o" onTrigger={this.selectItem.bind(this)} />
                 </td>
                 <td>
