@@ -159,6 +159,12 @@ class Group(StorableModel):
             parent.save()
         self.save()
 
+    @save_required
+    def remove_all_hosts(self):
+        for host in self.hosts:
+            host.group_id = None
+            host.save()
+
     @property
     def hosts(self):
         return self.host_class.find({ "group_id": self._id })

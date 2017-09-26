@@ -94,10 +94,7 @@ export default class GroupMassSelectionForm extends Component {
                     <h4>Destroy</h4>
                     <form onSubmit={PreventSubmit} className="form-horizontal">
                         <div className="row form-group">
-                            <div className="col-sm-8">
-                                <input type="text" ref="confirmText" placeholder="Type: I am sane" className="form-control" />
-                            </div>
-                            <div className="col-sm-4 text-right">
+                            <div className="col-sm-12 text-right">
                                 <ConfirmButton onClick={this.handleDestroy.bind(this)} buttonType="submit" className="btn btn-danger">Destroy</ConfirmButton>
                             </div>
                         </div>

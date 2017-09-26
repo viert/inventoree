@@ -298,6 +298,7 @@ def mass_delete():
 
     for group in groups:
         group.remove_all_children()
+        group.remove_all_hosts()
         group.destroy()
 
     result = {

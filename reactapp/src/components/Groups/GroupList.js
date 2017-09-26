@@ -69,7 +69,7 @@ export default class GroupList extends Component {
         let {selectedGroupsMap, selectedGroupsCount} = this.state
         if (!(groupsToSelect instanceof Array)) { groupsToSelect = [groupsToSelect] }
 
-        groupsToSelect.forEach(function(group) {
+        groupsToSelect.forEach(group => {
             if (typeof selectedGroupsMap[group._id] === "undefined") {
                 selectedGroupsMap[group._id] = group
                 selectedGroupsCount++
@@ -82,7 +82,7 @@ export default class GroupList extends Component {
         let {selectedGroupsMap, selectedGroupsCount} = this.state
         if (!(groupsToDeselect instanceof Array)) { groupsToDeselect = [groupsToDeselect] }
 
-        groupsToDeselect.forEach(function(group) {
+        groupsToDeselect.forEach(group => {
             if (typeof selectedGroupsMap[group._id] !== "undefined") {
                 delete(selectedGroupsMap[group._id])
                 selectedGroupsCount--
@@ -92,7 +92,22 @@ export default class GroupList extends Component {
     }
 
     massDestroy() {
-        console.log("massDestroy")
+        let group_ids = Object.keys(this.state.selectedGroupsMap)
+        Axios.post("/api/v1/groups/mass_delete", { group_ids })
+            .then(response => {
+                let { groups } = response.data.data
+                AlertStore.Info(
+                    <div>
+                        <div>Following groups were successfully destroyed:</div>
+                        <ul className="list-bold-no-style">
+                            {groups.map(group => <li key={group.name}>{group.name}</li>)}
+                        </ul>
+                    </div>
+                )
+                this.loadData(this.page, this.state.filter)
+                this.resetSelectedGroups()
+            })
+            .catch(HttpErrorHandler)
     }
 
     massMove(project) {
@@ -101,20 +116,14 @@ export default class GroupList extends Component {
             group_ids: Object.keys(this.state.selectedGroupsMap)
         }
         Axios.post("/api/v1/groups/mass_move", payload)
-            .then((response) => {
+            .then(response => {
                 let { project, groups } = response.data.data
-                let group_names = groups.map(group => group.name)
                 AlertStore.Info(
                     <div>
-                        <div>Successfully moved groups:</div>
+                        <div>Following groups were successfully moved to project <b>{project.name}</b>:</div>
                         <ul className="list-bold-no-style">
-                        {
-                            group_names.map(
-                                name => <li key={name}>{name}</li>
-                            )
-                        }
+                            {groups.map(group => <li key={group.name}>{group.name}</li>)}
                         </ul>
-                        <div>to project <b>{project.name}</b></div>
                     </div>
                 )
                 this.loadData(this.page, this.state.filter)
@@ -154,7 +163,11 @@ export default class GroupList extends Component {
                     {
                         inSelectMode ? 
                         <div className="col-sm-4">
-                            <GroupMassSelectionForm onDestroy={this.massDestroy.bind(this)} onMoveToProject={this.massMove.bind(this)} groups={this.state.selectedGroupsMap} onRemove={this.handleDeselect.bind(this)} />
+                            <GroupMassSelectionForm 
+                                onDestroy={this.massDestroy.bind(this)} 
+                                onMoveToProject={this.massMove.bind(this)} 
+                                groups={this.state.selectedGroupsMap} 
+                                onRemove={this.handleDeselect.bind(this)} />
                         </div> : ""
                     }
                 </div>
