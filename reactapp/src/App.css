@@ -106,7 +106,9 @@ a {
 }
 
 ul.list-bold-no-style {
-    list-style: none
+    list-style: none;
+    margin-top: 8px;
+    margin-bottom: 0;
 }
 
 ul.list-bold-no-style li {
