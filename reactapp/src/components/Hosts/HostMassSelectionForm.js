@@ -85,7 +85,7 @@ export default class HostMassSelectionForm extends Component {
                 <div className="selection-actions">
                     <h4>Move to group</h4>
                     <form onSubmit={PreventSubmit} className="form-horizontal">
-                        <div className={"row form-group" + (this.state.projectPicked ? " has-success": "")}>
+                        <div className={"row form-group" + (this.state.groupPicked ? " has-success": "")}>
                             <div className="col-sm-8">
                                 <GroupPicker
                                         value={this.state.group.name}
@@ -100,7 +100,7 @@ export default class HostMassSelectionForm extends Component {
                     </form>
                     <h4>Detach hosts</h4>
                     <form onSubmit={PreventSubmit} className="form-horizontal">
-                        <div className={"row form-group" + (this.state.projectPicked ? " has-success": "")}>
+                        <div className="row form-group">
                             <div className="col-sm-12 text-right">
                                 <ConfirmButton onClick={this.handleDetach.bind(this)} buttonType="submit" className="btn btn-danger">Detach</ConfirmButton>
                             </div>
@@ -108,7 +108,7 @@ export default class HostMassSelectionForm extends Component {
                     </form>
                     <h4>Destroy hosts</h4>
                     <form onSubmit={PreventSubmit} className="form-horizontal">
-                        <div className={"row form-group" + (this.state.projectPicked ? " has-success": "")}>
+                        <div className="row form-group">
                             <div className="col-sm-12 text-right">
                                 <ConfirmButton onClick={this.handleDestroy.bind(this)} buttonType="submit" className="btn btn-danger">Destroy</ConfirmButton>
                             </div>
