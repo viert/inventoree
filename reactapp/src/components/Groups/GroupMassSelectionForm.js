@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ChildItem from './GroupEdit/ChildItem'
-import ProjectPicker from './GroupEdit/ProjectPicker'
+// import ProjectPicker from './GroupEdit/ProjectPicker'
 import ConfirmButton from '../common/ConfirmButton'
 import AlertStore from '../../library/AlertBox'
 
