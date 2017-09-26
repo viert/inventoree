@@ -1,15 +1,31 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+
+import CheckBoxIcon from '../common/CheckBoxIcon'
 import TagList from '../common/TagList'
-import CustomFieldList from '../common/CustomFieldList'
 import TableModelLink from '../common/TableModelLink'
+import CustomFieldList from '../common/CustomFieldList'
 
 export default class HostListItem extends Component {
+
+    selectItem() {
+        let { selected, host } = this.props
+        selected = !selected
+        if (selected)
+            this.props.onSelect(host)
+        else 
+            this.props.onDeselect(host)
+        this.props.onSelectStarted()
+    }
+
     render() {
         let { host } = this.props
         return (
             <tr>
+                <td className="td-select">
+                    <CheckBoxIcon checked={this.props.selected} className="fa" classNameChecked="fa-folder" classNameUnchecked="fa-folder-o" onTrigger={this.selectItem.bind(this)} />
+                </td>
                 <td>
                     <TableModelLink modelName="host" modelId={host._id} showEditLink={host.modification_allowed}>
                         {host.fqdn}

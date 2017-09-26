@@ -66,39 +66,41 @@ export default class GroupListTable extends Component {
     render() {
         let userSelect = this.state.selectionMode ? "none" : "inherit"
         return (
-            <table style={{userSelect}} className="table listtable" onMouseUp={this.handleSelectFinished.bind(this)}>
-                <thead>
-                <tr>
-                    <th className="th-group-select">
-                        <CheckBoxIcon checked={this.state.allSelected} className="fa" classNameChecked="fa-folder" classNameUnchecked="fa-folder-o" onTrigger={this.triggerAll.bind(this)} />
-                    </th>
-                    <th className="th-group-name">name</th>
-                    <th className="th-project-name">project</th>
-                    <th className="th-tags">tags</th>
-                    <th className="th-custom-fields">custom fields</th>
-                    { 
-                        this.props.includeDescription ? <th>description</th> : ""
+            <div className="table-wrapper">
+                <table style={{userSelect}} className="table listtable" onMouseUp={this.handleSelectFinished.bind(this)}>
+                    <thead>
+                    <tr>
+                        <th className="th-select">
+                            <CheckBoxIcon checked={this.state.allSelected} className="fa" classNameChecked="fa-folder" classNameUnchecked="fa-folder-o" onTrigger={this.triggerAll.bind(this)} />
+                        </th>
+                        <th className="th-group-name">name</th>
+                        <th className="th-project-name">project</th>
+                        <th className="th-tags">tags</th>
+                        <th className="th-custom-fields">custom fields</th>
+                        { 
+                            this.props.includeDescription ? <th>description</th> : ""
+                        }
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {
+                        this.props.groups.map((group) => {
+                            let selected = typeof this.props.selected[group._id] !== "undefined"
+                            return (
+                                <GroupListItem 
+                                    selected={selected} 
+                                    includeDescription={this.props.includeDescription} 
+                                    onSelectStarted={this.handleSelectStarted.bind(this)} 
+                                    onDeselect={this.props.onDeselect} 
+                                    onSelect={this.props.onSelect} 
+                                    group={group} 
+                                    key={group._id} />
+                            )
+                        })
                     }
-                </tr>
-                </thead>
-                <tbody>
-                {
-                    this.props.groups.map((group) => {
-                        let selected = typeof this.props.selected[group._id] !== "undefined"
-                        return (
-                            <GroupListItem 
-                                selected={selected} 
-                                includeDescription={this.props.includeDescription} 
-                                onSelectStarted={this.handleSelectStarted.bind(this)} 
-                                onDeselect={this.props.onDeselect} 
-                                onSelect={this.props.onSelect} 
-                                group={group} 
-                                key={group._id} />
-                        )
-                    })
-                }
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         )
     }
 }

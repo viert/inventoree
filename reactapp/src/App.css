@@ -65,7 +65,7 @@ a {
     width: 140px;
 }
 
-.th-group-select, .td-group-select {
+.th-select, .td-select {
     width: 32px;
     text-align: center;
 }
