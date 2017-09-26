@@ -97,16 +97,21 @@ export default class UserAccessForm extends Component {
                     </div>
                 </div>
                 <div className="form-group">
-                    <div className="col-sm-12 form-buttons">
+                    <div className="col-sm-8 col-sm-offset-4 form-buttons">
                         <button type="button" className="btn btn-primary" onClick={this.handleSubmitPassword.bind(this)}>Set Password</button>
-                        {
-                            user.supervisor_set_allowed ?
-                                <button onClick={this.props.onToggleSupervisor} className={supervisorToggleButtonClass}>
-                                    {supervisorToggleButtonText}
-                                </button> : ""
-                        }
                     </div>
                 </div>
+                {
+                    user.supervisor_set_allowed ?
+                    <div className="form-group supervisor-button-wrapper">
+                        <hr/>
+                        <div className="col-sm-8 col-sm-offset-4">
+                            <button onClick={this.props.onToggleSupervisor} className={supervisorToggleButtonClass}>
+                                {supervisorToggleButtonText}
+                            </button>
+                        </div>
+                    </div> : ""
+                }
             </form> 
         )
     }

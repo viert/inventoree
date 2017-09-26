@@ -97,14 +97,6 @@ a {
     flex-direction: column;
 }
 
-.selection-table h3:first-child {
-    margin-top: 0;
-}
-
-.selection-actions {
-    margin-top: 40px;
-}
-
 ul.list-bold-no-style {
     list-style: none;
     margin-top: 8px;

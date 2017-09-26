@@ -11,20 +11,23 @@
     text-transform: uppercase;
 }
 
-.object-form.form-horizontal .control-label {
+.object-form .control-label {
     text-align: left;
 }
 
-.object-form.form-horizontal .has-success input.form-control {
+.object-form .has-success input.form-control,
+.selection-table .has-success input.form-control {
     border-color: #3c763d;
     background-color: #f9fef9;
 }
-.object-form.form-horizontal .has-success input.form-control:focus {
+.object-form .has-success input.form-control:focus,
+.selection-table .has-success input.form-control:focus {
     border-color: #2b542c;
     background-color: #fcfffc;
 }
 
-.object-form.form-horizontal input.form-control {
+.object-form input.form-control,
+.selection-table input.form-control {
     border: none; 
     border-bottom: 1px solid #ccc;
     border-radius: 0;
@@ -32,7 +35,8 @@
     background-color: #f9f9f9;
 }
 
-.object-form.form-horizontal input.form-control:focus {
+.object-form input.form-control:focus,
+.selection-table input.form-control:focus {
     border-color: #9c9;
     background-color: white;
 }
@@ -46,4 +50,8 @@
 
 .object-form .tag-editor.has-focus {
     background-color: white;
+}
+
+.supervisor-button-wrapper hr {
+    margin: 6px 15px 20px;
 }

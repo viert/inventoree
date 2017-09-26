@@ -31,7 +31,7 @@ export default class DatacenterList extends Component {
     render() {
         return (
             <div>
-                <ListPageHeader title="Location List" 
+                <ListPageHeader title="Location Tree" 
                                 noFilter={true}
                                 createButtonText="New Location" 
                                 createLink="/datacenters/new/edit" />
