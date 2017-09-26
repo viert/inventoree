@@ -102,10 +102,16 @@ export default class HostList extends Component {
             .then(response => {
                 let { hosts, group } = response.data.data
                 hosts = hosts.map( item => item.fqdn ).sort()
-                let hostsString = hosts.join(", ")
-                let groupName = group.name
-                AlertStore.Notice(`Hosts ${hostsString} have successfully moved to group ${groupName}`)
+                AlertStore.Info(
+                    <div>
+                        <div>Following hosts were successfully moved to group <b>{group.name}</b>:</div>
+                        <ul className="list-bold-no-style">
+                            { hosts.map(host => <li key={host}>{host}</li>) }
+                        </ul>
+                    </div>
+                )
                 this.loadData(this.page, this.state.filter)
+                this.resetSelectedHosts()
             })
             .catch(HttpErrorHandler)
     }
@@ -116,9 +122,16 @@ export default class HostList extends Component {
             .then(response => {
                 let { hosts } = response.data.data
                 hosts = hosts.map( item => item.fqdn ).sort()
-                let hostsString = hosts.join(", ")
-                AlertStore.Notice(`Hosts ${hostsString} are successfully destroyed`)
+                AlertStore.Info(
+                    <div>
+                        <div>Following hosts were successfully destroyed:</div>
+                        <ul className="list-bold-no-style">
+                            { hosts.map(host => <li key={host}>{host}</li>) }
+                        </ul>
+                    </div>
+                )
                 this.loadData(this.page, this.state.filter)
+                this.resetSelectedHosts()
             })
             .catch(HttpErrorHandler)
     }
@@ -129,9 +142,16 @@ export default class HostList extends Component {
             .then(response => {
                 let { hosts } = response.data.data
                 hosts = hosts.map( item => item.fqdn ).sort()
-                let hostsString = hosts.join(", ")
-                AlertStore.Notice(`Hosts ${hostsString} are successfully detached from groups`)
+                AlertStore.Info(
+                    <div>
+                        <div>Following hosts were successfully detached from groups:</div>
+                        <ul className="list-bold-no-style">
+                            { hosts.map(host => <li key={host}>{host}</li>) }
+                        </ul>
+                    </div>
+                )
                 this.loadData(this.page, this.state.filter)
+                this.resetSelectedHosts()
             })
             .catch(HttpErrorHandler)
     }
