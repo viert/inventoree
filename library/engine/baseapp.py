@@ -3,13 +3,14 @@ import os.path
 import sys
 import importlib
 import logging
+import time
 from flask import Flask, request, session
 from collections import namedtuple
 from library.engine.utils import get_py_files
 from library.engine.json_encoder import MongoJSONEncoder
 from library.mongo_session import MongoSessionInterface
 from werkzeug.contrib.cache import MemcachedCache, SimpleCache
-
+from prometheus_client import Histogram, Counter, start_http_server
 
 ENVIRONMENT_TYPES = (
     "development",
@@ -24,6 +25,18 @@ class BaseApp(object):
     DEFAULT_LOG_FORMAT = "[%(asctime)s] %(levelname)s %(filename)s:%(lineno)d %(message)s"
     DEFAULT_LOG_LEVEL = "debug"
     CTRL_MODULES_PREFIX = "app.controllers"
+
+    FLASK_REQ_LATENCY = Histogram(
+        'flask_request_latency_seconds',
+        'Flask Request Latency',
+        ['method', 'endpoint']
+    )
+
+    FLASK_REQ_COUNT = Counter(
+        'flask_request_count',
+        'Flask Request Count',
+        ['method', 'endpoint', 'http_status']
+    )
 
     def __init__(self):
         import inspect
@@ -71,9 +84,23 @@ class BaseApp(object):
 
         if "MONITOR_PORT" in self.config.app:
             self.logger.debug("Configuring prometheus exporter")
-            monitoring_port = self.config.app.get("MONITOR_PORT", 8000)
-            from flask_prometheus import monitor
-            monitor(self.flask, port=monitoring_port)
+
+            def before_request():
+                request.start_time = time.time()
+
+            def after_request(response):
+                latency = time.time() - request.start_time
+                self.FLASK_REQ_LATENCY.labels(request.method, request.path).observe(latency)
+                self.FLASK_REQ_COUNT.labels(request.method, request.path, response.status_code).inc()
+                return response
+
+            monitoring_port = self.config.app.get("MONITOR_PORT")
+            monitoring_host = self.config.app.get("MONITOR_HOST", '')
+
+            start_http_server(monitoring_port, monitoring_host)
+
+            self.flask.before_request(before_request)
+            self.flask.after_request(after_request)
 
         self.logger.debug("Setting JSON Encoder")
         self.flask.json_encoder = MongoJSONEncoder
