@@ -3,3 +3,4 @@ flask
 coverage
 PyYAML
 python-memcached
+flask-prometheus

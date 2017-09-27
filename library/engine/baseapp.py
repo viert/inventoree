@@ -63,10 +63,18 @@ class BaseApp(object):
         flask_app_settings = self.config.app.get("FLASK_APP_SETTINGS", {})
         static_folder = os.path.abspath(os.path.join(self.BASE_DIR, static_folder))
         self.flask = Flask(__name__, static_folder=static_folder)
+
         self.logger.debug("Applying Flask application settings")
         for k, v in flask_app_settings.items():
             self.logger.debug("  %s: %s" % (k, v))
             self.flask.config[k] = v
+
+        if "MONITOR_PORT" in self.config.app:
+            self.logger.debug("Configuring prometheus exporter")
+            monitoring_port = self.config.app.get("MONITOR_PORT", 8000)
+            from flask_prometheus import monitor
+            monitor(self.flask, port=monitoring_port)
+
         self.logger.debug("Setting JSON Encoder")
         self.flask.json_encoder = MongoJSONEncoder
         self.logger.debug("Setting sessions interface")
