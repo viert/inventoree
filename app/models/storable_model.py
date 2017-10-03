@@ -266,7 +266,7 @@ class StorableModel(object):
             try:
                 db.conn[cls.collection].create_index(keys, **options)
             except OperationFailure as e:
-                if e.details["codeName"] == "IndexOptionsConflict":
+                if e.details.get("codeName") == "IndexOptionsConflict" or e.details.get("code") == 85:
                     if overwrite:
                         if loud:
                             app.logger.debug("Dropping index %s as conflicting" % keys)
