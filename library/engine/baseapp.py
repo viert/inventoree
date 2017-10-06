@@ -5,6 +5,7 @@ import importlib
 import logging
 import time
 from flask import Flask, request, session
+from datetime import timedelta
 from collections import namedtuple
 from library.engine.utils import get_py_files
 from library.engine.json_encoder import MongoJSONEncoder
@@ -19,6 +20,8 @@ ENVIRONMENT_TYPES = (
 )
 
 DEFAULT_ENVIRONMENT_TYPE = "development"
+DEFAULT_SESSION_EXPIRATION_TIME = 86400 * 7 * 2 # 2 weeks
+
 
 class BaseApp(object):
 
@@ -50,6 +53,7 @@ class BaseApp(object):
         self.__read_config()
         self.__prepare_logger()
         self.__prepare_flask()
+        self.__set_session_expiration()
         self.__set_cache()
 
     def __set_cache(self):
@@ -69,6 +73,13 @@ class BaseApp(object):
                     token = session.get('_csrf_token', None)
                     if not token or token != request.form.get('_csrf_token'):
                         return json_response({'errors': ['request is not authorized: csrf token is invalid']}, 403)
+
+    def __set_session_expiration(self):
+        e_time = self.config.app.get("SESSION_EXPIRATION_TIME", DEFAULT_SESSION_EXPIRATION_TIME)
+        @self.flask.before_request
+        def session_expiration():
+            session.permanent = True
+            self.flask.permanent_session_lifetime = timedelta(seconds=e_time)
 
     def __prepare_flask(self):
         self.logger.debug("Creating flask app")
