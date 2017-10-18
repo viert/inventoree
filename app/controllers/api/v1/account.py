@@ -34,7 +34,6 @@ def authenticate():
         return json_response({ "errors": ["Authentication error: invalid username or password"] }, 403)
 
     if not user.check_password(data["password"]):
-        #  I meant this ^^^^^^^^^^^^^^^^^^
         return json_response({ "errors": ["Authentication error: invalid username or password"] }, 403)
     session["user_id"] = user._id
     user_data = user.to_dict()
