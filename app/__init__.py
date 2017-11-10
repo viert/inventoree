@@ -2,6 +2,6 @@ from library.engine.baseapp import BaseApp
 
 
 class App(BaseApp):
-    VERSION = "6.6.5"
+    VERSION = "6.6.7"
 
 app = App()
