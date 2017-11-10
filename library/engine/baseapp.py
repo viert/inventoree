@@ -83,7 +83,7 @@ class BaseApp(object):
 
     def __prepare_flask(self):
         self.logger.debug("Creating flask app")
-        static_folder = self.config.http.get("STATIC", "static")
+        static_folder = self.config.app.get("STATIC", "static")
         flask_app_settings = self.config.app.get("FLASK_APP_SETTINGS", {})
         static_folder = os.path.abspath(os.path.join(self.BASE_DIR, static_folder))
         self.flask = Flask(__name__, static_folder=static_folder)
@@ -117,8 +117,10 @@ class BaseApp(object):
         self.flask.json_encoder = MongoJSONEncoder
         self.logger.debug("Setting sessions interface")
         self.flask.session_interface = MongoSessionInterface(collection_name='sessions')
+        self.configure_routes()
 
-        self.logger.info("Loading routes...")
+    def configure_routes(self):
+        self.logger.info("Configuring routes...")
         for route in self.config.http["ROUTES"]:
             route["active"] = True
             if not "controller" in route:
