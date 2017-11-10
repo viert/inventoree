@@ -30,6 +30,11 @@ def show(user_id=None):
         data = paginated_data(users.sort("username"))
     except AttributeError as e:
         return json_exception(e, 500)
+
+    for user in data["data"]:
+        if str(user["_id"]) == str(g.user._id):
+            user["auth_token"] = g.user.get_auth_token().token
+
     return json_response(data)
 
 

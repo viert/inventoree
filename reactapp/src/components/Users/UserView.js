@@ -8,6 +8,20 @@ import Loading from '../common/Loading'
 import ModelLink from '../common/ModelLink'
 import '../common/PropertiesPanel.css'
 
+const selectText = (element) => {
+    if (document.body.createTextRange) {
+        let range = document.body.createTextRange()
+        range.moveToElementText(element)
+        range.select()
+    } else if (window.getSelection) {
+        let selection = window.getSelection()
+        let range = document.createRange()
+        range.selectNodeContents(element)
+        selection.removeAllRanges()
+        selection.addRange(range)
+    }
+} 
+
 export default class UserView extends Component {
     constructor(props) {
         super(props)
@@ -45,6 +59,10 @@ export default class UserView extends Component {
                 HttpErrorHandler(error)
                 this.props.history.push('/users')
             })
+    }
+
+    selectAll(e) {
+        selectText(e.target)
     }
 
     render() {
@@ -94,6 +112,18 @@ export default class UserView extends Component {
                                     {user.supervisor ? <i className="fa fa-check"></i> : ""}
                                 </div>
                             </div>
+
+                            {
+                                user.auth_token &&
+                                <div className="row properties-line">
+                                <div className="properties-key col-sm-2">
+                                    Auth Token:
+                                </div>
+                                <div className="properties-value col-sm-10">
+                                    <span onClick={this.selectAll.bind(this)}>{ user.auth_token }</span>
+                                </div>
+                            </div>
+                            }
 
                             <div className="row properties-line">
                                 <div className="properties-key col-sm-2">
