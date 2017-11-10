@@ -142,14 +142,12 @@ class DB(object):
     def conn(self):
         if self._conn is None:
             self.init_conn()
-        app.logger.debug("Using read/write connection %s" % self._conn)
         return self._conn
 
     @property
     def ro_conn(self):
         if self._ro_conn is None:
             self.init_ro_conn()
-        app.logger.debug("Using read-only connection %s" % self._ro_conn)
         return self._ro_conn
 
     @intercept_mongo_errors_ro
