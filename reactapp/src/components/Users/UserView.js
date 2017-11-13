@@ -31,6 +31,7 @@ export default class UserView extends Component {
                 username: "",
                 first_name: "",
                 last_name: "",
+                email: "",
                 supervisor: false,
                 projects_owned: [],
                 projects_included_into: [],
@@ -101,6 +102,15 @@ export default class UserView extends Component {
                                 </div>
                                 <div className="properties-value col-sm-10">
                                     {user.last_name}
+                                </div>
+                            </div>
+
+                            <div className="row properties-line">
+                                <div className="properties-key col-sm-2">
+                                    Email:
+                                </div>
+                                <div className="properties-value col-sm-10">
+                                    {user.email}
                                 </div>
                             </div>
 

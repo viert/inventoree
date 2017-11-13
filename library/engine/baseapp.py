@@ -3,7 +3,6 @@ import os.path
 import sys
 import importlib
 import logging
-import time
 from flask import Flask, request, session
 from datetime import timedelta
 from collections import namedtuple
@@ -11,7 +10,6 @@ from library.engine.utils import get_py_files
 from library.engine.json_encoder import MongoJSONEncoder
 from library.mongo_session import MongoSessionInterface
 from werkzeug.contrib.cache import MemcachedCache, SimpleCache
-from prometheus_client import Histogram, Counter, start_http_server
 
 ENVIRONMENT_TYPES = (
     "development",
@@ -29,18 +27,6 @@ class BaseApp(object):
     DEFAULT_LOG_LEVEL = "debug"
     CTRL_MODULES_PREFIX = "app.controllers"
 
-    FLASK_REQ_LATENCY = Histogram(
-        'flask_request_latency_seconds',
-        'Flask Request Latency',
-        ['method', 'endpoint']
-    )
-
-    FLASK_REQ_COUNT = Counter(
-        'flask_request_count',
-        'Flask Request Count',
-        ['method', 'endpoint', 'http_status']
-    )
-
     def __init__(self):
         import inspect
         class_file = inspect.getfile(self.__class__)
@@ -51,8 +37,11 @@ class BaseApp(object):
         if not self.envtype in ENVIRONMENT_TYPES:
             self.envtype = DEFAULT_ENVIRONMENT_TYPE
         self.__read_config()
+        self.test_config()
         self.__prepare_logger()
+        self.__load_plugins()
         self.__prepare_flask()
+        self.__set_authorizer()
         self.__set_session_expiration()
         self.__set_cache()
 
@@ -62,6 +51,34 @@ class BaseApp(object):
             self.cache = MemcachedCache(self.config.cache["MEMCACHE_BACKENDS"])
         else:
             self.cache = SimpleCache()
+
+    def __load_plugins(self):
+        self.plugins = []
+        plugin_directory = os.path.abspath(os.path.join(self.BASE_DIR, 'plugins'))
+        plugin_files = get_py_files(plugin_directory)
+        module_names = [x[:-3] for x in plugin_files if not x.startswith("__")]
+        for module_name in module_names:
+            try:
+                self.logger.debug("Loading plugin %s" % module_name)
+                module = importlib.import_module("plugins.%s" % module_name)
+            except ImportError as e:
+                self.logger.error("Error loading module %s: %s" % (module_name, e.message))
+            self.plugins.append(module)
+
+    def __set_authorizer(self):
+        authorizer_name = self.config.app.get("AUTHORIZER", "LocalAuthorizer")
+        self.authorizer = None
+        authorizer_class = None
+        for plugin in self.plugins:
+            try:
+                authorizer_class = getattr(plugin, authorizer_name)
+            except AttributeError:
+                continue
+        if authorizer_class is None:
+            raise RuntimeError("No authorizer '%s' found in plugins" % authorizer_name)
+        else:
+            self.authorizer = authorizer_class(self.flask)
+            self.logger.debug("Authorizer '%s' registered" % authorizer_name)
 
     def __set_csrf_protection(self):
         if 'CSRF_PROTECTION' in self.config.app and self.config.app['CSRF_PROTECTION']:
@@ -83,7 +100,7 @@ class BaseApp(object):
 
     def __prepare_flask(self):
         self.logger.debug("Creating flask app")
-        static_folder = self.config.http.get("STATIC", "static")
+        static_folder = self.config.app.get("STATIC", "static")
         flask_app_settings = self.config.app.get("FLASK_APP_SETTINGS", {})
         static_folder = os.path.abspath(os.path.join(self.BASE_DIR, static_folder))
         self.flask = Flask(__name__, static_folder=static_folder)
@@ -93,64 +110,14 @@ class BaseApp(object):
             self.logger.debug("  %s: %s" % (k, v))
             self.flask.config[k] = v
 
-        if "MONITOR_PORT" in self.config.app:
-            self.logger.debug("Configuring prometheus exporter")
-
-            def before_request():
-                request.start_time = time.time()
-
-            def after_request(response):
-                latency = time.time() - request.start_time
-                self.FLASK_REQ_LATENCY.labels(request.method, request.path).observe(latency)
-                self.FLASK_REQ_COUNT.labels(request.method, request.path, response.status_code).inc()
-                return response
-
-            monitoring_port = self.config.app.get("MONITOR_PORT")
-            monitoring_host = self.config.app.get("MONITOR_HOST", '')
-
-            start_http_server(monitoring_port, monitoring_host)
-
-            self.flask.before_request(before_request)
-            self.flask.after_request(after_request)
-
         self.logger.debug("Setting JSON Encoder")
         self.flask.json_encoder = MongoJSONEncoder
         self.logger.debug("Setting sessions interface")
         self.flask.session_interface = MongoSessionInterface(collection_name='sessions')
+        self.configure_routes()
 
-        self.logger.info("Loading routes...")
-        for route in self.config.http["ROUTES"]:
-            route["active"] = True
-            if not "controller" in route:
-                route["active"] = False
-                route["error"] = "Invalid route %s: no controller found" % route
-                self.logger.error("Invalid route %s: no controller found" % route)
-                continue
-            if not "prefix" in route:
-                route["active"] = False
-                route["error"] = "Invalid route %s: no prefix found" % route
-                self.logger.error("Invalid route %s: no prefix found" % route)
-                continue
-
-            module_name = "%s.%s" % (self.CTRL_MODULES_PREFIX, route["controller"])
-            blueprint_name = route["controller"].split(".")[-1] + "_ctrl"
-            self.logger.info("Loading controller '%s' from module %s" % (blueprint_name, module_name))
-            try:
-                module = importlib.import_module(module_name)
-            except ImportError as e:
-                route["active"] = False
-                route["error"] = "Error loading controller module %s: %s" % (module_name, e)
-                self.logger.error("Error loading controller module %s: %s" % (module_name, e))
-                continue
-            try:
-                blueprint = getattr(module, blueprint_name)
-            except AttributeError:
-                route["active"] = False
-                route["error"] = "No blueprint named %s found in module %s" % (blueprint_name, module_name)
-                self.logger.error("No blueprint named %s found in module %s" % (blueprint_name, module_name))
-                continue
-            self.flask.register_blueprint(blueprint, url_prefix=route["prefix"])
-            self.logger.info("Registered blueprint '%s' with url_prefix=%s" % (blueprint_name, route["prefix"]))
+    def configure_routes(self):
+        pass
 
     def __read_config(self):
         # reading and compiling config files
@@ -193,6 +160,9 @@ class BaseApp(object):
             handler.setLevel(log_level)
             handler.setFormatter(log_format)
         self.logger.info("Logger created. Environment type set to %s" % self.envtype)
+
+    def test_config(self):
+        pass
 
     # shortcut method
     def run(self, **kwargs):

@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import './Login.css'
 import { AlertBox } from '../../library/AlertBox'
+import AuthState from '../../library/AuthState'
+import { observer } from 'mobx-react'
 
-class Login extends Component {
+const Login = observer(class Login extends Component {
 
     componentDidMount() {
         this.refs.username.focus()
@@ -18,6 +20,7 @@ class Login extends Component {
     }
 
     render() {
+        let authUrl = AuthState.getAuthUrl()
         return (
             <div className="login-wrapper">
                 <div className="container">
@@ -38,6 +41,19 @@ class Login extends Component {
                                 <div className="form-group buttons-group">
                                     <button className="btn btn-primary" type="submit">Login</button>
                                 </div>
+                                {
+                                    authUrl !== null &&
+                                    <div>
+                                        <div className="form-group">
+                                            <div className="col-sm-10 col-sm-offset-1">
+                                                <hr/>
+                                            </div>
+                                        </div>
+                                        <div className="form-group buttons-group">
+                                            <a href={authUrl} className="btn btn-external">External Login</a>
+                                        </div>
+                                    </div>
+                                }
                             </form>
                         </div>
                     </div>
@@ -48,6 +64,6 @@ class Login extends Component {
             </div>
         )
     }
-}
+})
 
 export default Login;

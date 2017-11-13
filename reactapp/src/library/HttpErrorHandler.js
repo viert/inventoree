@@ -2,13 +2,13 @@ import AlertStore from './AlertBox'
 import AuthState from './AuthState'
 
 const HttpErrorHandler = (error) => {
-    console.log('in http error handler', error)
     if (error.response) {
         if (error.response.status === 403) {
             if (error.response.data && error.response.data.state === "logged out") {
                 AuthState.setAuthState({
                     authState: 'login',
-                    user: null
+                    user: null,
+                    authUrl: error.response.data.auth_url
                 })
                 return
             }
