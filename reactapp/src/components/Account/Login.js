@@ -20,7 +20,8 @@ const Login = observer(class Login extends Component {
     }
 
     render() {
-        let authUrl = AuthState.getAuthUrl()
+        const authUrl = AuthState.getAuthUrl()
+        const authText = AuthState.getAuthText()
         return (
             <div className="login-wrapper">
                 <div className="container">
@@ -50,7 +51,7 @@ const Login = observer(class Login extends Component {
                                             </div>
                                         </div>
                                         <div className="form-group buttons-group">
-                                            <a href={authUrl} className="btn btn-external">External Login</a>
+                                            <a href={authUrl} className="btn btn-external">{authText}</a>
                                         </div>
                                     </div>
                                 }

@@ -8,13 +8,8 @@ account_ctrl = AuthController("auth", __name__, require_auth=False)
 
 @account_ctrl.route("/me", methods=["GET"])
 def me():
-    from app import app
     if g.user is None:
-        return json_response({
-            "errors": [ "You must be authenticated first" ],
-            "state": "logged out",
-            "auth_url": app.authorizer.get_authentication_url()
-        }, 403)
+        return AuthController.error_response()
     else:
         user_data = g.user.to_dict()
         user_data["auth_token"] = g.user.get_auth_token().token

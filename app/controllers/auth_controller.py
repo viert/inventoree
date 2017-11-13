@@ -50,9 +50,17 @@ class AuthController(Blueprint):
                     self._get_user_from_x_api_auth_token() or \
                     self._get_user_from_authorization_header()
         if g.user is None and self.require_auth:
-            from app import app
-            return json_response({
-                "errors": [ "You must be authenticated first" ],
-                "state": "logged out",
-                "auth_url": app.authorizer.get_authentication_url()
-            }, 403)
+            return self.error_response()
+
+    @staticmethod
+    def error_response():
+        from app import app
+        response = {
+            "errors": ["You must be authenticated first"],
+            "state": "logged out",
+            "auth_url": app.authorizer.get_authentication_url(),
+            "auth_text": None
+        }
+        if hasattr(app.authorizer, "NAME"):
+            response["auth_text"] = app.authorizer.NAME
+        return json_response(response, 403)

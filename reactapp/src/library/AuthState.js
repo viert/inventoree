@@ -3,7 +3,8 @@ import { extendObservable } from 'mobx'
 const STATE = {
     authState: "authenticating",
     user: null,
-    authUrl: null
+    authUrl: null,
+    authText: "external auth"
 }
 const STATE_FIELDS = Object.keys(STATE)
 
@@ -18,6 +19,10 @@ class AuthState {
 
     getAuthUrl() {
         return this.authUrl
+    }
+
+    getAuthText() {
+        return this.authText
     }
 
     setAuthState(obj) {

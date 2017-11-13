@@ -8,7 +8,8 @@ const HttpErrorHandler = (error) => {
                 AuthState.setAuthState({
                     authState: 'login',
                     user: null,
-                    authUrl: error.response.data.auth_url
+                    authUrl: error.response.data.auth_url,
+                    authText: error.response.data.auth_text
                 })
                 return
             }
