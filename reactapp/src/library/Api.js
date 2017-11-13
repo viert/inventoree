@@ -115,6 +115,7 @@ const Api = {
             'username',
             'first_name',
             'last_name',
+            'email',
             'supervisor',
             'supervisor_set_allowed',
             'modification_allowed'
@@ -124,6 +125,7 @@ const Api = {
             'username',
             'first_name',
             'last_name',
+            'email',
             'supervisor',
             'modification_allowed'
         ],
@@ -132,6 +134,7 @@ const Api = {
             'username',
             'first_name',
             'last_name',
+            'email',
             'supervisor',
             'modification_allowed',
             'projects_owned',
