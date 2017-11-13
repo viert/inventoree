@@ -95,8 +95,6 @@ def conductor():
         "active": check_cache()
     }
 
-    results["endpoints"] = app.config.http["ROUTES"]
-
     return json_response({ "conductor_info": results })
 
 def _get_hosts(group_names=None, tags=None):
