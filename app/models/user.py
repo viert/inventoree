@@ -14,6 +14,7 @@ class User(StorableModel):
 
     FIELDS = (
         "_id",
+        "ext_id",
         "username",
         "first_name",
         "last_name",
@@ -23,6 +24,7 @@ class User(StorableModel):
         "created_at",
         "updated_at",
         "supervisor",
+        "custom_data"
     )
 
     KEY_FIELD = "username"
@@ -34,6 +36,8 @@ class User(StorableModel):
         "supervisor": False,
         "password_hash": "-",
         "email": "",
+        "custom_data": {},
+        "ext_id": None
     }
 
     RESTRICTED_FIELDS = [
@@ -55,6 +59,8 @@ class User(StorableModel):
 
     INDEXES = (
         ["username",{"unique":True}],
+        "ext_id",
+        "custom_data",
         "supervisor",
     )
 

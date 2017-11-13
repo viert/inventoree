@@ -4,6 +4,10 @@ from app.controllers.auth_controller import AuthenticationError
 AUTHENTICATION_URL = None
 
 class LocalAuthorizer(object):
+
+    def __init__(self, flask_app=None):
+        self.flask = flask_app
+
     @staticmethod
     def get_authentication_url():
         return AUTHENTICATION_URL

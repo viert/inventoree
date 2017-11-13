@@ -32,3 +32,13 @@
     top: 0;
     left: 0;
 }
+
+a.btn-external {
+    background: #ffb;
+    color: black;
+}
+
+a.btn-external:hover { 
+    color: black !important; 
+    background: #eea;
+}

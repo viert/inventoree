@@ -1,25 +1,31 @@
 import { extendObservable } from 'mobx'
 
+const STATE = {
+    authState: "authenticating",
+    user: null,
+    authUrl: null
+}
+const STATE_FIELDS = Object.keys(STATE)
+
 class AuthState {
     constructor() {
-        extendObservable(this, {
-            authState: "authenticating",
-            user: null
-        })
+        extendObservable(this, STATE)
     }
 
     getCurrentUser() {
         return this.user
     }
 
+    getAuthUrl() {
+        return this.authUrl
+    }
+
     setAuthState(obj) {
-        console.log("setAuthState", obj)
-        if (obj.hasOwnProperty("authState")) {
-            this.authState = obj.authState
-        }
-        if (obj.hasOwnProperty("user")) {
-            this.user = obj.user
-        }
+        STATE_FIELDS.forEach(element => {
+            if (obj.hasOwnProperty(element)) {
+                this[element] = obj[element]
+            }
+        });
     }
 }
 

@@ -40,8 +40,8 @@ class BaseApp(object):
         self.test_config()
         self.__prepare_logger()
         self.__load_plugins()
-        self.__set_authorizer()
         self.__prepare_flask()
+        self.__set_authorizer()
         self.__set_session_expiration()
         self.__set_cache()
 
@@ -68,14 +68,16 @@ class BaseApp(object):
     def __set_authorizer(self):
         authorizer_name = self.config.app.get("AUTHORIZER", "LocalAuthorizer")
         self.authorizer = None
+        authorizer_class = None
         for plugin in self.plugins:
             try:
-                self.authorizer = getattr(plugin, authorizer_name)
+                authorizer_class = getattr(plugin, authorizer_name)
             except AttributeError:
                 continue
-        if self.authorizer is None:
+        if authorizer_class is None:
             raise RuntimeError("No authorizer '%s' found in plugins" % authorizer_name)
         else:
+            self.authorizer = authorizer_class(self.flask)
             self.logger.debug("Authorizer '%s' registered" % authorizer_name)
 
     def __set_csrf_protection(self):
@@ -115,39 +117,7 @@ class BaseApp(object):
         self.configure_routes()
 
     def configure_routes(self):
-        self.logger.info("Configuring routes...")
-        for route in self.config.http["ROUTES"]:
-            route["active"] = True
-            if not "controller" in route:
-                route["active"] = False
-                route["error"] = "Invalid route %s: no controller found" % route
-                self.logger.error("Invalid route %s: no controller found" % route)
-                continue
-            if not "prefix" in route:
-                route["active"] = False
-                route["error"] = "Invalid route %s: no prefix found" % route
-                self.logger.error("Invalid route %s: no prefix found" % route)
-                continue
-
-            module_name = "%s.%s" % (self.CTRL_MODULES_PREFIX, route["controller"])
-            blueprint_name = route["controller"].split(".")[-1] + "_ctrl"
-            self.logger.info("Loading controller '%s' from module %s" % (blueprint_name, module_name))
-            try:
-                module = importlib.import_module(module_name)
-            except ImportError as e:
-                route["active"] = False
-                route["error"] = "Error loading controller module %s: %s" % (module_name, e)
-                self.logger.error("Error loading controller module %s: %s" % (module_name, e))
-                continue
-            try:
-                blueprint = getattr(module, blueprint_name)
-            except AttributeError:
-                route["active"] = False
-                route["error"] = "No blueprint named %s found in module %s" % (blueprint_name, module_name)
-                self.logger.error("No blueprint named %s found in module %s" % (blueprint_name, module_name))
-                continue
-            self.flask.register_blueprint(blueprint, url_prefix=route["prefix"])
-            self.logger.info("Registered blueprint '%s' with url_prefix=%s" % (blueprint_name, route["prefix"]))
+        pass
 
     def __read_config(self):
         # reading and compiling config files

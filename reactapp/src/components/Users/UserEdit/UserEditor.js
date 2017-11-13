@@ -74,7 +74,7 @@ export default class UserEditor extends Component {
         let { id } = this.props.match.params
         Axios.delete(`/api/v1/users/${id}`)
             .then( response => {
-                let { username } = response.data.user
+                let { username } = response.data.data
                 AlertStore.Notice(`User ${username} has been successfully destroyed`)
                 this.props.history.push("/users")
             })
