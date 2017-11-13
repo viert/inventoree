@@ -17,6 +17,7 @@ class User(StorableModel):
         "username",
         "first_name",
         "last_name",
+        "email",
         "avatar_url",
         "password_hash",
         "created_at",
@@ -31,7 +32,8 @@ class User(StorableModel):
         "last_name": "",
         "avatar_url": "",
         "supervisor": False,
-        "password_hash": "-"
+        "password_hash": "-",
+        "email": "",
     }
 
     RESTRICTED_FIELDS = [
