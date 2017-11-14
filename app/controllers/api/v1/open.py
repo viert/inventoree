@@ -1,13 +1,10 @@
 from flask import request
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import json_response, cursor_to_list
-from library.engine.cache import cached_function
-
-EXECUTER_DATA_CACHE_TIMEOUT = 300 # 5 minutes
 
 open_ctrl = AuthController("open", __name__, require_auth=False)
 
-@cached_function(positive_only=True, cache_timeout=EXECUTER_DATA_CACHE_TIMEOUT)
+
 def get_executer_data(query, recursive=False, include_unattached=False):
     from app.models import Project, Datacenter, Group, Host
 
