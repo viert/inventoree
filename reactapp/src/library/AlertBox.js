@@ -25,6 +25,11 @@ class Message {
         if (!(mType in MESSAGE_CLASSES)) {
             throw InvalidMessageType(mType + ' is not one of allowed types');
         }
+        extendObservable(
+            this, {
+                disappearing: false
+            }
+        )
         this.mType = mType
         this.value = value
         this.id = Date.now()
@@ -33,10 +38,21 @@ class Message {
 }
 
 export class AlertStore {
-    constructor() {
+    constructor(ttl, hideAnimationTime) {
         extendObservable(this, {
             messages: []
         })
+        this.SetTTL(ttl ? ttl : 10000)
+        this.SetAnimationTime(hideAnimationTime ? hideAnimationTime : 1000)
+    }
+
+    SetTTL(value) {
+        this.ttl = value
+    }
+
+    SetAnimationTime(value) {
+        this.hideAnimationTime = value
+        this.cssAnimationTime = `${this.hideAnimationTime / 1000}s`
     }
 
     Alert(message) {
@@ -62,10 +78,15 @@ export class AlertStore {
         this.messages.replace(remaining)
     }
 
+    hideMessage(id) {
+        this.messages.find( item => item.id === id ).disappearing = true
+        setTimeout(this.removeMessage.bind(this, id), 500)
+    }
+
     newMessage(value, mType) {
         var msg = new Message(value, mType);
         this.messages.push(msg);
-        setTimeout(this.removeMessage.bind(this, msg.id), 10000)
+        setTimeout(this.hideMessage.bind(this, msg.id), this.ttl)
     }
 }
 
@@ -76,13 +97,19 @@ export const AlertBox = observer(class AlertBox extends Component {
         return (
             <div className="alertbox-wrapper">
             {
-                Store.messages.map((item) =>
-                    (
-                        <div key={item.id} className={"alert alert-" + item.className}> 
+                Store.messages.map(item => {
+                    const itemClass = `alert alert-${item.className}`
+                    let itemStyle = {}
+                    if (item.disappearing) {
+                        itemStyle.opacity = "0"
+                        itemStyle.transition = `opacity ${Store.cssAnimationTime} ease`
+                    }
+                    return (
+                        <div key={item.id} style={itemStyle} className={itemClass}> 
                             {item.value} 
                         </div>
-                    )
-                )
+                    )                
+                })
             }
             </div>
         )
