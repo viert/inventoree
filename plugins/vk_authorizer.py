@@ -10,6 +10,8 @@ REDIRECT_URI = "/oauth_callback"
 
 class VkAuthorizer(object):
 
+    NAME = "Vk Login"
+
     def __init__(self, flask_app=None):
         self.flask = flask_app
         self.flask.add_url_rule("/oauth_callback", "oauth_callback", self.oauth_callback)
