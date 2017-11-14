@@ -58,9 +58,10 @@ class AuthController(Blueprint):
         response = {
             "errors": ["You must be authenticated first"],
             "state": "logged out",
-            "auth_url": app.authorizer.get_authentication_url(),
-            "auth_text": None
+            "auth_url": app.authorizer.get_authentication_url()
         }
         if hasattr(app.authorizer, "NAME"):
             response["auth_text"] = app.authorizer.NAME
+        else:
+            response["auth_text"] = "external auth"
         return json_response(response, 403)
