@@ -131,7 +131,11 @@ export default class HostView extends Component {
                                         <span>
                                             <Link to={`/datacenters/${this.state.host.datacenter._id}`}>
                                                 {this.state.host.datacenter.name}
-                                            </Link> <small className="mute">({ this.state.host.datacenter.human_readable })</small>
+                                            </Link> 
+                                            {
+                                                this.state.host.datacenter.human_readable &&
+                                                <small className="mute">({ this.state.host.datacenter.human_readable })</small>
+                                            }
                                         </span> :
                                         ""
                                     }
