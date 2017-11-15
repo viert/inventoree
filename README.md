@@ -31,15 +31,11 @@ user.save()
 ## Note on external authentication
 
 Example authorizer (via vk.com) is located in `plugins` folder. The only thing is mandatory in authorizer is the `get_authentication_url` method. If this method returns an actual url like
-`https://oauth.vk.com/authorize?client_id=...` the button "External Login" appears on Login page automatically (and leads to that url).
+`https://oauth.vk.com/authorize?client_id=...` the button *EXTERNAL AUTH* appears on Login page automatically (and leads to that url). In case of example vk authorizer there's a *NAME* class property assigned which makes button text change to *VK LOGIN*. 
 
-The second thing you have to do is create a special handler in flask (that's why authorizers get flask app in constructor) which is supposed to handle
-callbacks from external auth services (All modern authentication systems like OAuth, SAML SSO and OpenID act like this). This handler is aimed to find
-an actual local user related to external user data you receive. If user doesn't exist, your task is to create it first and connect to the external data
-(`ext_id` field in `User` model serves for this purpose and is indexed by default). Next time user logins your handler will find it by `ext_id`.
+The second thing you have to do is create a special handler in flask (that's why authorizers get flask app in constructor) which is supposed to handle callbacks from external auth services (All modern authentication systems like OAuth, SAML SSO and OpenID act like this). This handler is aimed to find an actual local user related to external user data you receive. If user doesn't exist, your task is to create it first and connect to the external data (`ext_id` field in `User` model serves for this purpose and is indexed by default). Next time user logins your handler should find it by `ext_id`.
 
-The last task you have to do in callback handler is put the local _id field of found user instance to session["user_id"] - that's how Conductor gets
-user authenticated.
+The last task you have to do in callback handler is put the local `_id` field of found user instance to session["user_id"] - that's how Conductor gets user authenticated.
 
 Don't forget to set `AUTHORIZER="<YourAuthorizer>"` in app config to actually set up your authorizer. All plugins in `plugins` directory are loaded automatically but no
 authorizer is set until configured explicitly.
