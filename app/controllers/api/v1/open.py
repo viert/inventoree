@@ -1,4 +1,5 @@
-from flask import request
+from flask import request, make_response
+from datetime import datetime
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import json_response, cursor_to_list
 
@@ -65,6 +66,31 @@ def executer_data():
 
     results = get_executer_data(query, recursive, include_unattached)
     return json_response({ "data": results })
+
+@open_ctrl.route("/ansible")
+def ansible():
+    query = {}
+    if "projects" in request.values:
+        project_names = [x for x in request.values["projects"].split(",") if x != ""]
+        if len(project_names) > 0:
+            query["name"] = { "$in": project_names }
+    from app.models import Project
+    from library.engine.utils import full_group_structure
+    project_ids = [x._id for x in Project.find(query).all()]
+    structure = full_group_structure(project_ids)
+    render = "# This ansible inventory file was rendered from conductor database, %s\n# For more info on conductor please refer to https://github.com/viert/conductor\n\n" % datetime.now().isoformat()
+    for group_id, group in structure.items():
+        if len(group["all_hosts"]) > 0:
+            render += "[%s]\n" % group["name"]
+            host_names = [x["fqdn"] for x in group["all_hosts"].values()]
+            host_names.sort()
+            for fqdn in host_names:
+                render += fqdn + "\n"
+            render += "\n\n"
+
+    response = make_response(render)
+    response.headers["Content-Type"] = "text/plain"
+    return response
 
 @open_ctrl.route("/app")
 def conductor():

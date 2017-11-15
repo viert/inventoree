@@ -138,3 +138,43 @@ def get_user_from_app_context():
     except AttributeError:
         pass
     return user
+
+
+def full_group_structure(project_ids=None):
+    query = {}
+
+    if project_ids is not None:
+        if not hasattr(project_ids, '__iter__'):
+            project_ids = [project_ids]
+        project_ids = [resolve_id(x) for x in project_ids]
+        query["project_id"] = { "$in": project_ids }
+
+    from app.models import Group, Host
+    groups = Group.find(query)
+    groups = dict([(group._id, group.to_dict()) for group in groups])
+    hosts = Host.find({})
+    hosts = dict([(host._id, host.to_dict()) for host in hosts])
+
+    for group in groups.values():
+        group["children"] = {}
+        for child_id in group["child_ids"]:
+            group["children"][child_id] = groups[child_id]
+        group["hosts"] = {}
+        group["all_hosts"] = {}
+
+    for host_id, host in hosts.items():
+        groups[host["group_id"]]["hosts"][host_id] = host
+
+    def get_all_hosts(group):
+        hosts = {}
+        for k, v in group["hosts"].items():
+            hosts[k] = v
+        for child in group["children"].values():
+            for k, v in get_all_hosts(child).items():
+                hosts[k] = v
+        return hosts
+
+    for group in groups.values():
+        group["all_hosts"] = get_all_hosts(group)
+
+    return groups
