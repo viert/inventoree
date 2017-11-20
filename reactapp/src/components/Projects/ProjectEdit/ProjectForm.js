@@ -6,7 +6,16 @@ import ConfirmButton from '../../common/ConfirmButton'
 export default class ProjectForm extends Component {
     constructor(props) {
         super(props);
-        this.state = { project: props.project }
+        let { project } = props 
+        if (!project) {
+            project = {
+                name: "",
+                email: "",
+                root_email: "",
+                description: ""
+            } 
+        }
+        this.state = { project }
     }
 
     componentWillReceiveProps(props) {

@@ -38,7 +38,10 @@ class Project(StorableModel):
     DEFAULTS = {
         "created_at": now,
         "updated_at": now,
-        "member_ids": []
+        "member_ids": [],
+        "description": "",
+        "email": "",
+        "root_email": ""
     }
 
     REJECTED_FIELDS = (

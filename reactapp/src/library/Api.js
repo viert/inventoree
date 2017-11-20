@@ -76,7 +76,9 @@ const Api = {
             'description',
             'email',
             'root_email',
-            'members'
+            'members',
+            'member_list_modification_allowed',
+            'owner'
         ],
         ViewFields: [
             '_id',

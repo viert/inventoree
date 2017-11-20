@@ -17,15 +17,18 @@ export default class ProjectEditor extends Component {
                 name: ""
             },
             isNew: true,
+            canModifyMembers: false,
             isLoading: true
         }
     }
 
     onDataLoaded(project) {
+        console.log('data loaded', project)
         this.setState({
             project,
             title: "Edit Project",
             isNew: false,
+            canModifyMembers: project.member_list_modification_allowed,
             isLoading: false
         })
     }
@@ -67,9 +70,20 @@ export default class ProjectEditor extends Component {
         let { id } = this.props.match.params
         let { EditorFields } = Api.Projects
         EditorFields = EditorFields.join(",")
-       Axios.post(`/api/v1/projects/${id}/set_members?_fields=${EditorFields}`, { member_ids })
+        Axios.post(`/api/v1/projects/${id}/set_members?_fields=${EditorFields}`, { member_ids })
             .then( response => {
                 AlertStore.Notice('Project members have been successfully updated')
+                this.onDataLoaded(response.data.data)
+            })
+            .catch(HttpErrorHandler)
+    }
+
+    handleOwnerSubmit(owner_id) {
+        let { id } = this.props.match.params
+        let { EditorFields } = Api.Projects
+        Axios.post(`/api/v1/projects/${id}/switch_owner?_fields=${EditorFields}`, { owner_id })
+            .then( response => {
+                AlertStore.Notice('Project owner has been successfully updated')
                 this.onDataLoaded(response.data.data)
             })
             .catch(HttpErrorHandler)
@@ -100,10 +114,11 @@ export default class ProjectEditor extends Component {
                         </div>
                         <div className="col-sm-6">
                         {
-                            this.state.isNew ? "" :
+                            this.state.isNew || !this.state.canModifyMembers ? "" :
                             <ProjectMembersForm 
                                 project={this.state.project}
-                                onSubmitData={this.handleMembersSubmit.bind(this)} />
+                                onSubmitMembers={this.handleMembersSubmit.bind(this)}
+                                onSubmitOwner={this.handleOwnerSubmit.bind(this)} />
                         }
                         </div>
                     </div>

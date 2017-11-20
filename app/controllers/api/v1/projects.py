@@ -60,7 +60,13 @@ def update(id):
         project.update(data)
     except Exception as e:
         return json_exception(e, 500)
-    return json_response({ "data": project.to_dict(), "status": "updated" })
+
+    if "_fields" in request.values:
+        fields = request.values["_fields"].split(",")
+    else:
+        fields = None
+
+    return json_response({"data": project.to_dict(fields), "status":"updated"})
 
 
 @projects_ctrl.route("/<id>", methods=["DELETE"])
@@ -99,8 +105,13 @@ def add_member(id):
         return json_response({ "errors": ["User not found"]}, 404)
 
     project.add_member(member)
-    return json_response({"data": project.to_dict()})
 
+    if "_fields" in request.values:
+        fields = request.values["_fields"].split(",")
+    else:
+        fields = None
+
+    return json_response({"data": project.to_dict(fields), "status":"updated"})
 
 @projects_ctrl.route("/<id>/remove_member", methods=["POST"])
 def remove_member(id):
@@ -121,7 +132,42 @@ def remove_member(id):
         return json_response({ "errors": ["User not found"]}, 404)
 
     project.remove_member(member)
-    return json_response({"data": project.to_dict()})
+
+    if "_fields" in request.values:
+        fields = request.values["_fields"].split(",")
+    else:
+        fields = None
+
+    return json_response({"data": project.to_dict(fields), "status":"updated"})
+
+@projects_ctrl.route("/<id>/switch_owner", methods=["POST"])
+def switch_owner(id):
+    from app.models import Project, User
+
+    project = Project.get(id)
+
+    if project is None:
+        return json_response({ "errors": [ "Project not found" ]}, 404)
+    if not project.member_list_modification_allowed:
+        return json_response({ "errors": [ "You don't have permissions to modify the project owner" ]}, 403)
+    if not "owner_id" in request.json:
+        return json_response({ "errors": [ "You should provide owner_id field" ]}, 400)
+
+    user = User.get(request.json["owner_id"])
+    if not user:
+        return json_response({ "errors": [ "New owner not found" ]}, 404)
+    if user._id == project.owner_id:
+        return json_response({ "errors": [ "Old and new owners match" ]}, 409)
+
+    project.owner_id = user._id
+    project.save()
+
+    if "_fields" in request.values:
+        fields = request.values["_fields"].split(",")
+    else:
+        fields = None
+
+    return json_response({"data": project.to_dict(fields), "status":"updated"})
 
 @projects_ctrl.route("/<id>/set_members", methods=["POST"])
 def set_members(id):
@@ -163,4 +209,4 @@ def set_members(id):
     else:
         fields = None
 
-    return json_response({"data": project.to_dict(fields), "status":"ok"})
+    return json_response({"data": project.to_dict(fields), "status":"updated"})
