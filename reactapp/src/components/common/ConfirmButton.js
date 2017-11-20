@@ -37,7 +37,7 @@ export default class ConfirmButton extends Component {
 
     render() {
         return (
-            <button type={this.props.buttonType} onClick={this.handleClick.bind(this)} className={this.props.className}>
+            <button type={this.props.buttonType} disabled={this.props.disabled} onClick={this.handleClick.bind(this)} className={this.props.className}>
                 {this.props.children} { this.state.counter === 0 ? '' : '(' + this.state.counter + ')' }
             </button>
         )
@@ -45,9 +45,11 @@ export default class ConfirmButton extends Component {
 }
 
 ConfirmButton.propTypes = {
-    buttonType: PropTypes.string
+    buttonType: PropTypes.string,
+    disabled: PropTypes.bool
 }
 
 ConfirmButton.defaultProps = {
-    buttonType: "button"
+    buttonType: "button",
+    disabled: false
 }
