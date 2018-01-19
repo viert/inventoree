@@ -23,7 +23,6 @@ export default class ProjectEditor extends Component {
     }
 
     onDataLoaded(project) {
-        console.log('data loaded', project)
         this.setState({
             project,
             title: "Edit Project",
