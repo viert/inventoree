@@ -10,7 +10,7 @@ Original version of conductor has an ability to track deployment and packages mo
 
 ## Development bootstrap
 
-Being in deep development and moving from one notebook to another, from MacOSX to Windows and Linux, the current conductor version has become very easy to set up. 
+Being in deep development and moving from one laptop to another, from MacOSX to Windows and Linux, the current conductor version has become very easy to set up. 
 
  * Clone repo and `cd` into its' directory. 
  * Run `pip install -r requirements.txt` to install the python requirements. Using virtualenv is highly recommended
