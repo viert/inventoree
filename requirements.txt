@@ -4,3 +4,4 @@ coverage
 PyYAML
 python-memcached
 prometheus_client
+requests
