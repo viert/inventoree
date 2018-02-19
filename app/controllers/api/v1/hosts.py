@@ -52,15 +52,14 @@ def create():
         hostnames = [hosts_attrs["fqdn"]]
         del(hosts_attrs["fqdn"])
 
-    if hosts_attrs["group_id"] is not None:
-        try:
-            hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
-        except (KeyError, InvalidId):
-            hosts_attrs["group_id"] = None
+    if "group_id" in hosts_attrs:
+        hosts_attrs["group_id"] = resolve_id(hosts_attrs["group_id"])
+    else:
+        hosts_attrs["group_id"] = None
 
-    try:
-        hosts_attrs["datacenter_id"] = ObjectId(hosts_attrs["datacenter_id"])
-    except (KeyError, InvalidId):
+    if "datacenter_id" in hosts_attrs:
+        hosts_attrs["datacenter_id"] = resolve_id(hosts_attrs["datacenter_id"])
+    else:
         hosts_attrs["datacenter_id"] = None
 
     for fqdn in hostnames:
@@ -92,16 +91,15 @@ def update(host_id):
     from app.models import Host
     hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
-    if "group_id" in hosts_attrs and hosts_attrs["group_id"] is not None:
-        try:
-            hosts_attrs["group_id"] = ObjectId(hosts_attrs["group_id"])
-        except InvalidId:
-            hosts_attrs["group_id"] = None
-    if "datacenter_id" in hosts_attrs and hosts_attrs["datacenter_id"] is not None:
-        try:
-            hosts_attrs["datacenter_id"] = ObjectId(hosts_attrs["datacenter_id"])
-        except InvalidId:
-            hosts_attrs["datacenter_id"] = None
+    if "group_id" in hosts_attrs:
+        hosts_attrs["group_id"] = resolve_id(hosts_attrs["group_id"])
+    else:
+        hosts_attrs["group_id"] = None
+
+    if "datacenter_id" in hosts_attrs:
+        hosts_attrs["datacenter_id"] = resolve_id(hosts_attrs["datacenter_id"])
+    else:
+        hosts_attrs["datacenter_id"] = None
 
     try:
         host.update(hosts_attrs)
