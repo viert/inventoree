@@ -1,6 +1,6 @@
 from app.controllers.auth_controller import AuthController
 from flask import request, g
-from library.engine.utils import json_response, resolve_id, paginated_data, json_exception
+from library.engine.utils import json_response, resolve_id, paginated_data, get_request_fields
 from library.engine.errors import UserNotFound, Forbidden, ApiError, UserAlreadyExists
 
 users_ctrl = AuthController("users", __name__, require_auth=True)
@@ -61,7 +61,7 @@ def create():
     new_user = User(**user_attrs)
     new_user.save()
 
-    return json_response({"data": new_user.to_dict()})
+    return json_response({"data": new_user.to_dict(get_request_fields())})
 
 
 @users_ctrl.route("/<user_id>", methods=["PUT"])
@@ -73,7 +73,7 @@ def update(user_id):
 
     user_attrs = dict([(k, v) for k, v in request.json.items() if k in User.FIELDS])
     user.update(user_attrs)
-    return json_response({"data":user.to_dict()})
+    return json_response({"data":user.to_dict(get_request_fields())})
 
 
 @users_ctrl.route("/<user_id>/set_password", methods=["PUT"])
@@ -93,7 +93,7 @@ def set_password(user_id):
 
     user.set_password(passwd)
     user.save()
-    return json_response({"data":user.to_dict()})
+    return json_response({"data":user.to_dict(get_request_fields())})
 
 
 @users_ctrl.route("/<user_id>/set_supervisor", methods=["PUT"])
@@ -113,7 +113,7 @@ def set_supervisor(user_id):
 
     user.supervisor = supervisor
     user.save()
-    return json_response({"data":user.to_dict()})
+    return json_response({"data":user.to_dict(get_request_fields())})
 
 
 @users_ctrl.route("/<user_id>", methods=["DELETE"])
@@ -125,4 +125,4 @@ def delete(user_id):
 
     user.destroy()
 
-    return json_response({"data":user.to_dict()})
+    return json_response({"data":user.to_dict(get_request_fields())})

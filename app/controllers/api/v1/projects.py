@@ -1,7 +1,7 @@
 from flask import request, g
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
-    json_response, clear_aux_fields
+    json_response, clear_aux_fields, get_request_fields
 from library.engine.errors import ProjectNotFound, Forbidden, ApiError, UserNotFound, Conflict
 
 projects_ctrl = AuthController("projects", __name__, require_auth=True)
@@ -36,7 +36,7 @@ def create():
     data["owner_id"] = g.user._id
     project = Project(**data)
     project.save()
-    return json_response({ "data": project.to_dict() })
+    return json_response({ "data": project.to_dict(get_request_fields()) })
 
 
 @projects_ctrl.route("/<id>", methods=["PUT"])
@@ -47,7 +47,7 @@ def update(id):
     if not project.modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     project.update(data)
-    return json_response({"data": project.to_dict(), "status":"updated"})
+    return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
 
 @projects_ctrl.route("/<id>", methods=["DELETE"])
@@ -58,7 +58,7 @@ def delete(id):
     if not project.modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     project.destroy()
-    return json_response({ "data": project.to_dict(), "status": "deleted" })
+    return json_response({ "data": project.to_dict(get_request_fields()), "status": "deleted" })
 
 
 @projects_ctrl.route("/<id>/add_member", methods=["POST"])
@@ -73,7 +73,7 @@ def add_member(id):
 
     member = User.get(request.json["user_id"], UserNotFound("user not found"))
     project.add_member(member)
-    return json_response({"data": project.to_dict(), "status":"updated"})
+    return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
 
 @projects_ctrl.route("/<id>/remove_member", methods=["POST"])
@@ -88,7 +88,7 @@ def remove_member(id):
 
     member = User.get(request.json["user_id"], UserNotFound("user not found"))
     project.remove_member(member)
-    return json_response({"data": project.to_dict(), "status":"updated"})
+    return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
 
 @projects_ctrl.route("/<id>/switch_owner", methods=["POST"])
@@ -108,7 +108,7 @@ def switch_owner(id):
     project.owner_id = user._id
     project.save()
 
-    return json_response({"data": project.to_dict(), "status":"updated"})
+    return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
 @projects_ctrl.route("/<id>/set_members", methods=["POST"])
 def set_members(id):
@@ -139,4 +139,4 @@ def set_members(id):
     project.member_ids = member_ids
     project.save()
 
-    return json_response({"data": project.to_dict(), "status":"updated"})
+    return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})

@@ -2,7 +2,7 @@ from flask import request
 from bson.objectid import ObjectId
 from app.controllers.auth_controller import AuthController
 from library.engine.errors import GroupNotFound, Forbidden, ApiError, ProjectNotFound, NotFound
-from library.engine.utils import resolve_id, json_response, paginated_data, diff
+from library.engine.utils import resolve_id, json_response, paginated_data, diff, get_request_fields
 
 groups_ctrl = AuthController("groups", __name__, require_auth=True)
 
@@ -62,7 +62,7 @@ def update(group_id):
         project = Project.get(group_attrs["project_id"], ProjectNotFound("project provided has not been found"))
         group_attrs["project_id"] = project._id
     group.update(group_attrs)
-    return json_response({ "data": group.to_dict() })
+    return json_response({ "data": group.to_dict(get_request_fields()) })
 
 
 @groups_ctrl.route("/<group_id>/set_children", methods=["PUT"])
@@ -88,7 +88,7 @@ def set_children(group_id):
             exs.append(e)
     if len(exs) > 0:
         raise ApiError(["%s: %s" % (x.__class__.__name__, x.message) for x in exs])
-    return json_response({ "data": group.to_dict(), "status": "ok" })
+    return json_response({ "data": group.to_dict(get_request_fields()), "status": "ok" })
 
 @groups_ctrl.route("/<group_id>/set_hosts", methods=["PUT"])
 def set_hosts(group_id):
@@ -119,7 +119,7 @@ def set_hosts(group_id):
             exs.append(e)
     if len(exs) > 0:
         raise ApiError(["%s: %s" % (x.__class__.__name__, x.message) for x in exs])
-    return json_response({ "data": group.to_dict(), "status": "ok" })
+    return json_response({ "data": group.to_dict(get_request_fields()), "status": "ok" })
 
 
 @groups_ctrl.route("/", methods=["POST"])
@@ -145,7 +145,7 @@ def create():
         raise Forbidden("you don't have permission to create groups in this project")
     group = Group(**group_attrs)
     group.save()
-    return json_response({ "data": group.to_dict() }, 201)
+    return json_response({ "data": group.to_dict(get_request_fields()) }, 201)
 
 @groups_ctrl.route("/<group_id>", methods=["DELETE"])
 def delete(group_id):
@@ -154,7 +154,7 @@ def delete(group_id):
     if not group.modification_allowed:
         raise Forbidden("you don't have permission to modify this group")
     group.destroy()
-    return json_response({ "data": group.to_dict() })
+    return json_response({ "data": group.to_dict(get_request_fields()) })
 
 @groups_ctrl.route("/mass_move", methods=["POST"])
 def mass_move():

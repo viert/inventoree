@@ -1,5 +1,5 @@
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import resolve_id, json_response, paginated_data, json_exception
+from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
 from library.engine.permutation import expand_pattern
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound
@@ -86,7 +86,7 @@ def update(host_id):
         host_attrs["datacenter_id"] = datacenter._id
 
     host.update(host_attrs)
-    data = { "data": host.to_dict() }
+    data = { "data": host.to_dict(get_request_fields()) }
     return json_response(data)
 
 
@@ -99,7 +99,7 @@ def delete(host_id):
         raise Forbidden("You don't have permission to modify this host")
 
     host.destroy()
-    return json_response({ "data": host.to_dict() })
+    return json_response({ "data": host.to_dict(get_request_fields()) })
 
 
 @hosts_ctrl.route("/mass_move", methods=["POST"])

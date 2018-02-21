@@ -1,5 +1,5 @@
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import resolve_id, json_response, paginated_data
+from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
 from library.engine.errors import DatacenterNotFound
 from flask import request
 
@@ -39,7 +39,7 @@ def create():
     dc.save()
     if "parent_id" in dc_attrs and dc_attrs["parent_id"]:
         return set_parent(dc._id)
-    return json_response({ "data": dc.to_dict() }, 201)
+    return json_response({ "data": dc.to_dict(get_request_fields()) }, 201)
 
 
 @datacenters_ctrl.route("/<dc_id>", methods=["PUT"])
@@ -52,7 +52,7 @@ def update(dc_id):
         parent_id = resolve_id(request.json["parent_id"])
         if parent_id != dc.parent_id:
             return set_parent(dc._id)
-    return json_response({ "data": dc.to_dict() })
+    return json_response({ "data": dc.to_dict(get_request_fields()) })
 
 
 @datacenters_ctrl.route("/<dc_id>", methods=["DELETE"])
@@ -61,7 +61,7 @@ def delete(dc_id):
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
     # TODO: check permissions!
     dc.destroy()
-    return json_response({ "data": dc.to_dict() })
+    return json_response({ "data": dc.to_dict(get_request_fields()) })
 
 
 @datacenters_ctrl.route("/<dc_id>/set_parent", methods=["PUT"])
@@ -75,4 +75,4 @@ def set_parent(dc_id):
     if parent_id is not None:
         parent_id = resolve_id(parent_id)
         dc.set_parent(parent_id)
-    return json_response({ "data": dc.to_dict() })
+    return json_response({ "data": dc.to_dict(get_request_fields()) })

@@ -129,10 +129,7 @@ class StorableModel(object):
 
     def to_dict(self, fields=None, include_restricted=False):
         if fields is None:
-            from library.engine.utils import get_request_fields
-            fields = get_request_fields()
-            if fields is None:
-                fields = self.FIELDS
+            fields = self.FIELDS
         result = dict([
             (f, getattr(self, f)) for f in fields if hasattr(self, f)
                         and not (f != "_id" and f.startswith("_"))
