@@ -86,12 +86,7 @@ def update(host_id):
         host_attrs["datacenter_id"] = datacenter._id
 
     host.update(host_attrs)
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
-
-    data = { "data": host.to_dict(fields) }
+    data = { "data": host.to_dict() }
     return json_response(data)
 
 

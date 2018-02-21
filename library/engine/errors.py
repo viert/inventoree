@@ -111,6 +111,10 @@ class UserNotFound(NotFound):
     pass
 
 
+class UserAlreadyExists(Conflict):
+    pass
+
+
 class InvalidProjectId(ApiError):
     pass
 

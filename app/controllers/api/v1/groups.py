@@ -62,11 +62,7 @@ def update(group_id):
         project = Project.get(group_attrs["project_id"], ProjectNotFound("project provided has not been found"))
         group_attrs["project_id"] = project._id
     group.update(group_attrs)
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
-    return json_response({ "data": group.to_dict(fields) })
+    return json_response({ "data": group.to_dict() })
 
 
 @groups_ctrl.route("/<group_id>/set_children", methods=["PUT"])
@@ -92,12 +88,7 @@ def set_children(group_id):
             exs.append(e)
     if len(exs) > 0:
         raise ApiError(["%s: %s" % (x.__class__.__name__, x.message) for x in exs])
-    else:
-        if "_fields" in request.values:
-            fields = request.values["_fields"].split(",")
-        else:
-            fields = None
-        return json_response({ "data": group.to_dict(fields), "status": "ok" })
+    return json_response({ "data": group.to_dict(), "status": "ok" })
 
 @groups_ctrl.route("/<group_id>/set_hosts", methods=["PUT"])
 def set_hosts(group_id):
@@ -128,12 +119,7 @@ def set_hosts(group_id):
             exs.append(e)
     if len(exs) > 0:
         raise ApiError(["%s: %s" % (x.__class__.__name__, x.message) for x in exs])
-    else:
-        if "_fields" in request.values:
-            fields = request.values["_fields"].split(",")
-        else:
-            fields = None
-        return json_response({ "data": group.to_dict(fields), "status": "ok" })
+    return json_response({ "data": group.to_dict(), "status": "ok" })
 
 
 @groups_ctrl.route("/", methods=["POST"])
@@ -159,11 +145,7 @@ def create():
         raise Forbidden("you don't have permission to create groups in this project")
     group = Group(**group_attrs)
     group.save()
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
-    return json_response({ "data": group.to_dict(fields) }, 201)
+    return json_response({ "data": group.to_dict() }, 201)
 
 @groups_ctrl.route("/<group_id>", methods=["DELETE"])
 def delete(group_id):
