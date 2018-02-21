@@ -1,7 +1,8 @@
 from flask import request, g
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
-    json_response, clear_aux_fields, json_exception
+    json_response, clear_aux_fields
+from library.engine.errors import ProjectNotFound, Forbidden, ApiError, UserNotFound, Conflict
 
 projects_ctrl = AuthController("projects", __name__, require_auth=True)
 
@@ -24,7 +25,7 @@ def show(project_id=None):
             { "name": project_id }
         ] })
         if projects.count() == 0:
-            return json_response({"errors":["Project not found"]}, 404)
+            raise ProjectNotFound("project not found")
     return json_response(paginated_data(projects.sort("name")))
 
 
@@ -32,16 +33,9 @@ def show(project_id=None):
 def create():
     from app.models import Project
     data = clear_aux_fields(request.json)
-    owner_id = g.user._id
-    project = Project(name=data.get("name"),
-                      email=data.get("email"),
-                      root_email=data.get("root_email"),
-                      description=data.get('description'),
-                      owner_id=owner_id)
-    try:
-        project.save()
-    except Exception as e:
-        return json_exception(e, 500)
+    data["owner_id"] = g.user._id
+    project = Project(**data)
+    project.save()
     return json_response({ "data": project.to_dict() })
 
 
@@ -49,40 +43,21 @@ def create():
 def update(id):
     from app.models import Project
     data = clear_aux_fields(request.json)
-
-    project = Project.get(id)
-
-    if project is None:
-        return json_response({ "errors": [ "Project not found" ]}, 404)
+    project = Project.get(id, ProjectNotFound("project not found"))
     if not project.modification_allowed:
-        return json_response({"errors": ["You don't have permissions to modify the project"]}, 403)
-    try:
-        project.update(data)
-    except Exception as e:
-        return json_exception(e, 500)
-
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
-
-    return json_response({"data": project.to_dict(fields), "status":"updated"})
+        raise Forbidden("you don't have permission to modify this project")
+    project.update(data)
+    return json_response({"data": project.to_dict(), "status":"updated"})
 
 
 @projects_ctrl.route("/<id>", methods=["DELETE"])
 def delete(id):
     from app.models import Project
 
-    project = Project.get(id)
-
-    if project is None:
-        return json_response({ "errors": [ "Project not found" ]}, 404)
+    project = Project.get(id, ProjectNotFound("project not found"))
     if not project.modification_allowed:
-        return json_response({ "errors": [ "You don't have permissions to modify the project" ]}, 403)
-    try:
-        project.destroy()
-    except Exception as e:
-        return json_exception(e, 400)
+        raise Forbidden("you don't have permission to modify this project")
+    project.destroy()
     return json_response({ "data": project.to_dict(), "status": "deleted" })
 
 
@@ -90,106 +65,65 @@ def delete(id):
 def add_member(id):
     from app.models import Project, User
 
-    project = Project.get(id)
-
-    if project is None:
-        return json_response({ "errors": [ "Project not found" ]}, 404)
-    if not project.member_list_modification_allowed:
-        return json_response({ "errors": [ "You don't have permissions to modify the project member list" ]}, 403)
-
+    project = Project.get(id, ProjectNotFound("project not found"))
+    if not project.modification_allowed:
+        raise Forbidden("you don't have permission to modify this project")
     if not "user_id" in request.json:
-        return json_response({ "errors": [ "No user_id given in request data"]}, 400)
+        raise ApiError("no user_id given in request payload")
 
-    member = User.find_one({"_id": request.json["user_id"]})
-    if member is None:
-        return json_response({ "errors": ["User not found"]}, 404)
-
+    member = User.get(request.json["user_id"], UserNotFound("user not found"))
     project.add_member(member)
+    return json_response({"data": project.to_dict(), "status":"updated"})
 
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
-
-    return json_response({"data": project.to_dict(fields), "status":"updated"})
 
 @projects_ctrl.route("/<id>/remove_member", methods=["POST"])
 def remove_member(id):
     from app.models import Project, User
 
-    project = Project.get(id)
-
-    if project is None:
-        return json_response({ "errors": [ "Project not found" ]}, 404)
-    if not project.member_list_modification_allowed:
-        return json_response({ "errors": [ "You don't have permissions to modify the project member list" ]}, 403)
-
+    project = Project.get(id, ProjectNotFound("project not found"))
+    if not project.modification_allowed:
+        raise Forbidden("you don't have permission to modify this project")
     if not "user_id" in request.json:
-        return json_response({ "errors": [ "No user_id given in request data"]}, 400)
+        raise ApiError("no user_id given in request payload")
 
-    member = User.find_one({"_id": request.json["user_id"]})
-    if member is None:
-        return json_response({ "errors": ["User not found"]}, 404)
-
+    member = User.get(request.json["user_id"], UserNotFound("user not found"))
     project.remove_member(member)
+    return json_response({"data": project.to_dict(), "status":"updated"})
 
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
-
-    return json_response({"data": project.to_dict(fields), "status":"updated"})
 
 @projects_ctrl.route("/<id>/switch_owner", methods=["POST"])
 def switch_owner(id):
     from app.models import Project, User
 
-    project = Project.get(id)
-
-    if project is None:
-        return json_response({ "errors": [ "Project not found" ]}, 404)
+    project = Project.get(id, ProjectNotFound("project not found"))
     if not project.member_list_modification_allowed:
-        return json_response({ "errors": [ "You don't have permissions to modify the project owner" ]}, 403)
+        raise Forbidden("you don't have permission to modify the project's owner")
     if not "owner_id" in request.json:
-        return json_response({ "errors": [ "You should provide owner_id field" ]}, 400)
+        raise ApiError("you should provide owner_id field")
 
-    user = User.get(request.json["owner_id"])
-    if not user:
-        return json_response({ "errors": [ "New owner not found" ]}, 404)
+    user = User.get(request.json["owner_id"], UserNotFound("new owner not found"))
     if user._id == project.owner_id:
-        return json_response({ "errors": [ "Old and new owners match" ]}, 409)
+        raise Conflict("old and new owners match")
 
     project.owner_id = user._id
     project.save()
 
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
-
-    return json_response({"data": project.to_dict(fields), "status":"updated"})
+    return json_response({"data": project.to_dict(), "status":"updated"})
 
 @projects_ctrl.route("/<id>/set_members", methods=["POST"])
 def set_members(id):
     from app.models import Project, User
     from bson.objectid import ObjectId, InvalidId
 
-    project = Project.get(id)
-
-    if project is None:
-        return json_response({ "errors": [ "Project not found" ]}, 404)
+    project = Project.get(id, ProjectNotFound("project not found"))
     if not project.member_list_modification_allowed:
-        return json_response({ "errors": [ "You don't have permissions to modify the project member list" ]}, 403)
+        raise Forbidden("you don't have permission to modify the project's owner")
     if not "member_ids" in request.json:
-        return json_response({ "errors": [ "You should provide member_ids field" ]}, 400)
+        raise ApiError("you should provide member_ids field")
     if type(request.json["member_ids"]) != list:
-        return json_response({ "errors": [ "Invalid member_ids field type" ]}, 400)
+        raise ApiError("member_ids field must be an array type")
 
-    try:
-        member_ids = [ObjectId(x) for x in request.json["member_ids"]]
-    except InvalidId as e:
-        return json_exception(e, 500)
-
+    member_ids = [ObjectId(x) for x in request.json["member_ids"]]
     failed_ids = []
     for member_id in member_ids:
         member = User.get(member_id)
@@ -197,16 +131,12 @@ def set_members(id):
             failed_ids.append(member_id)
 
     if len(failed_ids) > 0:
-        return json_response({"errors": ["Users not found with the following ids: %s" % ", ".join([str(x) for x in failed_ids])]})
+        raise UserNotFound("users with the following ids haven't been found: %s" % ", ".join([str(x) for x in failed_ids]))
 
     if project.owner_id in member_ids:
         member_ids.remove(project.owner_id)
 
     project.member_ids = member_ids
     project.save()
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
 
-    return json_response({"data": project.to_dict(fields), "status":"updated"})
+    return json_response({"data": project.to_dict(), "status":"updated"})

@@ -107,6 +107,10 @@ class ProjectNotEmpty(IntegrityError):
     pass
 
 
+class UserNotFound(NotFound):
+    pass
+
+
 class InvalidProjectId(ApiError):
     pass
 

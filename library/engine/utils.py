@@ -82,7 +82,18 @@ def get_limit():
     return limit
 
 
-def paginated_data(data, page=None, limit=None, fields=None):
+def get_request_fields():
+    try:
+        if "_fields" in request.values:
+            return request.values["_fields"].split(",")
+        else:
+            return None
+    except RuntimeError:
+        return None
+
+
+def paginated_data(data, page=None, limit=None, fields=None, extra=None):
+    from app.models.storable_model import StorableModel
     if "_nopaging" in request.values and request.values["_nopaging"] == "true":
         limit = None
         page = None
@@ -92,26 +103,36 @@ def paginated_data(data, page=None, limit=None, fields=None):
         if limit is None:
             limit = get_limit()
 
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
+    if fields is None:
+        fields = get_request_fields()
 
-    if hasattr(data, "count"):
+    if type(data) == list:
+        count = len(data)
+        data = data[(page - 1) * limit:page * limit]
+        data = [x.to_dict(fields=fields) for x in data if isinstance(x, StorableModel)]
+    elif hasattr(data, "count"):
         count = data.count()
         if limit is not None and page is not None:
             data = data.skip((page-1)*limit).limit(limit)
         data = cursor_to_list(data, fields=fields)
     else:
-        count = len(data)
-        data = data[(page-1)*limit:page*limit]
+        raise RuntimeError("paginated_data accepts either cursor objects or lists")
 
     total_pages = int(math.ceil(float(count) / limit)) if limit is not None else None
 
-    return {
+    result = {
         "page": page,
         "total_pages": total_pages,
         "count": count,
         "data": data
     }
+
+    if extra is not None and hasattr(extra, "items"):   # extra type checking
+        for k, v in extra.items():
+            if k not in result:                         # no overriding
+                result[k]= v
+
+    return result
 
 
 def clear_aux_fields(data):

@@ -6,6 +6,7 @@ class Shell(Command):
     DESCRIPTION = 'Run shell (using IPython if available)'
 
     def run(self):
+        from app.models import *
         try:
             # trying IPython if installed...
             from IPython import embed
