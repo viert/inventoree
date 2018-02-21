@@ -1,5 +1,5 @@
 from flask import g, request
-from app.controllers.auth_controller import AuthenticationError
+from library.engine.errors import AuthenticationError
 
 AUTHENTICATION_URL = None
 

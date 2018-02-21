@@ -1,11 +1,12 @@
 from datetime import datetime
 from functools import wraps
+from library.engine.errors import FieldRequired, ObjectSaveRequired
 
 
 def hungarian(name):
     result = ""
     for i, l in enumerate(name):
-        if ord(l) >= 65 and ord(l) <= 90:
+        if 65 <= ord(l) <= 90:
             if i != 0:
                 result += "_"
             result += l.lower()
@@ -21,41 +22,6 @@ def now():
     dt = datetime.utcnow()
     dt = dt.replace(microsecond=dt.microsecond//1000*1000)
     return dt
-
-
-class ParentAlreadyExists(Exception):
-    pass
-
-
-class ParentCycle(Exception):
-    pass
-
-
-class ParentDoesNotExist(Exception):
-    pass
-
-
-class ChildAlreadyExists(Exception):
-    pass
-
-
-class ChildDoesNotExist(Exception):
-    pass
-
-
-class ObjectSaveRequired(Exception):
-    pass
-
-
-class FieldRequired(Exception):
-    pass
-
-
-class InvalidTags(Exception):
-    pass
-
-class InvalidCustomFields(Exception):
-    pass
 
 
 class ModelMeta(type):
@@ -205,18 +171,26 @@ class StorableModel(object):
         return db.get_obj(cls, cls.collection, query, **kwargs)
 
     @classmethod
-    def get(cls, expression):
-        from bson.objectid import ObjectId, InvalidId
+    def get(cls, expression, raise_if_none=None):
+        from bson.objectid import ObjectId
+        from library.engine.utils import resolve_id
+        expression = resolve_id(expression)
+        if expression is None:
+            return None
         if type(expression) == ObjectId:
             query = {"_id": expression}
         else:
             expression = str(expression)
-            try:
-                objid_expr = ObjectId(expression)
-                query = {"_id": objid_expr}
-            except InvalidId:
-                query = {cls.KEY_FIELD: expression}
-        return cls.find_one(query)
+            query = {cls.KEY_FIELD: expression}
+        res = cls.find_one(query)
+        if res is None and raise_if_none is not None:
+            if isinstance(raise_if_none, Exception):
+                raise raise_if_none
+            else:
+                from library.engine.errors import NotFound
+                raise NotFound(cls.__name__ + " not found")
+        else:
+            return res
 
     @classmethod
     def destroy_all(cls):

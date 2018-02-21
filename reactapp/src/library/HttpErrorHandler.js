@@ -1,3 +1,4 @@
+import React from 'react'
 import AlertStore from './AlertBox'
 import AuthState from './AuthState'
 
@@ -15,8 +16,9 @@ const HttpErrorHandler = (error) => {
             }
         }
         if (error.response.data && error.response.data.errors) {
+            let prefix = error.response.data.error_type ? <b>{ error.response.data.error_type }: </b> : "" 
             error.response.data.errors.forEach((item) => {
-                AlertStore.Alert(item)
+                AlertStore.Alert(<div>{ prefix }{ item }</div>)
             })
             return
         }

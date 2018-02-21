@@ -7,6 +7,7 @@ from flask import Flask, request, session
 from datetime import timedelta
 from collections import namedtuple
 from library.engine.utils import get_py_files
+from library.engine.errors import ApiError, handle_api_error, handle_other_errors
 from library.engine.json_encoder import MongoJSONEncoder
 from library.mongo_session import MongoSessionInterface
 from werkzeug.contrib.cache import MemcachedCache, SimpleCache
@@ -114,6 +115,8 @@ class BaseApp(object):
         self.flask.json_encoder = MongoJSONEncoder
         self.logger.debug("Setting sessions interface")
         self.flask.session_interface = MongoSessionInterface(collection_name='sessions')
+        self.flask._register_error_handler(None, ApiError, handle_api_error)
+        self.flask._register_error_handler(None, Exception, handle_other_errors)
         self.configure_routes()
 
     def configure_routes(self):
@@ -138,6 +141,7 @@ class BaseApp(object):
 
     def __prepare_logger(self):
         self.logger = logging.getLogger('app')
+        self.logger.propagate = False
 
         log_level = self.config.log.get("LOG_LEVEL") or self.DEFAULT_LOG_LEVEL
         log_level = log_level.upper()

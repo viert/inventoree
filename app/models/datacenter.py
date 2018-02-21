@@ -1,15 +1,7 @@
-from app.models.storable_model import StorableModel, ParentDoesNotExist,\
-    ParentAlreadyExists, ParentCycle, ObjectSaveRequired, \
-    ChildDoesNotExist, ChildAlreadyExists, save_required, now
+from app.models.storable_model import StorableModel, save_required, now
 from bson.objectid import ObjectId
-
-
-class DatacenterNotFound(Exception):
-    pass
-
-
-class DatacenterNotEmpty(Exception):
-    pass
+from library.engine.errors import ParentAlreadyExists, ParentDoesNotExist, ParentCycle, DatacenterNotEmpty
+from library.engine.errors import ChildAlreadyExists, ChildDoesNotExist, ObjectSaveRequired, DatacenterNotFound
 
 
 class Datacenter(StorableModel):
@@ -55,7 +47,7 @@ class Datacenter(StorableModel):
         "updated_at"
     )
 
-    __slots__ = FIELDS
+    __slots__ = list(FIELDS)
     
     @classmethod
     def _resolve_dc(cls, dc):
@@ -113,7 +105,7 @@ class Datacenter(StorableModel):
         if self in child.get_all_children():
             raise ParentCycle("Can't add on of (grand)parents as child")
         if child_id in self.child_ids:
-            raise ChildAlreadyExists("%s is already a child of %s" (child, self))
+            raise ChildAlreadyExists("%s is already a child of %s" % (child.name, self.name))
         self.child_ids.append(child_id)
         child.parent_id = self._id
         child.save()

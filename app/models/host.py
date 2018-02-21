@@ -1,12 +1,6 @@
-from storable_model import StorableModel, InvalidTags, now, InvalidCustomFields
+from storable_model import StorableModel, now
+from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, GroupNotFound
 from library.engine.utils import get_user_from_app_context
-
-class InvalidGroup(Exception):
-    pass
-
-
-class InvalidDatacenter(Exception):
-    pass
 
 
 class Host(StorableModel):
@@ -63,9 +57,9 @@ class Host(StorableModel):
 
     def _before_save(self):
         if self.group_id is not None and self.group is None:
-            raise InvalidGroup("Can not find group with id %s" % self.group_id)
+            raise GroupNotFound("Can not find group with id %s" % self.group_id)
         if self.datacenter_id is not None and self.datacenter is None:
-            raise InvalidDatacenter("Can not find datacenter with id %s" % self.datacenter_id)
+            raise DatacenterNotFound("Can not find datacenter with id %s" % self.datacenter_id)
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("Tags must be of array type")
 

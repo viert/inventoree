@@ -1,21 +1,8 @@
-from app.models.storable_model import StorableModel, \
-    ParentDoesNotExist, ParentAlreadyExists,\
-    ChildAlreadyExists, ChildDoesNotExist,\
-    ParentCycle, InvalidTags, now, InvalidCustomFields,\
-    save_required
+from library.engine.errors import ParentDoesNotExist, ParentAlreadyExists, ParentCycle, InvalidCustomFields
+from library.engine.errors import InvalidTags, ChildDoesNotExist, ChildAlreadyExists, GroupNotEmpty, GroupNotFound
+from library.engine.errors import InvalidProjectId
+from app.models.storable_model import StorableModel, now, save_required
 from bson.objectid import ObjectId
-
-
-class GroupNotFound(Exception):
-    pass
-
-
-class GroupNotEmpty(Exception):
-    pass
-
-
-class InvalidProjectId(Exception):
-    pass
 
 
 class Group(StorableModel):
