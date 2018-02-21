@@ -95,6 +95,10 @@ class GroupNotEmpty(IntegrityError):
     pass
 
 
+class HostNotFound(NotFound):
+    pass
+
+
 class ProjectNotFound(NotFound):
     pass
 

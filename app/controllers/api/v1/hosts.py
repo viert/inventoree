@@ -1,9 +1,10 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, json_exception
 from library.engine.permutation import expand_pattern
+from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
+    Forbidden, ApiError, NotFound
 from flask import request
-from bson.objectid import ObjectId, InvalidId
-
+from copy import copy
 
 hosts_ctrl = AuthController('hosts', __name__, require_auth=True)
 
@@ -39,117 +40,87 @@ def show(host_id=None):
 
 @hosts_ctrl.route("/", methods=["POST"])
 def create():
-    from app.models import Host
-    hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
+    from app.models import Host, Group, Datacenter
+    host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
     if "fqdn_pattern" in request.json:
-        if "fqdn" in hosts_attrs:
-            return json_response({ "errors": ["fqdn field is not allowed due to fqdn_pattern param presence"] })
-        try:
-            hostnames = list(expand_pattern(request.json["fqdn_pattern"]))
-        except Exception as e:
-            return json_exception(e)
+        if "fqdn" in host_attrs:
+            raise Conflict("fqdn field is not allowed due to fqdn_pattern param presence")
+        hostnames = list(expand_pattern(request.json["fqdn_pattern"]))
+        del(host_attrs["fqdn_pattern"])
     else:
-        hostnames = [hosts_attrs["fqdn"]]
-        del(hosts_attrs["fqdn"])
+        hostnames = [host_attrs["fqdn"]]
+        del(host_attrs["fqdn"])
 
-    if "group_id" in hosts_attrs:
-        hosts_attrs["group_id"] = resolve_id(hosts_attrs["group_id"])
-    else:
-        hosts_attrs["group_id"] = None
+    if "group_id" in host_attrs:
+        group = Group.get(host_attrs["group_id"], GroupNotFound("group not found"))
+        host_attrs["group_id"] = group._id
 
-    if "datacenter_id" in hosts_attrs:
-        hosts_attrs["datacenter_id"] = resolve_id(hosts_attrs["datacenter_id"])
-    else:
-        hosts_attrs["datacenter_id"] = None
+    if "datacenter_id" in host_attrs:
+        datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))
+        host_attrs["datacenter_id"] = datacenter._id
 
     for fqdn in hostnames:
-        attrs = hosts_attrs
+        attrs = copy(host_attrs)
         attrs["fqdn"] = fqdn
         host = Host(**attrs)
-        try:
-            host.save()
-        except Exception as e:
-            return json_exception(e, 500)
+        host.save()
 
     hosts = Host.find({"fqdn": {"$in": list(hostnames) }})
-    try:
-        data = paginated_data(hosts.sort("fqdn"))
-    except AttributeError as e:
-        return json_exception(e, 500)
+    data = paginated_data(hosts.sort("fqdn"))
     return json_response(data, 201)
+
 
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
 def update(host_id):
-    from app.models import Host
-    host = Host.get(host_id)
-    if host is None:
-        return json_response({ "errors": [ "Host not found" ] }, 404)
+    from app.models import Host, Group, Datacenter
+    host = Host.get(host_id, HostNotFound("host not found"))
 
     if not host.modification_allowed:
-        return json_response({ "errors": [ "You don't have permissions to modify this host" ] }, 403)
+        raise Forbidden("You don't have permissions to modify this host")
 
-    from app.models import Host
-    hosts_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
+    host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
-    if "group_id" in hosts_attrs:
-        hosts_attrs["group_id"] = resolve_id(hosts_attrs["group_id"])
-    else:
-        hosts_attrs["group_id"] = None
+    if "group_id" in host_attrs:
+        group = Group.get(host_attrs["group_id"], GroupNotFound("group not found"))
+        host_attrs["group_id"] = group._id
 
-    if "datacenter_id" in hosts_attrs:
-        hosts_attrs["datacenter_id"] = resolve_id(hosts_attrs["datacenter_id"])
-    else:
-        hosts_attrs["datacenter_id"] = None
+    if "datacenter_id" in host_attrs:
+        datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))
+        host_attrs["datacenter_id"] = datacenter._id
 
-    try:
-        host.update(hosts_attrs)
-    except Exception as e:
-        return json_exception(e, 500)
+    host.update(host_attrs)
     if "_fields" in request.values:
         fields = request.values["_fields"].split(",")
     else:
         fields = None
 
-    try:
-        data = { "data": host.to_dict(fields) }
-    except AttributeError as e:
-        return json_exception(e, 500)
+    data = { "data": host.to_dict(fields) }
     return json_response(data)
 
 
 @hosts_ctrl.route("/<host_id>", methods=["DELETE"])
 def delete(host_id):
     from app.models import Host
-    host = Host.get(host_id)
-
-    if host is None:
-        return json_response({ "errors": [ "Host not found" ] }, 404)
+    host = Host.get(host_id, HostNotFound("host not found"))
 
     if not host.destruction_allowed:
-        return json_response({ "errors": [ "You don't have permissions to delete this host" ] }, 403)
+        raise Forbidden("You don't have permission to modify this host")
 
-    try:
-        host.destroy()
-    except Exception as e:
-        return json_exception(e, 500)
+    host.destroy()
     return json_response({ "data": host.to_dict() })
 
 
 @hosts_ctrl.route("/mass_move", methods=["POST"])
 def mass_move():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
-        return json_response({ "errors": ["No host_ids provided"]}, 400)
-    if "group_id" not in request.json or request.json["group_id"] is None:
-        return json_response({ "errors": ["No group_id provided"]}, 400)
+        raise ApiError("no host_ids provided")
     if type(request.json["host_ids"]) != list:
-        return json_response({ "errors": ["host_ids must be an array type"]}, 400)
+        raise ApiError("host_ids must be an array type")
 
     from app.models import Host, Group
 
     # resolving group
-    group = Group.get(request.json["group_id"])
-    if group is None:
-        return json_response({ "errors": ["Group not found"] }, 404)
+    group = Group.get(request.json["group_id"], GroupNotFound("group not found"))
 
     # resolving hosts
     host_ids = [resolve_id(x) for x in request.json["host_ids"]]
@@ -157,10 +128,10 @@ def mass_move():
     hosts = Host.find({"_id":{"$in": list(host_ids)}})
     hosts = [h for h in hosts if h.group_id != group._id]
     if len(hosts) == 0:
-        return json_response({"errors":["No hosts found to be moved"]}, 404)
+        raise NotFound("no hosts found to be moved")
 
     if not group.modification_allowed:
-        return json_response({"errors":["You don't have permissions to move hosts to group %s" % group.name]}, 403)
+        raise Forbidden("you don't have permission to move hosts to group %s" % group.name)
 
     failed_hosts = []
     for host in hosts:
@@ -168,7 +139,7 @@ def mass_move():
             failed_hosts.append(host)
     if len(failed_hosts) > 0:
         failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
-        return json_response({"errors":["You don't have permissions to modify hosts: %s" % failed_hosts]}, 403)
+        raise Forbidden("you don't have permission to modify hosts: %s" % failed_hosts)
 
     # moving hosts
     for host in hosts:
@@ -185,12 +156,13 @@ def mass_move():
 
     return json_response(result)
 
+
 @hosts_ctrl.route("/mass_detach", methods=["POST"])
 def mass_detach():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
-        return json_response({ "errors": ["No host_ids provided"]}, 400)
+        raise ApiError("no host_ids provided")
     if type(request.json["host_ids"]) != list:
-        return json_response({ "errors": ["host_ids must be an array type"]}, 400)
+        raise ApiError("host_ids must be an array type")
 
     from app.models import Host
 
@@ -199,7 +171,7 @@ def mass_detach():
     host_ids = set([x for x in host_ids if x is not None])
     hosts = Host.find({"_id":{"$in": list(host_ids)}}).all()
     if len(hosts) == 0:
-        return json_response({"errors":["No hosts found to be moved"]}, 404)
+        raise NotFound("no hosts found to be moved")
 
     failed_hosts = []
     for host in hosts:
@@ -207,7 +179,7 @@ def mass_detach():
             failed_hosts.append(host)
     if len(failed_hosts) > 0:
         failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
-        return json_response({"errors":["You don't have permissions to modify hosts: %s" % failed_hosts]}, 403)
+        raise Forbidden("you don't have permission to modify hosts: %s" % failed_hosts)
 
     # moving hosts
     for host in hosts:
@@ -223,32 +195,30 @@ def mass_detach():
 
     return json_response(result)
 
+
 @hosts_ctrl.route("/mass_delete", methods=["POST"])
 def mass_delete():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
-        return json_response({ "errors": ["No host ids provided"]}, 400)
+        raise ApiError("no host_ids provided")
     if type(request.json["host_ids"]) != list:
-        return json_response({ "errors": ["host_ids must be an array type"]}, 400)
+        raise ApiError("host_ids must be an array type")
 
     from app.models import Host
 
-    # resolving Groups
+    # resolving hosts
     host_ids = [resolve_id(x) for x in request.json["host_ids"]]
     host_ids = set([x for x in host_ids if x is not None])
-    hosts = Host.find({"_id": {"$in": list(host_ids)}})
+    hosts = Host.find({"_id":{"$in": list(host_ids)}}).all()
+    if len(hosts) == 0:
+        raise NotFound("no hosts found to be moved")
 
-    if hosts.count() == 0:
-        return json_response({"errors":["No hosts found to be deleted"]})
-
-    hosts = hosts.all()
     failed_hosts = []
-
     for host in hosts:
         if not host.modification_allowed:
             failed_hosts.append(host)
     if len(failed_hosts) > 0:
         failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
-        return json_response({"errors":["You don't have permissions to modify hosts: %s" % failed_hosts]}, 403)
+        raise Forbidden("you don't have permission to modify hosts: %s" % failed_hosts)
 
     for host in hosts:
         host.destroy()

@@ -2,7 +2,7 @@ from flask import request
 from bson.objectid import ObjectId
 from app.controllers.auth_controller import AuthController
 from library.engine.errors import GroupNotFound, Forbidden, ApiError, ProjectNotFound, NotFound
-from library.engine.utils import resolve_id, json_response, json_exception, paginated_data, diff
+from library.engine.utils import resolve_id, json_response, paginated_data, diff
 
 groups_ctrl = AuthController("groups", __name__, require_auth=True)
 
