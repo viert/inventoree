@@ -1,6 +1,7 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
 from library.engine.errors import DatacenterNotFound
+from library.engine.action_log import logged_action
 from flask import request
 
 
@@ -31,6 +32,7 @@ def show(datacenter_id=None):
 
 
 @datacenters_ctrl.route("/", methods=["POST"])
+@logged_action("location_create")
 def create():
     from app.models import Datacenter
     dc_attrs = dict([x for x in request.json.items() if x[0] in Datacenter.FIELDS])
@@ -43,6 +45,7 @@ def create():
 
 
 @datacenters_ctrl.route("/<dc_id>", methods=["PUT"])
+@logged_action("location_update")
 def update(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
@@ -56,6 +59,7 @@ def update(dc_id):
 
 
 @datacenters_ctrl.route("/<dc_id>", methods=["DELETE"])
+@logged_action("location_delete")
 def delete(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
@@ -65,6 +69,7 @@ def delete(dc_id):
 
 
 @datacenters_ctrl.route("/<dc_id>/set_parent", methods=["PUT"])
+@logged_action("location_set_parent")
 def set_parent(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))

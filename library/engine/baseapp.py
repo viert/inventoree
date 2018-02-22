@@ -39,6 +39,7 @@ class BaseApp(object):
             self.envtype = DEFAULT_ENVIRONMENT_TYPE
         self.__read_config()
         self.test_config()
+        self.after_configured()
         self.__prepare_logger()
         self.__load_plugins()
         self.__prepare_flask()
@@ -166,6 +167,9 @@ class BaseApp(object):
         self.logger.info("Logger created. Environment type set to %s" % self.envtype)
 
     def test_config(self):
+        pass
+
+    def after_configured(self):
         pass
 
     # shortcut method

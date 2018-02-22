@@ -39,5 +39,8 @@ class App(BaseApp):
         from app.controllers.api.v1.open import open_ctrl
         self.flask.register_blueprint(open_ctrl, url_prefix="/api/v1/open")
 
+    def after_configured(self):
+        self.action_logging = self.config.app.get("ACTION_LOGGING", False)
+
 
 app = App()

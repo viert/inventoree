@@ -3,7 +3,7 @@ from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
     json_response, clear_aux_fields, get_request_fields
 from library.engine.errors import ProjectNotFound, Forbidden, ApiError, UserNotFound, Conflict
-
+from library.engine.action_log import logged_action
 projects_ctrl = AuthController("projects", __name__, require_auth=True)
 
 
@@ -30,6 +30,7 @@ def show(project_id=None):
 
 
 @projects_ctrl.route("/", methods=["POST"])
+@logged_action("project_create")
 def create():
     from app.models import Project
     data = clear_aux_fields(request.json)
@@ -40,6 +41,7 @@ def create():
 
 
 @projects_ctrl.route("/<id>", methods=["PUT"])
+@logged_action("project_update")
 def update(id):
     from app.models import Project
     data = clear_aux_fields(request.json)
@@ -51,6 +53,7 @@ def update(id):
 
 
 @projects_ctrl.route("/<id>", methods=["DELETE"])
+@logged_action("project_delete")
 def delete(id):
     from app.models import Project
 
@@ -62,6 +65,7 @@ def delete(id):
 
 
 @projects_ctrl.route("/<id>/add_member", methods=["POST"])
+@logged_action("project_add_member")
 def add_member(id):
     from app.models import Project, User
 
@@ -77,6 +81,7 @@ def add_member(id):
 
 
 @projects_ctrl.route("/<id>/remove_member", methods=["POST"])
+@logged_action("project_remove_member")
 def remove_member(id):
     from app.models import Project, User
 
@@ -92,6 +97,7 @@ def remove_member(id):
 
 
 @projects_ctrl.route("/<id>/switch_owner", methods=["POST"])
+@logged_action("project_switch_owner")
 def switch_owner(id):
     from app.models import Project, User
 
@@ -111,9 +117,10 @@ def switch_owner(id):
     return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
 @projects_ctrl.route("/<id>/set_members", methods=["POST"])
+@logged_action("project_set_members")
 def set_members(id):
     from app.models import Project, User
-    from bson.objectid import ObjectId, InvalidId
+    from bson.objectid import ObjectId
 
     project = Project.get(id, ProjectNotFound("project not found"))
     if not project.member_list_modification_allowed:

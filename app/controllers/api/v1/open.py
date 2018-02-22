@@ -106,6 +106,8 @@ def conductor():
     else:
         results["app"]["version"] = "unknown"
 
+    results["app"]["action_logging_enabled"] = app.action_logging
+
     from library.db import db
     results["mongodb"] = db.conn.client.server_info()
 

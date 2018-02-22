@@ -2,6 +2,7 @@ from app.controllers.auth_controller import AuthController
 from flask import request, g
 from library.engine.utils import json_response, resolve_id, paginated_data, get_request_fields
 from library.engine.errors import UserNotFound, Forbidden, ApiError, UserAlreadyExists
+from library.engine.action_log import logged_action
 
 users_ctrl = AuthController("users", __name__, require_auth=True)
 
@@ -36,6 +37,7 @@ def show(user_id=None):
 
 
 @users_ctrl.route("/", methods=["POST"])
+@logged_action("user_create")
 def create():
     if not g.user.supervisor:
         raise Forbidden("you don't have permission to create new users")
@@ -65,6 +67,7 @@ def create():
 
 
 @users_ctrl.route("/<user_id>", methods=["PUT"])
+@logged_action("user_update")
 def update(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))
@@ -77,6 +80,7 @@ def update(user_id):
 
 
 @users_ctrl.route("/<user_id>/set_password", methods=["PUT"])
+@logged_action("user_set_password")
 def set_password(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))
@@ -97,6 +101,7 @@ def set_password(user_id):
 
 
 @users_ctrl.route("/<user_id>/set_supervisor", methods=["PUT"])
+@logged_action("user_set_supervisor")
 def set_supervisor(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))
@@ -117,6 +122,7 @@ def set_supervisor(user_id):
 
 
 @users_ctrl.route("/<user_id>", methods=["DELETE"])
+@logged_action("user_delete")
 def delete(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))

@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 from app.controllers.auth_controller import AuthController
 from library.engine.errors import GroupNotFound, Forbidden, ApiError, ProjectNotFound, NotFound
 from library.engine.utils import resolve_id, json_response, paginated_data, diff, get_request_fields
+from library.engine.action_log import logged_action
 
 groups_ctrl = AuthController("groups", __name__, require_auth=True)
 
@@ -52,6 +53,7 @@ def structure(group_id):
 
 
 @groups_ctrl.route("/<group_id>", methods=["PUT"])
+@logged_action("group_update")
 def update(group_id):
     from app.models import Project, Group
     group = Group.get(group_id, GroupNotFound("group not found"))
@@ -66,6 +68,7 @@ def update(group_id):
 
 
 @groups_ctrl.route("/<group_id>/set_children", methods=["PUT"])
+@logged_action("group_set_children")
 def set_children(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
@@ -91,6 +94,7 @@ def set_children(group_id):
     return json_response({ "data": group.to_dict(get_request_fields()), "status": "ok" })
 
 @groups_ctrl.route("/<group_id>/set_hosts", methods=["PUT"])
+@logged_action("group_set_hosts")
 def set_hosts(group_id):
     from app.models import Host, Group
     group = Group.get(group_id, GroupNotFound("group not found"))
@@ -123,6 +127,7 @@ def set_hosts(group_id):
 
 
 @groups_ctrl.route("/", methods=["POST"])
+@logged_action("group_create")
 def create():
     from app.models import Group, Project
     group_attrs = request.json.copy()
@@ -148,6 +153,7 @@ def create():
     return json_response({ "data": group.to_dict(get_request_fields()) }, 201)
 
 @groups_ctrl.route("/<group_id>", methods=["DELETE"])
+@logged_action("group_delete")
 def delete(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
@@ -157,6 +163,7 @@ def delete(group_id):
     return json_response({ "data": group.to_dict(get_request_fields()) })
 
 @groups_ctrl.route("/mass_move", methods=["POST"])
+@logged_action("group_mass_move")
 def mass_move():
     # every group requested will move to the indicated project with all its' children
     # group will be detached from all its' parents due to not being able to have
@@ -209,6 +216,7 @@ def mass_move():
     return json_response(result)
 
 @groups_ctrl.route("/mass_delete", methods=["POST"])
+@logged_action("group_mass_delete")
 def mass_delete():
     if "group_ids" not in request.json or request.json["group_ids"] is None:
         raise ApiError("no group ids provided")

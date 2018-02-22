@@ -3,6 +3,7 @@ from library.engine.utils import resolve_id, json_response, paginated_data, get_
 from library.engine.permutation import expand_pattern
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound
+from library.engine.action_log import logged_action
 from flask import request
 from copy import copy
 
@@ -36,6 +37,7 @@ def show(host_id=None):
 
 
 @hosts_ctrl.route("/", methods=["POST"])
+@logged_action("host_create")
 def create():
     from app.models import Host, Group, Datacenter
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
@@ -68,6 +70,7 @@ def create():
 
 
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
+@logged_action("host_update")
 def update(host_id):
     from app.models import Host, Group, Datacenter
     host = Host.get(host_id, HostNotFound("host not found"))
@@ -91,6 +94,7 @@ def update(host_id):
 
 
 @hosts_ctrl.route("/<host_id>", methods=["DELETE"])
+@logged_action("host_delete")
 def delete(host_id):
     from app.models import Host
     host = Host.get(host_id, HostNotFound("host not found"))
@@ -103,6 +107,7 @@ def delete(host_id):
 
 
 @hosts_ctrl.route("/mass_move", methods=["POST"])
+@logged_action("host_mass_move")
 def mass_move():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
@@ -150,6 +155,7 @@ def mass_move():
 
 
 @hosts_ctrl.route("/mass_detach", methods=["POST"])
+@logged_action("host_mass_detach")
 def mass_detach():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
@@ -189,6 +195,7 @@ def mass_detach():
 
 
 @hosts_ctrl.route("/mass_delete", methods=["POST"])
+@logged_action("host_mass_delete")
 def mass_delete():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
