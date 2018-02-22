@@ -35,6 +35,10 @@ class App(BaseApp):
         from app.controllers.api.v1.users import users_ctrl
         self.flask.register_blueprint(users_ctrl, url_prefix="/api/v1/users")
 
+        self.logger.debug("actions_ctrl at /api/v1/actions")
+        from app.controllers.api.v1.actions import actions_ctrl
+        self.flask.register_blueprint(actions_ctrl, url_prefix="/api/v1/actions")
+
         self.logger.debug("open_ctrl at /api/v1/open")
         from app.controllers.api.v1.open import open_ctrl
         self.flask.register_blueprint(open_ctrl, url_prefix="/api/v1/open")
