@@ -4,6 +4,7 @@ from flask import request
 
 actions_ctrl = AuthController("actions", __name__, require_auth=True)
 
+
 @actions_ctrl.route("/", methods=["GET"])
 def index():
     from app.models import ApiAction

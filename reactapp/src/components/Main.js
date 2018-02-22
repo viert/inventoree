@@ -24,6 +24,8 @@ import UserList from './Users/UserList'
 import UserView from './Users/UserView'
 import UserEditor from './Users/UserEdit/UserEditor'
 
+import ActionLogList from './ActionLog/ActionLogList'
+
 import { AlertBox } from '../library/AlertBox'
 
 class Main extends Component {
@@ -52,6 +54,8 @@ class Main extends Component {
                     <Route exact path="/users" component={UserList} />
                     <Route exact path="/users/:id" component={UserView} />
                     <Route exact path="/users/:id/edit" component={UserEditor} />
+
+                    <Route exact path="/action_log" component={ActionLogList} />
                 </div>
             </div>
         )

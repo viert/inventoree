@@ -4,17 +4,19 @@ export default class FilterField extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            filter: props.filter || ''
+            filter: props.filter || '',
+            name: props.name || 'Filter' 
         }
     }
 
     componentWillReceiveProps(props) {
         this.setState({
-            filter: props.filter
+            filter: props.filter || '',
+            name: props.name || 'Filter'
         })
     }
 
-    filterChange(e) {
+    filterChange = (e) => {
         this.setState({
             filter: e.target.value
         })
@@ -23,12 +25,12 @@ export default class FilterField extends Component {
         }
     }
 
-
     render() {
+        let { name, filter } = this.state
         return (
             <div className="input-group">
-                <span className="input-group-addon">Filter</span>
-                <input value={this.state.filter} onChange={this.filterChange.bind(this)} type="text" className="form-control" />
+                <span className="input-group-addon">{name}</span>
+                <input value={filter} onChange={this.filterChange} type="text" className="form-control" />
             </div>
         )
     }

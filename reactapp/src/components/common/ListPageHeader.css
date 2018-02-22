@@ -16,6 +16,10 @@
     padding-right: 20px;
 }
 
+.listpage-header_search--mini {
+    width: 20%;
+}
+
 .listpage-header_buttons {
     text-align: right;
 }

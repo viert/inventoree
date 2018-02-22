@@ -34,6 +34,19 @@ const Api = {
             'modification_allowed',
         ]
     },
+    Actions: {
+        ListFields: [
+            '_id',
+            'action_type',
+            'username',
+            'params',
+            'kwargs',
+            'status',
+            'errors',
+            'created_at',
+            'updated_at'
+        ]
+    },
     Groups: {
         EditorFields: [
             '_id',
