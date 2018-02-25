@@ -128,8 +128,12 @@ class Forbidden(ApiError):
 
 
 def handle_api_error(error):
+    from app import app
+    app.logger.error(repr(error))
     return json_response(error.to_dict(), error.status_code)
 
 
 def handle_other_errors(error):
+    from app import app
+    app.logger.error(repr(error))
     return json_response({ "errors": [str(error)] }, 400)
