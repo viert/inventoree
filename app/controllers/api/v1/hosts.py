@@ -45,7 +45,6 @@ def create():
         if "fqdn" in host_attrs:
             raise Conflict("fqdn field is not allowed due to fqdn_pattern param presence")
         hostnames = list(expand_pattern(request.json["fqdn_pattern"]))
-        del(host_attrs["fqdn_pattern"])
     else:
         hostnames = [host_attrs["fqdn"]]
         del(host_attrs["fqdn"])
