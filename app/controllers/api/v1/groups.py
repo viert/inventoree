@@ -21,6 +21,9 @@ def show(group_id=None):
         if "project_id" in request.values:
             project_id = resolve_id(request.values["project_id"])
             query["project_id"] = project_id
+        if "tags" in request.values:
+            tags = request.values["tags"].split(",")
+            query["tags"] = { "$in": tags }
         groups = Group.find(query)
     else:
         group_id = resolve_id(group_id)
