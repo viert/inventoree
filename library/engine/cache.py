@@ -5,7 +5,6 @@ from library.db import ObjectsCursor
 
 DEFAULT_CACHE_PREFIX = 'microeng'
 DEFAULT_CACHE_TIMEOUT = 3600
-REQUEST_TIME_TIMEOUT = 10 # 10 seconds ttl for each request
 
 
 def _get_cache_key(pref, funcname, args, kwargs):
