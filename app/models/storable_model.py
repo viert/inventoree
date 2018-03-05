@@ -1,6 +1,7 @@
 from datetime import datetime
 from functools import wraps
 from library.engine.errors import FieldRequired, ObjectSaveRequired
+from library.engine.cache import request_time_cache
 
 
 def hungarian(name):
@@ -161,11 +162,13 @@ class StorableModel(object):
         return mfields
 
     @classmethod
+    @request_time_cache()
     def find(cls, query={}, **kwargs):
         from library.db import db
         return db.get_objs(cls, cls.collection, query, **kwargs)
 
     @classmethod
+    @request_time_cache()
     def find_one(cls, query, **kwargs):
         from library.db import db
         return db.get_obj(cls, cls.collection, query, **kwargs)
