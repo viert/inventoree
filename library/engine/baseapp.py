@@ -6,7 +6,7 @@ import logging
 from flask import Flask, request, session
 from datetime import timedelta
 from collections import namedtuple
-from library.engine.utils import get_py_files
+from library.engine.utils import get_py_files, uuid4_string
 from library.engine.errors import ApiError, handle_api_error, handle_other_errors
 from library.engine.json_encoder import MongoJSONEncoder
 from library.mongo_session import MongoSessionInterface
@@ -45,6 +45,7 @@ class BaseApp(object):
         self.__prepare_flask()
         self.__set_authorizer()
         self.__set_session_expiration()
+        self.__set_request_id()
         self.__set_cache()
 
     def __set_cache(self):
@@ -99,6 +100,12 @@ class BaseApp(object):
         def session_expiration():
             session.permanent = True
             self.flask.permanent_session_lifetime = timedelta(seconds=e_time)
+
+    def __set_request_id(self):
+        @self.flask.before_request
+        def add_request_id():
+            if not hasattr(request, "id"):
+                setattr(request, "id", uuid4_string())
 
     def __prepare_flask(self):
         self.logger.debug("Creating flask app")
