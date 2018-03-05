@@ -1,6 +1,7 @@
 from storable_model import StorableModel, now
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, GroupNotFound
 from library.engine.utils import get_user_from_app_context
+from library.engine.cache import request_time_cache
 
 
 class Host(StorableModel):
@@ -179,6 +180,7 @@ class Host(StorableModel):
         return self.group.modification_allowed
 
     @property
+    @request_time_cache()
     def all_tags(self):
         tags = set(self.tags)
         if self.is_new or self.group is None:
@@ -186,6 +188,7 @@ class Host(StorableModel):
         return tags.union(self.group.all_tags)
 
     @property
+    @request_time_cache()
     def all_custom_fields(self):
         # the handler may be a bit heavy, be sure to benchmark it
         if self.is_new or self.group is None:

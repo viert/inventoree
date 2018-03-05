@@ -1,6 +1,7 @@
 from library.engine.errors import ParentDoesNotExist, ParentAlreadyExists, ParentCycle, InvalidCustomFields
 from library.engine.errors import InvalidTags, ChildDoesNotExist, ChildAlreadyExists, GroupNotEmpty, GroupNotFound
 from library.engine.errors import InvalidProjectId
+from library.engine.cache import request_time_cache
 from app.models.storable_model import StorableModel, now, save_required
 from bson.objectid import ObjectId
 
@@ -183,18 +184,22 @@ class Group(StorableModel):
 
     @property
     def project(self):
+        if self.project_id is None:
+            return None
         return self.project_class.find_one({ "_id": self.project_id })
 
     @property
     def modification_allowed(self):
         return self.project.modification_allowed
 
+    @request_time_cache()
     def get_all_children(self):
         children = self.children[:]
         for child in self.children:
             children += child.get_all_children()
         return children
 
+    @request_time_cache()
     def get_all_parents(self):
         parents = self.parents[:]
         for parent in self.parents:
@@ -259,6 +264,7 @@ class Group(StorableModel):
         self.destroy(skip_callback)
 
     @property
+    @request_time_cache()
     def all_tags(self):
         tags = set(self.tags)
         for parent in self.parents:
@@ -266,6 +272,7 @@ class Group(StorableModel):
         return tags
 
     @property
+    @request_time_cache()
     def all_custom_fields(self):
         cf_dict = {}
         for parent in self.parents:

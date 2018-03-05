@@ -179,13 +179,14 @@ class StorableModel(object):
         from library.engine.utils import resolve_id
         expression = resolve_id(expression)
         if expression is None:
-            return None
-        if type(expression) == ObjectId:
-            query = {"_id": expression}
+            res = None
         else:
-            expression = str(expression)
-            query = {cls.KEY_FIELD: expression}
-        res = cls.find_one(query)
+            if type(expression) == ObjectId:
+                query = {"_id": expression}
+            else:
+                expression = str(expression)
+                query = {cls.KEY_FIELD: expression}
+            res = cls.find_one(query)
         if res is None and raise_if_none is not None:
             if isinstance(raise_if_none, Exception):
                 raise raise_if_none
