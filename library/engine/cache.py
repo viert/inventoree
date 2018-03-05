@@ -61,6 +61,14 @@ def check_cache():
 
 
 def request_time_cache(cache_key_prefix=DEFAULT_CACHE_PREFIX):
+    """
+    Decorator used for caching data during one api request.
+    It's useful while some "list something" handlers with a number of cross-references generate
+    many repeating database requests which are known to generate the same response during the api request.
+    I.e. list of 20 hosts included in the same group and inheriting the same set of tags/custom fields
+    may produce 20 additional db requests and 20 requests for each parent group recursively. This may be fixed
+    by caching db responses in flask "g" store.
+    """
     def cache_decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
