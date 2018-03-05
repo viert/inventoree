@@ -110,15 +110,16 @@ class BaseApp(object):
                 setattr(request, "id", uuid4_string())
 
     def __set_request_times(self):
-        @self.flask.before_request
-        def add_request_started_time():
-            setattr(request, "started", time.time())
+        if self.config.log.get("LOG_TIMINGS"):
+            @self.flask.before_request
+            def add_request_started_time():
+                setattr(request, "started", time.time())
 
-        @self.flask.after_request
-        def add_request_time_logging(response):
-            dt = time.time() - request.started
-            self.logger.debug("%s completed in %.3fs" % (request.full_path, dt))
-            return response
+            @self.flask.after_request
+            def add_request_time_logging(response):
+                dt = time.time() - request.started
+                self.logger.info("%s completed in %.3fs" % (request.path, dt))
+                return response
 
     def __prepare_flask(self):
         self.logger.debug("Creating flask app")
@@ -176,11 +177,15 @@ class BaseApp(object):
             handler = logging.StreamHandler(stream=sys.stdout)
             log_level = logging.DEBUG
             self.logger.addHandler(handler)
+        if len(self.logger.handlers) == 0:
+            handler = logging.StreamHandler(stream=sys.stdout)
+            self.logger.addHandler(handler)
 
         log_format = self.config.log.get("LOG_FORMAT") or self.DEFAULT_LOG_FORMAT
         log_format = logging.Formatter(log_format)
 
         self.logger.setLevel(log_level)
+
         for handler in self.logger.handlers:
             handler.setLevel(log_level)
             handler.setFormatter(log_format)
