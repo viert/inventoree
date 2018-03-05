@@ -3,6 +3,7 @@ import os.path
 import sys
 import importlib
 import logging
+import time
 from flask import Flask, request, session
 from datetime import timedelta
 from collections import namedtuple
@@ -46,6 +47,7 @@ class BaseApp(object):
         self.__set_authorizer()
         self.__set_session_expiration()
         self.__set_request_id()
+        self.__set_request_times()
         self.__set_cache()
 
     def __set_cache(self):
@@ -106,6 +108,17 @@ class BaseApp(object):
         def add_request_id():
             if not hasattr(request, "id"):
                 setattr(request, "id", uuid4_string())
+
+    def __set_request_times(self):
+        @self.flask.before_request
+        def add_request_started_time():
+            setattr(request, "started", time.time())
+
+        @self.flask.after_request
+        def add_request_time_logging(response):
+            dt = time.time() - request.started
+            self.logger.debug("%s completed in %.3fs" % (request.full_path, dt))
+            return response
 
     def __prepare_flask(self):
         self.logger.debug("Creating flask app")
