@@ -39,7 +39,7 @@ def create():
     dc = Datacenter(**dc_attrs)
     # TODO: check permissions!
     dc.save()
-    if "parent_id" in dc_attrs and dc_attrs["parent_id"]:
+    if "parent_id" in dc_attrs and dc_attrs["parent_id"] is not None:
         return set_parent(dc._id)
     return json_response({ "data": dc.to_dict(get_request_fields()) }, 201)
 
@@ -78,6 +78,6 @@ def set_parent(dc_id):
     if dc.parent:
         dc.unset_parent()
     if parent_id is not None:
-        parent_id = resolve_id(parent_id)
-        dc.set_parent(parent_id)
+        parent = Datacenter.get(parent_id, DatacenterNotFound("parent datacenter not found"))
+        dc.set_parent(parent._id)
     return json_response({ "data": dc.to_dict(get_request_fields()) })

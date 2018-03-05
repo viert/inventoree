@@ -63,7 +63,7 @@ def update(group_id):
     if not group.modification_allowed:
         raise Forbidden("you don't have permission to modify this group")
     group_attrs = request.json.copy()
-    if "project_id" in group_attrs:
+    if "project_id" in group_attrs and group_attrs["project_id"] is not None:
         project = Project.get(group_attrs["project_id"], ProjectNotFound("project provided has not been found"))
         group_attrs["project_id"] = project._id
     group.update(group_attrs)
@@ -145,6 +145,8 @@ def create():
         else:
             raise ApiError("group has to be in a project")
     else:
+        if group_attrs["project_id"] is None:
+            raise ApiError("group has to be in a project")
         project = Project.get(group_attrs["project_id"], ProjectNotFound("project provided has not been found"))
         group_attrs["project_id"] = project._id
 
