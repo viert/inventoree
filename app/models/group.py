@@ -171,10 +171,14 @@ class Group(StorableModel):
 
     @property
     def parents(self):
+        if len(self.parent_ids) == 0:
+            return []
         return self.__class__.find({ "_id": { "$in": self.parent_ids }}).all()
 
     @property
     def children(self):
+        if len(self.child_ids) == 0:
+            return []
         return self.__class__.find({ "_id": { "$in": self.child_ids }}).all()
 
     @property

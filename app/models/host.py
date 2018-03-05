@@ -86,6 +86,8 @@ class Host(StorableModel):
 
     @property
     def group(self):
+        if self.group_id is None:
+            return None
         return self.group_class.find_one({ "_id": self.group_id })
 
     @property
@@ -96,6 +98,8 @@ class Host(StorableModel):
 
     @property
     def datacenter(self):
+        if self.datacenter_id is None:
+            return None
         return self.datacenter_class.find_one({ "_id": self.datacenter_id })
 
     @property
