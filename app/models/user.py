@@ -1,6 +1,7 @@
 from storable_model import StorableModel, now
 from library.engine.pbkdf2 import pbkdf2_hex
 from library.engine.utils import get_user_from_app_context
+from library.engine.cache import request_time_cache
 from time import mktime
 
 
@@ -136,11 +137,13 @@ class User(StorableModel):
         return token
 
     @property
+    @request_time_cache()
     def projects_owned(self):
         from app.models import Project
         return Project.find({"owner_id": self._id})
 
     @property
+    @request_time_cache()
     def projects_included_into(self):
         from app.models import Project
         return Project.find({"member_ids": self._id})
