@@ -11,7 +11,7 @@ class Datacenter(StorableModel):
     FIELDS = (
         "_id",
         "name",
-        "human_readable",
+        "description",
         "parent_id",
         "root_id",
         "child_ids",
