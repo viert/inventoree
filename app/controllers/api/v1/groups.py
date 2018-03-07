@@ -167,6 +167,7 @@ def delete(group_id):
     group.destroy()
     return json_response({ "data": group.to_dict(get_request_fields()) })
 
+
 @groups_ctrl.route("/mass_move", methods=["POST"])
 @logged_action("group_mass_move")
 def mass_move():
@@ -178,6 +179,8 @@ def mass_move():
         raise ApiError("no group ids provided")
     if type(request.json["group_ids"]) != list:
         raise ApiError("group_ids must be an array type")
+    if "project_id" not in request.json:
+        raise ApiError("no project_id provided")
 
     from app.models import Group, Project
     # resolving Project
