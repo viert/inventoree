@@ -91,7 +91,7 @@ class User(StorableModel):
         if "password_raw" in kwargs:
             password_raw = kwargs["password_raw"]
             del(kwargs["password_raw"])
-            kwargs["password_hash"] = pbkdf2_hex(password_raw, self.salt)
+            kwargs["password_hash"] = pbkdf2_hex(str(password_raw), self.salt)
         StorableModel.__init__(self, **kwargs)
 
     def touch(self):
