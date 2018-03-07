@@ -1,5 +1,5 @@
 from library.engine.utils import json_response
-
+from traceback import format_exc
 
 class ApiError(Exception):
     status_code = 400
@@ -135,5 +135,5 @@ def handle_api_error(error):
 
 def handle_other_errors(error):
     from app import app
-    app.logger.error(repr(error))
+    app.logger.error(format_exc(error))
     return json_response({ "errors": [str(error)] }, 400)
