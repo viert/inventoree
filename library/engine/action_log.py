@@ -1,6 +1,6 @@
 import functools
 import json
-
+import copy
 
 def logged_action(action_type):
     def log_action_decorator(func):
@@ -17,12 +17,13 @@ def logged_action(action_type):
             else:
                 username = g.user.username
             if request.json is not None:
-                action_args = request.json
+                action_args = copy.deepcopy(request.json)
             else:
                 action_args = {}
 
+            arg_keys = action_args.keys()
             # removing plain text passwords from action log
-            for k in action_args:
+            for k in arg_keys:
                 if k.startswith("password"):
                     del(action_args[k])
 
