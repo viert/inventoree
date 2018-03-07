@@ -1,6 +1,5 @@
 import flask.json as json
 from httpapi_testcase import HttpApiTestCase
-from app import app
 
 
 class TestAccountCtrl(HttpApiTestCase):

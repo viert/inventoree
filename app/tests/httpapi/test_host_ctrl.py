@@ -119,7 +119,7 @@ class TestHostCtrl(HttpApiTestCase):
         h4.save()
         r = self.post_json("/api/v1/hosts/mass_move",
                            { "host_ids": [str(h2._id), str(h3._id)], "group_id": None })
-        self.assertEqual(400, r.status_code)
+        self.assertEqual(404, r.status_code)
 
         r = self.post_json("/api/v1/hosts/mass_move",
                            { "host_ids": [str(h2._id), str(h3._id)], "group_id": str(g2._id)})
