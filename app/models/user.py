@@ -3,6 +3,7 @@ from library.engine.pbkdf2 import pbkdf2_hex
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 from time import mktime
+import bcrypt
 
 
 class UserHasProjects(Exception):
@@ -77,22 +78,42 @@ class User(StorableModel):
             self._salt = "%s.%d" % (secret_key, int(mktime(self.created_at.utctimetuple())))
         return self._salt
 
-    def __init__(self, **kwargs):
-        self._salt = None
-        ts = now()
-        # these should be set before setting salt
-        # because salt actually depends on user created_at time
-        if not "created_at" in kwargs:
-            kwargs["created_at"] = ts
+    def __set_legacy_password_hash(self, password_raw):
+        if not self.created_at:
+            ts = now()
             self.created_at = ts
-        if not "updated_at" in kwargs:
-            kwargs["updated_at"] = ts
-            self.updated_at = ts
+        self.password_hash = pbkdf2_hex(str(password_raw), self.salt)
+
+    def __check_legacy_password_hash(self, password_raw):
+        return pbkdf2_hex(str(password_raw), self.salt) == self.password_hash
+
+    def __set_password_hash(self, password_raw):
+        if type(password_raw) != unicode:
+            password_raw = unicode(password_raw)
+        self.password_hash = bcrypt.hashpw(password_raw.encode('utf-8'), bcrypt.gensalt())
+
+    def __check_password_hash(self, password_raw):
+        if type(password_raw) != unicode:
+            password_raw = unicode(password_raw)
+        if type(self.password_hash) != unicode:
+            self.password_hash = unicode(self.password_hash)
+        return bcrypt.checkpw(password_raw.encode('utf-8'), self.password_hash.encode('utf-8'))
+
+    def __init__(self, **kwargs):
         if "password_raw" in kwargs:
             password_raw = kwargs["password_raw"]
             del(kwargs["password_raw"])
-            kwargs["password_hash"] = pbkdf2_hex(str(password_raw), self.salt)
+        else:
+            password_raw = None
         StorableModel.__init__(self, **kwargs)
+
+        self._salt = None
+        if password_raw is not None:
+            from app import app
+            if app.config.app.get("LEGACY_PASSWORDS", False):
+                self.__set_legacy_password_hash(password_raw)
+            else:
+                self.__set_password_hash(password_raw)
 
     def touch(self):
         self.updated_at = now()
@@ -107,14 +128,18 @@ class User(StorableModel):
             project.remove_member(self)
 
     def set_password(self, password_raw):
-        # Attention! Here follows a HACK. Supposed to be removed or at least investigated
-        # why hmac requires str instead of unicode
-        self.password_hash = pbkdf2_hex(str(password_raw), self.salt)
+        from app import app
+        if app.config.app.get("LEGACY_PASSWORDS", False):
+            self.__set_legacy_password_hash(password_raw)
+        else:
+            self.__set_password_hash(password_raw)
 
     def check_password(self, password_raw):
-        # Attention! Here follows a HACK. Supposed to be removed or at least investigated
-        # why hmac requires str instead of unicode
-        return pbkdf2_hex(str(password_raw), self.salt) == self.password_hash
+        from app import app
+        if app.config.app.get("LEGACY_PASSWORDS", False):
+            return self.__check_legacy_password_hash(password_raw)
+        else:
+            return self.__check_password_hash(password_raw)
 
     @property
     def token_class(self):
