@@ -17,7 +17,7 @@ class Diff(namedtuple('Diff', ('add', 'remove'))):
 def json_response(data, code=200):
     from app import app
     json_kwargs = {}
-    if app.config.log.get("DEBUG"):
+    if app.config.log.get("DEBUG") or app.envtype == "development":
         json_kwargs["indent"] = 4
     return make_response(json.dumps(data, **json_kwargs), code, {'Content-Type':'application/json'})
 
