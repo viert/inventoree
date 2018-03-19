@@ -32,7 +32,7 @@ def show(datacenter_id=None):
 
 
 @datacenters_ctrl.route("/", methods=["POST"])
-@logged_action("location_create")
+@logged_action("datacenter_create")
 def create():
     from app.models import Datacenter
     dc_attrs = dict([x for x in request.json.items() if x[0] in Datacenter.FIELDS])
@@ -45,7 +45,7 @@ def create():
 
 
 @datacenters_ctrl.route("/<dc_id>", methods=["PUT"])
-@logged_action("location_update")
+@logged_action("datacenter_update")
 def update(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
@@ -59,7 +59,7 @@ def update(dc_id):
 
 
 @datacenters_ctrl.route("/<dc_id>", methods=["DELETE"])
-@logged_action("location_delete")
+@logged_action("datacenter_delete")
 def delete(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
@@ -69,7 +69,7 @@ def delete(dc_id):
 
 
 @datacenters_ctrl.route("/<dc_id>/set_parent", methods=["PUT"])
-@logged_action("location_set_parent")
+@logged_action("datacenter_set_parent")
 def set_parent(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
