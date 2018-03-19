@@ -43,10 +43,7 @@ def structure(group_id):
     from app.models import Group
     from library.engine.graph import group_structure
     group = Group.get(group_id, GroupNotFound("group not found"))
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
-    else:
-        fields = None
+    fields = get_request_fields()
     if "_host_fields" in request.values:
         host_fields = request.values["_host_fields"].split(",")
     else:
