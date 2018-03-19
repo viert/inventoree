@@ -140,6 +140,14 @@ class StorableModel(object):
         ])
         return result
 
+    def reload(self):
+        tmp = self.__class__.find_one({ "_id": self._id })
+        for field in self.FIELDS:
+            if field == "_id":
+                continue
+            value = getattr(tmp, field)
+            setattr(self, field, value)
+
     @property
     def collection(self):
         return self.__class__.collection
