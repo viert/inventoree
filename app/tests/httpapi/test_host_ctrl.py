@@ -15,6 +15,7 @@ TEST_HOST_2 = {
     "tags": ["smm", "pm", "dev"]
 }
 
+
 class TestHostCtrl(HttpApiTestCase):
 
     def setUp(self):
