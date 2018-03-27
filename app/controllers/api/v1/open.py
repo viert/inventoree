@@ -67,6 +67,7 @@ def executer_data():
     results = get_executer_data(query, recursive, include_unattached)
     return json_response({ "data": results })
 
+
 @open_ctrl.route("/ansible")
 def ansible():
     query = {}

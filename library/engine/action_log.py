@@ -2,6 +2,7 @@ import functools
 import json
 import copy
 
+
 def logged_action(action_type):
     def log_action_decorator(func):
         @functools.wraps(func)

@@ -1,7 +1,6 @@
 from httpapi_testcase import HttpApiTestCase
 from flask import json
 from app.models import Datacenter
-from bson.objectid import ObjectId
 
 
 class TestDatacenterCtrl(HttpApiTestCase):
@@ -56,6 +55,10 @@ class TestDatacenterCtrl(HttpApiTestCase):
         self.assertEqual(data["name"], self.dc12.name)
         self.assertEqual(data["description"], self.dc12.description)
         self.assertEqual(data["parent_id"], str(self.dc1._id))
+
+    def test_dc_not_found(self):
+        r = self.get("/api/v1/datacenters/non_existent")
+        self.assertEqual(r.status_code, 404)
 
     def test_create_datacenter(self):
         payload = {
