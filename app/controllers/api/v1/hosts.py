@@ -170,7 +170,7 @@ def mass_set_datacenter():
     host_ids = [resolve_id(x) for x in request.json["host_ids"]]
     host_ids = set([x for x in host_ids if x is not None])
     hosts = Host.find({"_id":{"$in": list(host_ids)}})
-    hosts = [h for h in hosts if h.group_id != group._id]
+    hosts = [h for h in hosts if h.datacenter_id != datacenter._id]
     if len(hosts) == 0:
         raise NotFound("no hosts found to be moved")
 
