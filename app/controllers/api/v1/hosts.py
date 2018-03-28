@@ -153,6 +153,49 @@ def mass_move():
     return json_response(result)
 
 
+@hosts_ctrl.route("/mass_set_datacenter", methods=["POST"])
+@logged_action("host_mass_set_datacenter")
+def mass_set_datacenter():
+    if "host_ids" not in request.json or request.json["host_ids"] is None:
+        raise ApiError("no host_ids provided")
+    if type(request.json["host_ids"]) != list:
+        raise ApiError("host_ids must be an array type")
+
+    from app.models import Host, Datacenter
+    # resolving group
+    datacenter = Datacenter.get(request.json["datacenter_id"], DatacenterNotFound("datacenter not found"))
+
+    # resolving hosts
+    host_ids = [resolve_id(x) for x in request.json["host_ids"]]
+    host_ids = set([x for x in host_ids if x is not None])
+    hosts = Host.find({"_id":{"$in": list(host_ids)}})
+    hosts = [h for h in hosts if h.group_id != group._id]
+    if len(hosts) == 0:
+        raise NotFound("no hosts found to be moved")
+
+    failed_hosts = []
+    for host in hosts:
+        if not host.modification_allowed:
+            failed_hosts.append(host)
+    if len(failed_hosts) > 0:
+        failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
+        raise Forbidden("you don't have permission to modify hosts: %s" % failed_hosts)
+
+    # setting hosts' datacenter
+    for host in hosts:
+        host.datacenter_id = datacenter._id
+        host.save()
+
+    result = {
+        "status": "ok",
+        "data": {
+            "datacenter": datacenter.to_dict(),
+            "hosts": [host.to_dict() for host in hosts]
+        }
+    }
+    return json_response(result)
+
+
 @hosts_ctrl.route("/mass_detach", methods=["POST"])
 @logged_action("host_mass_detach")
 def mass_detach():
