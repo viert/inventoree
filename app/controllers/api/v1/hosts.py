@@ -162,7 +162,8 @@ def mass_set_datacenter():
         raise ApiError("host_ids must be an array type")
 
     from app.models import Host, Datacenter
-    # resolving group
+
+    # resolving datacenter
     datacenter = Datacenter.get(request.json["datacenter_id"], DatacenterNotFound("datacenter not found"))
 
     # resolving hosts
