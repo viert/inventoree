@@ -116,9 +116,7 @@ create_rpm() {
 		--config-files etc/nginx/conf.d/inventoree.conf \
 		--config-files etc/uwsgi.d/inventoree.ini \
 		-C $RPMROOT
-
-    ls $BUILDDIR/*.rpm
-	RPMFILE=$BUILDDIR
+    ls *.rpm
 }
 
 create_dirs
