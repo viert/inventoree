@@ -29,7 +29,11 @@ def show(user_id=None):
         if users.count() == 0:
             raise UserNotFound("user not found")
     data = paginated_data(users.sort("username"))
+
     for user in data["data"]:
+        # known issues:
+        #   1. setting auth_token throws an exception if _id is not in _fields
+        #   2. auth_token is given back every time no matter whether it's listed in _fields or not
         if str(user["_id"]) == str(g.user._id) or g.user.supervisor:
             user["auth_token"] = g.user.get_auth_token().token
 

@@ -3,6 +3,7 @@ from library.engine.errors import AuthenticationError
 
 AUTHENTICATION_URL = None
 
+
 class LocalAuthorizer(object):
 
     def __init__(self, flask_app=None):
@@ -34,4 +35,5 @@ class LocalAuthorizer(object):
         user_data = user.to_dict()
         if "password_hash" in user_data:
             del(user_data["password_hash"])
+        user_data["auth_token"] = user.get_auth_token().token
         return user_data
