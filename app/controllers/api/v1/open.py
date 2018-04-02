@@ -78,7 +78,7 @@ def ansible():
     from library.engine.utils import full_group_structure
     project_ids = [x._id for x in Project.find(query).all()]
     structure = full_group_structure(project_ids)
-    render = "# This ansible inventory file was rendered from conductor database, %s\n# For more info on conductor please refer to https://github.com/viert/conductor\n\n" % datetime.now().isoformat()
+    render = "# This ansible inventory file was rendered from inventoree database, %s\n# For more info on inventoree please refer to https://github.com/viert/inventoree\n\n" % datetime.now().isoformat()
     for group_id, group in structure.items():
         if len(group["all_hosts"]) > 0:
             render += "[%s]\n" % group["name"]
@@ -93,12 +93,12 @@ def ansible():
     return response
 
 @open_ctrl.route("/app")
-def conductor():
+def info():
     from app import app
 
     results = {
         "app": {
-            "name": "conductor"
+            "name": "inventoree"
         }
     }
     if "VERSION" in dir(app):
@@ -118,7 +118,7 @@ def conductor():
         "active": check_cache()
     }
 
-    return json_response({ "conductor_info": results })
+    return json_response({ "app_info": results })
 
 def _get_hosts(group_names=None, tags=None):
     from app.models import Group

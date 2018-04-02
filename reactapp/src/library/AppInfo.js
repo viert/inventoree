@@ -11,9 +11,9 @@ class AppInfo {
         return this.data
     }
 
-    getVersion() { return this.data ? this.data.conductor_info.app.version : "" }
-    getFlaskVersion() { return this.data ? this.data.conductor_info.flask_version : "" }
-    getMongoVersion() { return this.data ? this.data.conductor_info.mongodb.version : "" }
+    getVersion() { return this.data ? this.data.app_info.app.version : "" }
+    getFlaskVersion() { return this.data ? this.data.app_info.flask_version : "" }
+    getMongoVersion() { return this.data ? this.data.app_info.mongodb.version : "" }
 
     setData(data) {
         this.data = data

@@ -1,20 +1,20 @@
-# Conductor
+# Inventoree
 
-Conductor leads you through the chaos of your infrastructure
+Inventoree leads you through the chaos of your infrastructure
 
-**Disclaimer:** conductor is nothing more than a servers inventory. Originally such a project was created at Yandex to help system engineers to store and classify their servers combining them into groups which are combined into projects. Conductor is able to watch for your data structure consistency and check users' permissions to modify it. With a fast and well structured REST API it can be used by various CMS systems like Saltstack, Chef, Puppet and Ansible as an extra filter for running states and commands. With built-in conductor **tags** and **custom fields** one can store roles of groups or individual servers which is convenient for use as an extra data for state formulas.
+**Disclaimer:** inventoree (previously known as conductor) is nothing more than a servers inventory. Originally such a project was created at Yandex to help system engineers to store and classify their servers combining them into groups which are combined into projects. Inventoree is able to watch for your data structure consistency and check users' permissions to modify it. With a fast and well structured REST API it can be used by various CMS systems like Saltstack, Chef, Puppet and Ansible as an extra filter for running states and commands. With built-in inventoree **tags** and **custom fields** one can store roles of groups or individual servers which is convenient for use as an extra data for state formulas.
 
-Original version of conductor has an ability to track deployment and packages movement among repositories which won't be represented in this opensource version.
+Original version of conductor has an ability to track deployment and packages movement among repositories which won't be implemented in Inventoree.
 
 **Important:** this version is not based on the original one but created from scratch using absolutely separate technologies.
 
 ## Development bootstrap
 
-Being in deep development and moving from one laptop to another, from MacOSX to Windows and Linux, the current conductor version has become very easy to set up. 
+Being in deep development and moving from one laptop to another, from MacOSX to Windows and Linux, the current inventoree version has become very easy to set up. 
 
  * Clone repo and `cd` into its' directory. 
  * Run `pip install -r requirements.txt` to install the python requirements. Using virtualenv is highly recommended
- * This version requires mongodb 2.6+ server to be installed on localhost with conductor itself. You can change this behaviour in `config/db.py` file. Although it's tracked by git and no mechanism has been created for custom configuration yet. So just put mongodb right alongside your conductor installation, it's just the most appropriate solution at the moment.
+ * This version requires mongodb 2.6+ server to be installed on localhost with inventoree itself. You can change this behaviour in `config/db.py` file. Although it's tracked by git and no mechanism has been created for custom configuration yet. So just put mongodb right alongside your inventoree installation, it's just the most appropriate solution at the moment.
  * Run `./micro.py index` to create indexes. Be sure your mongodb server is up and running.
  * Run `./micro.py shell` to start project shell. If you have IPython installed in your virtualenv, it will be used automatically.
  * Create a supervisor user like described below:
@@ -35,7 +35,7 @@ Example authorizer (via vk.com) is located in `plugins` folder. The only thing i
 
 The second thing you have to do is create a special handler in flask (that's why authorizers get flask app in constructor) which is supposed to handle callbacks from external auth services (All modern authentication systems like OAuth, SAML SSO and OpenID act like this). This handler is aimed to find an actual local user related to external user data you receive. If user doesn't exist, your task is to create it first and connect to the external data (`ext_id` field in `User` model serves for this purpose and is indexed by default). Next time user logins your handler should find it by `ext_id`.
 
-The last task you have to do in callback handler is put the local `_id` field of found user instance to session["user_id"] - that's how Conductor gets user authenticated.
+The last task you have to do in callback handler is put the local `_id` field of found user instance to session["user_id"] - that's how Inventoree gets user authenticated.
 
 Don't forget to set `AUTHORIZER="<YourAuthorizer>"` in app config to actually set up your authorizer. All plugins in `plugins` directory are loaded automatically but no
 authorizer is set until configured explicitly.
