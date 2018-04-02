@@ -62,7 +62,7 @@ paste_inventoree_executable() {
 	cat << 'EOF' > $BIN_DIR/inventoree
 #!/bin/bash
 
-export CONDUCTOR_ENV=production
+export MICROENG_ENV=production
 
 INVENTOREE_USER=uwsgi
 
