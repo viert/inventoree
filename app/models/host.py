@@ -1,12 +1,7 @@
-from storable_model import StorableModel, InvalidTags, now, InvalidCustomFields
+from storable_model import StorableModel, now
+from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, GroupNotFound
 from library.engine.utils import get_user_from_app_context
-
-class InvalidGroup(Exception):
-    pass
-
-
-class InvalidDatacenter(Exception):
-    pass
+from library.engine.cache import request_time_cache
 
 
 class Host(StorableModel):
@@ -63,9 +58,9 @@ class Host(StorableModel):
 
     def _before_save(self):
         if self.group_id is not None and self.group is None:
-            raise InvalidGroup("Can not find group with id %s" % self.group_id)
+            raise GroupNotFound("Can not find group with id %s" % self.group_id)
         if self.datacenter_id is not None and self.datacenter is None:
-            raise InvalidDatacenter("Can not find datacenter with id %s" % self.datacenter_id)
+            raise DatacenterNotFound("Can not find datacenter with id %s" % self.datacenter_id)
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("Tags must be of array type")
 
@@ -92,6 +87,8 @@ class Host(StorableModel):
 
     @property
     def group(self):
+        if self.group_id is None:
+            return None
         return self.group_class.find_one({ "_id": self.group_id })
 
     @property
@@ -102,6 +99,8 @@ class Host(StorableModel):
 
     @property
     def datacenter(self):
+        if self.datacenter_id is None:
+            return None
         return self.datacenter_class.find_one({ "_id": self.datacenter_id })
 
     @property
@@ -181,6 +180,7 @@ class Host(StorableModel):
         return self.group.modification_allowed
 
     @property
+    @request_time_cache()
     def all_tags(self):
         tags = set(self.tags)
         if self.is_new or self.group is None:
@@ -188,6 +188,7 @@ class Host(StorableModel):
         return tags.union(self.group.all_tags)
 
     @property
+    @request_time_cache()
     def all_custom_fields(self):
         # the handler may be a bit heavy, be sure to benchmark it
         if self.is_new or self.group is None:

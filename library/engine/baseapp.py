@@ -3,10 +3,12 @@ import os.path
 import sys
 import importlib
 import logging
+import time
 from flask import Flask, request, session
 from datetime import timedelta
 from collections import namedtuple
-from library.engine.utils import get_py_files
+from library.engine.utils import get_py_files, uuid4_string
+from library.engine.errors import ApiError, handle_api_error, handle_other_errors
 from library.engine.json_encoder import MongoJSONEncoder
 from library.mongo_session import MongoSessionInterface
 from werkzeug.contrib.cache import MemcachedCache, SimpleCache
@@ -38,11 +40,14 @@ class BaseApp(object):
             self.envtype = DEFAULT_ENVIRONMENT_TYPE
         self.__read_config()
         self.test_config()
+        self.after_configured()
         self.__prepare_logger()
         self.__load_plugins()
         self.__prepare_flask()
         self.__set_authorizer()
         self.__set_session_expiration()
+        self.__set_request_id()
+        self.__set_request_times()
         self.__set_cache()
 
     def __set_cache(self):
@@ -98,6 +103,24 @@ class BaseApp(object):
             session.permanent = True
             self.flask.permanent_session_lifetime = timedelta(seconds=e_time)
 
+    def __set_request_id(self):
+        @self.flask.before_request
+        def add_request_id():
+            if not hasattr(request, "id"):
+                setattr(request, "id", uuid4_string())
+
+    def __set_request_times(self):
+        if self.config.log.get("LOG_TIMINGS"):
+            @self.flask.before_request
+            def add_request_started_time():
+                setattr(request, "started", time.time())
+
+            @self.flask.after_request
+            def add_request_time_logging(response):
+                dt = time.time() - request.started
+                self.logger.info("%s completed in %.3fs" % (request.path, dt))
+                return response
+
     def __prepare_flask(self):
         self.logger.debug("Creating flask app")
         static_folder = self.config.app.get("STATIC", "static")
@@ -114,6 +137,8 @@ class BaseApp(object):
         self.flask.json_encoder = MongoJSONEncoder
         self.logger.debug("Setting sessions interface")
         self.flask.session_interface = MongoSessionInterface(collection_name='sessions')
+        self.flask._register_error_handler(None, ApiError, handle_api_error)
+        self.flask._register_error_handler(None, Exception, handle_other_errors)
         self.configure_routes()
 
     def configure_routes(self):
@@ -138,6 +163,7 @@ class BaseApp(object):
 
     def __prepare_logger(self):
         self.logger = logging.getLogger('app')
+        self.logger.propagate = False
 
         log_level = self.config.log.get("LOG_LEVEL") or self.DEFAULT_LOG_LEVEL
         log_level = log_level.upper()
@@ -151,17 +177,24 @@ class BaseApp(object):
             handler = logging.StreamHandler(stream=sys.stdout)
             log_level = logging.DEBUG
             self.logger.addHandler(handler)
+        if len(self.logger.handlers) == 0:
+            handler = logging.StreamHandler(stream=sys.stdout)
+            self.logger.addHandler(handler)
 
         log_format = self.config.log.get("LOG_FORMAT") or self.DEFAULT_LOG_FORMAT
         log_format = logging.Formatter(log_format)
 
         self.logger.setLevel(log_level)
+
         for handler in self.logger.handlers:
             handler.setLevel(log_level)
             handler.setFormatter(log_format)
         self.logger.info("Logger created. Environment type set to %s" % self.envtype)
 
     def test_config(self):
+        pass
+
+    def after_configured(self):
         pass
 
     # shortcut method

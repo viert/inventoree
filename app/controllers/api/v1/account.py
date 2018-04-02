@@ -1,4 +1,4 @@
-from app.controllers.auth_controller import AuthController, AuthenticationError
+from app.controllers.auth_controller import AuthController
 from flask import session, g
 from library.engine.utils import json_response
 from plugins.local_authorizer import LocalAuthorizer
@@ -18,10 +18,7 @@ def me():
 
 @account_ctrl.route("/authenticate", methods=["POST"])
 def authenticate():
-    try:
-        user_data = LocalAuthorizer.get_user_data()
-    except AuthenticationError as ae:
-        return json_response({ "errors": ["Authentication Error: %s" % ae.message] }, ae.code)
+    user_data = LocalAuthorizer.get_user_data()
     session["user_id"] = user_data["_id"]
     return json_response({ "status": "authenticated", "data": user_data })
 

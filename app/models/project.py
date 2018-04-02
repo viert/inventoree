@@ -1,12 +1,14 @@
 from app.models.storable_model import StorableModel, now
 from library.engine.utils import get_user_from_app_context
 
+
 class ProjectNotEmpty(Exception):
     pass
 
 
 class InvalidOwner(Exception):
     pass
+
 
 class Project(StorableModel):
 

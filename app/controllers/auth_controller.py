@@ -1,12 +1,5 @@
-from flask import Blueprint, g, session, request, redirect
+from flask import Blueprint, g, session, request
 from library.engine.utils import json_response
-
-
-class AuthenticationError(Exception):
-    def __init__(self, message, code=403):
-        Exception.__init__(self, message, code)
-        self.message = message
-        self.code = code
 
 
 class AuthController(Blueprint):

@@ -1,6 +1,7 @@
 from commands import Command
 from unittest import main
 
+
 class Test(Command):
 
     NO_ARGPARSE = True

@@ -67,6 +67,7 @@ def executer_data():
     results = get_executer_data(query, recursive, include_unattached)
     return json_response({ "data": results })
 
+
 @open_ctrl.route("/ansible")
 def ansible():
     query = {}
@@ -105,6 +106,8 @@ def info():
         results["app"]["version"] = app.VERSION
     else:
         results["app"]["version"] = "unknown"
+
+    results["app"]["action_logging_enabled"] = app.action_logging
 
     from library.db import db
     results["mongodb"] = db.conn.client.server_info()

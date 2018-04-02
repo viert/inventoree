@@ -3,6 +3,7 @@ from flask import json
 from app.models import Group
 from bson.objectid import ObjectId
 
+
 class TestGroupCtrl(HttpApiTestCase):
 
     def setUp(self):

@@ -1,6 +1,6 @@
 from unittest import TestCase
 from app.tests.models.test_models import TestHost, TestGroup, TestDatacenter, TestProject, TestUser
-from app.models.host import InvalidGroup, InvalidDatacenter, InvalidTags
+from library.engine.errors import GroupNotFound, DatacenterNotFound, InvalidTags
 from pymongo.errors import DuplicateKeyError
 
 TEST_CUSTOM_FIELDS_G1 = [
@@ -64,7 +64,7 @@ class TestHostModel(TestCase):
         group_id = g._id
         g.destroy()
         h = TestHost(fqdn="host.example.com", group_id=group_id)
-        self.assertRaises(InvalidGroup, h.save)
+        self.assertRaises(GroupNotFound, h.save)
 
     def test_invalid_datacenter(self):
         g = TestGroup(name="test_group", project_id=self.tproject._id)
@@ -74,7 +74,7 @@ class TestHostModel(TestCase):
         dc_id = d._id
         d.destroy()
         h = TestHost(fqdn="host.example.com", group_id=g._id, datacenter_id=dc_id)
-        self.assertRaises(InvalidDatacenter, h.save)
+        self.assertRaises(DatacenterNotFound, h.save)
 
     def test_invalid_tags(self):
         g = TestGroup(name="test_group", project_id=self.tproject._id)

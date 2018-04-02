@@ -17,18 +17,9 @@ class Diff(namedtuple('Diff', ('add', 'remove'))):
 def json_response(data, code=200):
     from app import app
     json_kwargs = {}
-    if app.config.log.get("DEBUG"):
+    if app.config.log.get("DEBUG") or app.envtype == "development":
         json_kwargs["indent"] = 4
     return make_response(json.dumps(data, **json_kwargs), code, {'Content-Type':'application/json'})
-
-
-def json_exception(exception, code=400):
-    from app import app
-    from sys import exc_info
-    exc_type, exc_value, exc_traceback = exc_info()
-    app.logger.error("\n" + "\n".join(traceback.format_exception(exc_type, exc_value, exc_traceback)))
-    errors = [ "%s: %s" % (exception.__class__.__name__, exception.message) ]
-    return make_response(json.dumps({'errors': errors}), code, {'Content-Type':'application/json'})
 
 
 def get_py_files(directory):
@@ -82,7 +73,18 @@ def get_limit():
     return limit
 
 
-def paginated_data(data, page=None, limit=None, fields=None):
+def get_request_fields():
+    try:
+        if "_fields" in request.values:
+            return request.values["_fields"].split(",")
+        else:
+            return None
+    except RuntimeError:
+        return None
+
+
+def paginated_data(data, page=None, limit=None, fields=None, extra=None):
+    from app.models.storable_model import StorableModel
     if "_nopaging" in request.values and request.values["_nopaging"] == "true":
         limit = None
         page = None
@@ -92,26 +94,36 @@ def paginated_data(data, page=None, limit=None, fields=None):
         if limit is None:
             limit = get_limit()
 
-    if "_fields" in request.values:
-        fields = request.values["_fields"].split(",")
+    if fields is None:
+        fields = get_request_fields()
 
-    if hasattr(data, "count"):
+    if type(data) == list:
+        count = len(data)
+        data = data[(page - 1) * limit:page * limit]
+        data = [x.to_dict(fields=fields) for x in data if isinstance(x, StorableModel)]
+    elif hasattr(data, "count"):
         count = data.count()
         if limit is not None and page is not None:
             data = data.skip((page-1)*limit).limit(limit)
         data = cursor_to_list(data, fields=fields)
     else:
-        count = len(data)
-        data = data[(page-1)*limit:page*limit]
+        raise RuntimeError("paginated_data accepts either cursor objects or lists")
 
     total_pages = int(math.ceil(float(count) / limit)) if limit is not None else None
 
-    return {
+    result = {
         "page": page,
         "total_pages": total_pages,
         "count": count,
         "data": data
     }
+
+    if extra is not None and hasattr(extra, "items"):   # extra type checking
+        for k, v in extra.items():
+            if k not in result:                         # no overriding
+                result[k]= v
+
+    return result
 
 
 def clear_aux_fields(data):
