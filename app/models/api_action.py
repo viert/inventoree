@@ -48,4 +48,3 @@ class ApiAction(StorableModel):
 
     def _before_save(self):
         self.updated_at = now()
-

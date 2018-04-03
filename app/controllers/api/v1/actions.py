@@ -20,3 +20,9 @@ def index():
 
     actions = ApiAction.find(query).sort([('created_at', -1)])
     return json_response(paginated_data(actions))
+
+
+@actions_ctrl.route("/action_types", methods=["GET"])
+def action_types():
+    from library.engine.action_log import action_types
+    return json_response({"action_types": action_types})

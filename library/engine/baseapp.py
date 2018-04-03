@@ -36,6 +36,7 @@ class BaseApp(object):
         self.BASE_DIR = os.path.abspath(os.path.join(self.APP_DIR, "../"))
         # detecting environment type
         self.envtype = os.environ.get("MICROENG_ENV")
+        self.action_types = []
         if not self.envtype in ENVIRONMENT_TYPES:
             self.envtype = DEFAULT_ENVIRONMENT_TYPE
         self.__read_config()
