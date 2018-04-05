@@ -28,6 +28,13 @@ user.save()
  * Run `npm start` to build react application, don't be scared when it starts your browser automatically.
  * Log in using your supervisor username and password
 
+## Experimental Web UI
+
+Inventoree has a new nice looking redesigned web ui written using vue.js. To replace the original one follow the steps:
+ * Update `webui` submodule using `git submodule init; git submodule update`. This will pull the new ui sources from [inventoree-ui](https://github.com/viert/inventoree-ui) repository into `webui` directory
+ * Instead of "cd-ing into `reactapp`" step `cd` into `webui` and run `npm install` to install Vue.js and all its dependencies. You must have node.js 6+ installed.
+ * Run `npm run dev` to build the application and serve it using built-in nodejs http server. To create optimized production-ready static files use `npm run build` instead. 
+
 ## Note on external authentication
 
 Example authorizer (via vk.com) is located in `plugins` folder. The only thing is mandatory in authorizer is the `get_authentication_url` method. If this method returns an actual url like
@@ -42,7 +49,8 @@ authorizer is set until configured explicitly.
 
 ## Roadmap
 
-### v6.8
+### v6.9
 
-  * Relations Editors UX refactoring
-  * Action Logging system 
+  * Action Logging UI
+  * Applications Registry
+  * Tag search
