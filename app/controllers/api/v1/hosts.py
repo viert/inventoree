@@ -23,6 +23,18 @@ def show(host_id=None):
         if "group_id" in request.values:
             group_id = resolve_id(request.values["group_id"])
             query["group_id"] = group_id
+        if "tags" in request.values:
+            tags = request.values["tags"].split(",")
+            query["tags"] = {"$in": tags}
+        elif "all_tags" in request.values:
+            tags = request.values["all_tags"].split(",")
+            from app.models import Group
+            groups = Group.find_by_tags_recursive(tags)
+            group_ids = [x._id for x in groups]
+            query["$or"] = [
+                {"tags": {"$in": tags}},
+                {"group_id": {"$in": group_ids}}
+            ]
         hosts = Host.find(query)
     else:
         host_id = resolve_id(host_id)

@@ -307,3 +307,17 @@ class Group(StorableModel):
             self.__class__._host_class = Host
         return self._host_class
 
+    @classmethod
+    def query_by_tags_recursive(cls, tags, query={}):
+        if type(tags) == "str":
+            tags = [tags]
+        tagged_groups = cls.find({ "tags": { "$in": tags }}).all()
+        tagged_group_ids = [x._id for x in tagged_groups]
+        for g in tagged_groups:
+            tagged_group_ids += [x._id for x in g.get_all_children()]
+        query["_id"] = {"$in": tagged_group_ids}
+        return query
+
+    @classmethod
+    def find_by_tags_recursive(cls, tags):
+        return cls.find(cls.query_by_tags_recursive(tags))
