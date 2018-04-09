@@ -87,6 +87,10 @@ class InvalidCustomFields(IntegrityError):
     pass
 
 
+class InvalidAliases(IntegrityError):
+    pass
+
+
 class GroupNotFound(NotFound):
     pass
 
