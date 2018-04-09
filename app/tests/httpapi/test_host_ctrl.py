@@ -6,13 +6,15 @@ from bson.objectid import ObjectId
 TEST_HOST_1 = {
     "fqdn": "host1.example.com",
     "description": "test host 1",
-    "tags": ["boo", "meow", "roar"]
+    "tags": ["boo", "meow", "roar"],
+    "aliases": ["host1", "host1.example"]
 }
 
 TEST_HOST_2 = {
     "fqdn": "host2.example.com",
     "description": "test host 2",
-    "tags": ["smm", "pm", "dev"]
+    "tags": ["smm", "pm", "dev"],
+    "aliases": ["host2", "host2.example"]
 }
 
 
@@ -53,6 +55,7 @@ class TestHostCtrl(HttpApiTestCase):
         host_attrs = data[0]
         self.assertEqual(h.fqdn, host_attrs["fqdn"])
         self.assertItemsEqual(h.tags, host_attrs["tags"])
+        self.assertItemsEqual(h.aliases, host_attrs["aliases"])
         self.assertEqual(h.description, host_attrs["description"])
 
     def test_update_host(self):
@@ -65,6 +68,7 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertEqual(host.fqdn, TEST_HOST_2["fqdn"])
         self.assertEqual(host.description, TEST_HOST_2["description"])
         self.assertItemsEqual(host.tags, TEST_HOST_2["tags"])
+        self.assertItemsEqual(host.aliases, TEST_HOST_2["aliases"])
 
     def test_delete_host(self):
         self.test_create_host()
