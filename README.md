@@ -49,12 +49,6 @@ authorizer is set until configured explicitly.
 
 ## Roadmap
 
-### v6.9
-
-  * Action Logging API
-  * Tag search API
-  * Host Aliases
-
 ### v6.10
   * Action Loggin UI
   * Tag search UI
