@@ -60,7 +60,6 @@ def logged_action(action_type):
                     except:
                         pass
             except ApiError as ae:
-                app.logger.error("Catched ApiError")
                 action.status = "error"
                 response = handle_api_error(ae)
                 data = json.loads(response.data)
@@ -69,7 +68,6 @@ def logged_action(action_type):
                 action.save()
                 raise
             except Exception as e:
-                app.logger.error("Catched Exception")
                 action.status = "error"
                 response = handle_other_errors(e)
                 data = json.loads(response.data)

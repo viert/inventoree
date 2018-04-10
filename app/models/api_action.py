@@ -180,7 +180,7 @@ class ApiAction(StorableModel):
     def _compute_group_delete(self):
         from app.models import Group
         group_name = ""
-        group = Group.get(self.kwargs["dc_id"])
+        group = Group.get(self.kwargs["group_id"])
         if group is not None:
             group_name = group.name
         self.computed = {
@@ -190,7 +190,7 @@ class ApiAction(StorableModel):
     def _compute_group_mass_delete(self):
         from app.models import Group
         groups = Group.find({"_id": {"$in": [resolve_id(x) for x in self.params.get("group_ids", [])]}})
-        group_names = [x.fqdn for x in groups]
+        group_names = [x.name for x in groups]
         self.computed = {
             "group_names": group_names
         }
@@ -198,7 +198,7 @@ class ApiAction(StorableModel):
     def _compute_group_mass_move(self):
         from app.models import Group, Project
         groups = Group.find({"_id": {"$in": [resolve_id(x) for x in self.params.get("group_ids", [])]}})
-        group_names = [x.fqdn for x in groups]
+        group_names = [x.name for x in groups]
         project_name = ""
         if "project_id" in self.params:
             project = Project.get(self.params["project_id"])
@@ -322,7 +322,7 @@ class ApiAction(StorableModel):
         method_name = "_compute_" + self.action_type
         if not hasattr(self, method_name):
             from app import app
-            app.logger.error("Method %s is not implemented yet" % method_name)
+            app.logger.info("Method %s is not implemented yet" % method_name)
             return
         method = getattr(self, method_name)
         method()
