@@ -1,5 +1,6 @@
 from storable_model import StorableModel, now
-from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, GroupNotFound
+from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
+                                GroupNotFound, InvalidAliases
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 
@@ -15,6 +16,7 @@ class Host(StorableModel):
         "group_id",
         "datacenter_id",
         "description",
+        "aliases",
         "tags",
         "custom_fields",
         "created_at",
@@ -36,7 +38,8 @@ class Host(StorableModel):
         "created_at": now,
         "updated_at": now,
         "tags": [],
-        "custom_fields": []
+        "custom_fields": [],
+        "aliases": []
     }
 
     INDEXES = (
@@ -44,6 +47,7 @@ class Host(StorableModel):
         "group_id",
         "datacenter_id",
         "tags",
+        "aliases",
         [ "custom_fields.key", "custom_fields.value" ]
     )
 
@@ -51,7 +55,6 @@ class Host(StorableModel):
 
     def touch(self):
         self.updated_at = now()
-
 
     def __hash__(self):
         return hash(self.fqdn + "." + str(self._id))
@@ -63,6 +66,8 @@ class Host(StorableModel):
             raise DatacenterNotFound("Can not find datacenter with id %s" % self.datacenter_id)
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("Tags must be of array type")
+        if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
+            raise InvalidAliases("Aliases must be of array type")
 
         # Custom fields validation
         if type(self.custom_fields) is not list:

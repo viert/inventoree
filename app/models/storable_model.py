@@ -131,13 +131,26 @@ class StorableModel(object):
     def to_dict(self, fields=None, include_restricted=False):
         if fields is None:
             fields = self.FIELDS
-        result = dict([
-            (f, getattr(self, f)) for f in fields if hasattr(self, f)
-                        and not (f != "_id" and f.startswith("_"))
-                        and not (f in self.AUXILIARY_SLOTS)
-                        and (include_restricted or f not in self.RESTRICTED_FIELDS)
-                        and not callable(getattr(self, f))
-        ])
+
+        # This was refactored from a list comprehension to a for-loop
+        # as hasattr() catches all the exceptions in python2
+        # and raising Exceptions in calculated properties don't have any effect
+        #
+        # For addtitional info refer to:
+        # https://stackoverflow.com/questions/903130/hasattr-vs-try-except-block-to-deal-with-non-existent-attributes/16186050#16186050
+
+        dict_data = []
+        for f in fields:
+            try:
+                value = getattr(self, f)
+            except AttributeError:
+                continue
+            if not (f != "_id" and f.startswith("_")) \
+                    and not (f in self.AUXILIARY_SLOTS) \
+                    and (include_restricted or f not in self.RESTRICTED_FIELDS) \
+                    and not callable(value):
+                dict_data.append((f, value))
+        result = dict(dict_data)
         return result
 
     def reload(self):

@@ -87,13 +87,13 @@ def request_time_cache(cache_key_prefix=DEFAULT_CACHE_PREFIX):
                 value = func(*args, **kwargs)
                 g._request_local_cache[cache_key] = value
                 ts = (datetime.now() - t1).total_seconds()
-                app.logger.debug("RequestTimeCache %s MISS %s (%.3f seconds)" % (request_id, cached_call, ts))
+                app.logger.debug("RequestTimeCache %s MISS %s (%.3f seconds)" % (request_id, cache_key, ts))
             else:
                 value = g._request_local_cache[cache_key]
                 if type(value) == ObjectsCursor:
                     value.cursor.rewind()
                 ts = (datetime.now() - t1).total_seconds()
-                app.logger.debug("RequestTimeCache %s HIT %s (%.3f seconds)" % (request_id, cached_call, ts))
+                app.logger.debug("RequestTimeCache %s HIT %s (%.3f seconds)" % (request_id, cache_key, ts))
             return value
         return wrapper
     return cache_decorator

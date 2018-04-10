@@ -40,36 +40,36 @@ def create():
     return json_response({ "data": project.to_dict(get_request_fields()) })
 
 
-@projects_ctrl.route("/<id>", methods=["PUT"])
+@projects_ctrl.route("/<project_id>", methods=["PUT"])
 @logged_action("project_update")
-def update(id):
+def update(project_id):
     from app.models import Project
     data = clear_aux_fields(request.json)
-    project = Project.get(id, ProjectNotFound("project not found"))
+    project = Project.get(project_id, ProjectNotFound("project not found"))
     if not project.modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     project.update(data)
     return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
 
-@projects_ctrl.route("/<id>", methods=["DELETE"])
+@projects_ctrl.route("/<project_id>", methods=["DELETE"])
 @logged_action("project_delete")
-def delete(id):
+def delete(project_id):
     from app.models import Project
 
-    project = Project.get(id, ProjectNotFound("project not found"))
+    project = Project.get(project_id, ProjectNotFound("project not found"))
     if not project.modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     project.destroy()
     return json_response({ "data": project.to_dict(get_request_fields()), "status": "deleted" })
 
 
-@projects_ctrl.route("/<id>/add_member", methods=["POST"])
+@projects_ctrl.route("/<project_id>/add_member", methods=["POST"])
 @logged_action("project_add_member")
-def add_member(id):
+def add_member(project_id):
     from app.models import Project, User
 
-    project = Project.get(id, ProjectNotFound("project not found"))
+    project = Project.get(project_id, ProjectNotFound("project not found"))
     if not project.modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     if not "user_id" in request.json:
@@ -80,12 +80,12 @@ def add_member(id):
     return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
 
-@projects_ctrl.route("/<id>/remove_member", methods=["POST"])
+@projects_ctrl.route("/<project_id>/remove_member", methods=["POST"])
 @logged_action("project_remove_member")
-def remove_member(id):
+def remove_member(project_id):
     from app.models import Project, User
 
-    project = Project.get(id, ProjectNotFound("project not found"))
+    project = Project.get(project_id, ProjectNotFound("project not found"))
     if not project.modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     if not "user_id" in request.json:
@@ -96,12 +96,12 @@ def remove_member(id):
     return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
 
-@projects_ctrl.route("/<id>/switch_owner", methods=["POST"])
+@projects_ctrl.route("/<project_id>/switch_owner", methods=["POST"])
 @logged_action("project_switch_owner")
-def switch_owner(id):
+def switch_owner(project_id):
     from app.models import Project, User
 
-    project = Project.get(id, ProjectNotFound("project not found"))
+    project = Project.get(project_id, ProjectNotFound("project not found"))
     if not project.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify the project's owner")
     if not "owner_id" in request.json:
@@ -116,13 +116,13 @@ def switch_owner(id):
 
     return json_response({"data": project.to_dict(get_request_fields()), "status":"updated"})
 
-@projects_ctrl.route("/<id>/set_members", methods=["POST"])
+@projects_ctrl.route("/<project_id>/set_members", methods=["POST"])
 @logged_action("project_set_members")
-def set_members(id):
+def set_members(project_id):
     from app.models import Project, User
     from bson.objectid import ObjectId
 
-    project = Project.get(id, ProjectNotFound("project not found"))
+    project = Project.get(project_id, ProjectNotFound("project not found"))
     if not project.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify the project's owner")
     if not "member_ids" in request.json:

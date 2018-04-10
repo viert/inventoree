@@ -1,6 +1,6 @@
 from unittest import TestCase
 from app.tests.models.test_models import TestHost, TestGroup, TestDatacenter, TestProject, TestUser
-from library.engine.errors import GroupNotFound, DatacenterNotFound, InvalidTags
+from library.engine.errors import GroupNotFound, DatacenterNotFound, InvalidTags, InvalidAliases
 from pymongo.errors import DuplicateKeyError
 
 TEST_CUSTOM_FIELDS_G1 = [
@@ -27,6 +27,7 @@ TEST_CUSTOM_FIELDS_RESULT2 = [
     {"key": "hostfield", "value": "hostvalue"},
     {"key": "field3", "value": "host overriden 3"}
 ]
+
 
 class TestHostModel(TestCase):
 
@@ -112,6 +113,29 @@ class TestHostModel(TestCase):
         self.assertItemsEqual(["tag2", "tag3", "tag4"], h.all_tags)
         g1.add_child(g2)
         self.assertItemsEqual(["tag1", "tag2", "tag3", "tag4"], h.all_tags)
+
+    def test_default_aliases(self):
+        h1 = TestHost(fqdn="host.example.com")
+        h1.save()
+        h1 = TestHost.get("host.example.com")
+        self.assertIs(type(h1.aliases), list)
+        self.assertEqual(len(h1.aliases), 0)
+
+    def test_invalid_aliases(self):
+        h1 = TestHost(fqdn="host.example.com", aliases="host.i.example.com")
+        self.assertRaises(InvalidAliases, h1.save)
+
+    def test_aliases(self):
+        h1 = TestHost(fqdn="host.example.com", aliases=["host.i.example.com"])
+        h1.save()
+        h1 = TestHost.get("host.example.com")
+        self.assertItemsEqual(["host.i.example.com"], h1.aliases)
+
+    def test_aliases_search(self):
+        h1 = TestHost(fqdn="host.example.com", aliases=["host.i.example.com"])
+        h1.save()
+        h1 = TestHost.find_one({"aliases": "host.i.example.com"})
+        self.assertIsNotNone(h1)
 
     def test_custom_fields(self):
         g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields=TEST_CUSTOM_FIELDS_G1)

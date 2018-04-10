@@ -1,6 +1,7 @@
 from library.engine.utils import json_response
 from traceback import format_exc
 
+
 class ApiError(Exception):
     status_code = 400
 
@@ -84,6 +85,10 @@ class InvalidTags(IntegrityError):
 
 
 class InvalidCustomFields(IntegrityError):
+    pass
+
+
+class InvalidAliases(IntegrityError):
     pass
 
 
