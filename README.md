@@ -51,9 +51,11 @@ authorizer is set until configured explicitly.
 
 ### v6.9
 
-  * Action Logging UI
-  * Tag search
+  * Action Logging API
+  * Tag search API
   * Host Aliases
 
 ### v6.10
-  * Applications Registry
+  * Action Loggin UI
+  * Tag search UI
+  * Applications Registry API
