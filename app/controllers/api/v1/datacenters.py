@@ -40,7 +40,7 @@ def create():
     # TODO: check permissions!
     dc.save()
     if "parent_id" in dc_attrs and dc_attrs["parent_id"] is not None:
-        return set_parent(dc._id)
+        return set_parent(dc_id=dc._id)
     return json_response({ "data": dc.to_dict(get_request_fields()) }, 201)
 
 
@@ -54,7 +54,7 @@ def update(dc_id):
     if "parent_id" in request.json:
         parent_id = resolve_id(request.json["parent_id"])
         if parent_id != dc.parent_id:
-            return set_parent(dc._id)
+            return set_parent(dc_id=dc._id)
     return json_response({ "data": dc.to_dict(get_request_fields()) })
 
 

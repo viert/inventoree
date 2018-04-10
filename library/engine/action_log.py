@@ -9,6 +9,7 @@ action_types = []
 def logged_action(action_type):
     global action_types
     action_types.append(action_type)
+    action_types.sort()
 
     def log_action_decorator(func):
         @functools.wraps(func)

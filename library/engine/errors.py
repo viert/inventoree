@@ -1,6 +1,7 @@
 from library.engine.utils import json_response
 from traceback import format_exc
 
+
 class ApiError(Exception):
     status_code = 400
 
