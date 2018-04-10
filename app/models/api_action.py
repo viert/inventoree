@@ -318,6 +318,56 @@ class ApiAction(StorableModel):
             "parent_name": parent_name
         }
 
+    def _compute_project_create(self):
+        project_name = ""
+        if "name" in self.params:
+            project_name = self.params["name"]
+        self.computed = {
+            "project_name": project_name
+        }
+
+    def _compute_project_delete(self):
+        from app.models import Project
+        project_name = ""
+        project = Project.get(self.kwargs["project_id"])
+        if project is not None:
+            project_name = project.name
+        self.computed = {
+            "project_name": project_name
+        }
+
+    def _compute_project_add_member(self):
+        from app.models import Project, User
+        project_name = ""
+        user_name = ""
+        project = Project.get(self.kwargs["project_id"])
+        if project is not None:
+            project_name = project.name
+        if "user_id" in self.params:
+            user = User.get(self.params["user_id"])
+            if user is not None:
+                user_name = user.name
+        self.computed = {
+            "project_name": project_name,
+            "user_name": user_name
+        }
+
+    def _compute_project_remove_member(self):
+        self._compute_project_add_member()
+
+    def _compute_project_set_members(self):
+        from app.models import Project, User
+        project_name = ""
+        members = User.find({"_id": {"$in": self.params.get("member_ids", [])}})
+        user_names = [x.username for x in members]
+        project = Project.get(self.kwargs["project_id"])
+        if project is not None:
+            project_name = project.name
+        self.computed = {
+            "project_name": project_name,
+            "user_names": user_names
+        }
+
     def _set_computed(self):
         method_name = "_compute_" + self.action_type
         if not hasattr(self, method_name):
