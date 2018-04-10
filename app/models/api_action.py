@@ -368,6 +368,82 @@ class ApiAction(StorableModel):
             "user_names": user_names
         }
 
+    def _compute_project_update(self):
+        from app.models import Project
+        project_name = ""
+        project_data = {}
+        project = Project.get(self.kwargs["project_id"])
+        if project is not None:
+            project_name = project.name
+            for k, v in self.params.iteritems():
+                if k in Project.FIELDS:
+                    old_value = getattr(project, k)
+                    if v != old_value and str(v) != str(old_value):
+                        project_data[k] = v
+        self.computed = {
+            "project_name": project_name,
+            "project_data": project_data
+        }
+
+    def _compute_project_switch_owner(self):
+        from app.models import Project, User
+        project_name = ""
+        owner_username = ""
+        project = Project.get(self.kwargs["project_id"])
+        if project is not None:
+            project_name = project.name
+        if "owner_id" in self.params:
+            owner = User.get(self.params["owner_id"])
+            if owner is not None:
+                owner_username = owner.user_name
+        self.computed = {
+            "project_name": project_name,
+            "owner_username": owner_username
+        }
+
+    def _compute_user_create(self):
+        username = ""
+        if "username" in self.params:
+            username = self.params["username"]
+        self.computed = {
+            "username": username
+        }
+
+    def _compute_user_set_password(self):
+        from app.models import User
+        username = ""
+        user = User.get(self.kwargs["user_id"])
+        if user is not None:
+            username = user.username
+        self.computed = {
+            "username": username
+        }
+
+    def _compute_user_delete(self):
+        self._compute_user_set_password()
+
+    def _compute_user_set_supervisor(self):
+        self._compute_user_set_password()
+
+    def _compute_user_update(self):
+        from app.models import User
+        username = ""
+        user_data = {}
+        user = User.get(self.kwargs["user_id"])
+        if user is not None:
+            username = user.username
+            for k, v in self.params.iteritems():
+                if k.startswith("password"):
+                    continue
+                if k in User.FIELDS:
+                    old_value = getattr(user, k)
+                    if v != old_value and str(v) != str(old_value):
+                        user_data[k] = v
+        self.computed = {
+            "username": username,
+            "user_data": user_data
+        }
+
     def _set_computed(self):
         method_name = "_compute_" + self.action_type
         if not hasattr(self, method_name):

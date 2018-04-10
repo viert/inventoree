@@ -30,4 +30,6 @@ def index(id=None):
 @actions_ctrl.route("/action_types", methods=["GET"])
 def action_types():
     from library.engine.action_log import action_types
-    return json_response({"action_types": action_types})
+    from app.models import ApiAction
+    data = [(x, hasattr(ApiAction, '_compute_' + x)) for x in action_types]
+    return json_response({"action_types": dict(data)})

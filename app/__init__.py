@@ -2,7 +2,7 @@ from library.engine.baseapp import BaseApp
 
 
 class App(BaseApp):
-    VERSION = "6.8.5"
+    VERSION = "6.9.0"
 
     def configure_routes(self):
         self.logger.info("Configuring conductor endpoints")
