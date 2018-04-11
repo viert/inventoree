@@ -118,7 +118,7 @@ class ApiAction(StorableModel):
                 host_data["datacenter_name"] = datacenter_name
 
         self.computed = {
-            "host": host_data,
+            "host_data": host_data,
             "host_fqdn": host_fqdn
         }
 
@@ -300,7 +300,7 @@ class ApiAction(StorableModel):
                         datacenter_data[k] = v
         self.computed = {
             "datacenter_name": datacenter_name,
-            "datacenter": datacenter_data
+            "datacenter_data": datacenter_data
         }
 
     def _compute_datacenter_set_parent(self):
@@ -395,7 +395,7 @@ class ApiAction(StorableModel):
         if "owner_id" in self.params:
             owner = User.get(self.params["owner_id"])
             if owner is not None:
-                owner_username = owner.user_name
+                owner_username = owner.username
         self.computed = {
             "project_name": project_name,
             "owner_username": owner_username
