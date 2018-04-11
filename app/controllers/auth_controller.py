@@ -42,7 +42,7 @@ class AuthController(Blueprint):
 
     def set_current_user(self):
         g.user = self._get_user_from_x_api_auth_token() or \
-            self._get_user_from_authorization_header() \
+            self._get_user_from_authorization_header() or \
             self._get_user_from_session()
         if g.user is None and self.require_auth:
             return self.error_response()
