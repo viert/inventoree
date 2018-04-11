@@ -220,7 +220,7 @@ class DB(object):
         if app.config.app.get("SESSIONS_AUTO_CLEANUP", False):
             rtrigger = app.config.app.get("SESSIONS_AUTO_CLEANUP_RAND_TRIGGER", 0.05)
             if random() < rtrigger:
-                app.config.info("Cleaning up sessions")
+                app.logger.info("Cleaning up sessions")
                 self.cleanup_sessions()
 
     @intercept_mongo_errors_rw
