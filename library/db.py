@@ -3,6 +3,8 @@ from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 from bson.objectid import ObjectId, InvalidId
 from time import sleep
+from datetime import datetime
+from random import random
 
 MONGO_RETRIES = 6
 MONGO_RETRIES_RO = 6
@@ -215,5 +217,15 @@ class DB(object):
     @intercept_mongo_errors_rw
     def update_session(self, sid, data, expiration, collection='sessions'):
         self.conn[collection].update({ 'sid': sid }, { 'sid': sid, 'data': data, 'expiration': expiration }, True)
+        if app.config.app.get("SESSIONS_AUTO_CLEANUP", False):
+            rtrigger = app.config.app.get("SESSIONS_AUTO_CLEANUP_RAND_TRIGGER", 0.05)
+            if random() < rtrigger:
+                app.config.info("Cleaning up sessions")
+                self.cleanup_sessions()
+
+    @intercept_mongo_errors_rw
+    def cleanup_sessions(self, collection='sessions'):
+        return self.conn[collection].remove({'expiration': {'$lt': datetime.now() }})["n"]
+
 
 db = DB()

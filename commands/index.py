@@ -27,3 +27,4 @@ class Index(Command):
         from library.db import db
         app.logger.info("Creating sessions indexes")
         db.conn["sessions"].create_index("sid", unique=True, sparse=False)
+        db.conn["sessions"].create_index("expiration")
