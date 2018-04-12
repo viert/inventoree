@@ -358,7 +358,7 @@ class ApiAction(StorableModel):
     def _compute_project_set_members(self):
         from app.models import Project, User
         project_name = ""
-        members = User.find({"_id": {"$in": self.params.get("member_ids", [])}})
+        members = User.find({"_id": {"$in": [resolve_id(x) for x in self.params.get("member_ids", [])]}})
         user_names = [x.username for x in members]
         project = Project.get(self.kwargs["project_id"])
         if project is not None:
