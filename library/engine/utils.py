@@ -5,7 +5,6 @@ from uuid import uuid4
 import flask.json as json
 import os
 import math
-import traceback
 
 DEFAULT_DOCUMENTS_PER_PAGE = 20
 
