@@ -1,7 +1,7 @@
 from flask import request, make_response
 from datetime import datetime
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import json_response, cursor_to_list
+from library.engine.utils import json_response, cursor_to_list, get_app_version
 
 open_ctrl = AuthController("open", __name__, require_auth=False)
 
@@ -102,11 +102,8 @@ def info():
             "name": "inventoree"
         }
     }
-    if "VERSION" in dir(app):
-        results["app"]["version"] = app.VERSION
-    else:
-        results["app"]["version"] = "unknown"
 
+    results["app"]["version"] = get_app_version()
     results["app"]["action_logging_enabled"] = app.action_logging
 
     from library.db import db

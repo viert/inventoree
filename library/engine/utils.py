@@ -189,3 +189,16 @@ def full_group_structure(project_ids=None):
         group["all_hosts"] = get_all_hosts(group)
 
     return groups
+
+
+def get_app_version():
+    from app import app
+
+    if hasattr(app, "VERSION"):
+        return app.VERSION
+
+    try:
+        with open(os.path.join(app.APP_DIR, "__version__")) as vf:
+            return vf.read().strip()
+    except (OSError, IOError):
+        return "unknown"
