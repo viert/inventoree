@@ -43,7 +43,9 @@ def show(host_id=None):
             { "fqdn": host_id }
         ]})
         if hosts.count() == 0:
-            raise HostNotFound("host not found")
+            hosts = Host.find({"aliases": host_id})
+            if hosts.count() == 0:
+                raise HostNotFound("host not found")
     data = paginated_data(hosts.sort("fqdn"))
     return json_response(data)
 
