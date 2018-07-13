@@ -23,7 +23,8 @@ class MongoSessionInterface(SessionInterface):
             if stored_session:
                 if stored_session.get('expiration') > datetime.utcnow():
                     return MongoSession(initial=stored_session['data'], sid=stored_session['sid'])
-        sid = str(uuid4())
+        else:
+            sid = str(uuid4())
         return MongoSession(sid=sid)
 
     def save_session(self, app, session, response):
@@ -32,10 +33,12 @@ class MongoSessionInterface(SessionInterface):
         if not session:
             response.delete_cookie(app.session_cookie_name, domain=domain)
             return
-        expiration = self.get_expiration_time(app, session)
-        if not expiration:
-            expiration = datetime.utcnow() + timedelta(hours=1)
-        db.update_session(session.sid, session, expiration, collection=self.collection_name)
-        response.set_cookie(app.session_cookie_name, session.sid,
-                            expires=self.get_expiration_time(app, session),
-                            httponly=True, domain=domain)
+
+        if session.modified:
+            expiration = self.get_expiration_time(app, session)
+            if not expiration:
+                expiration = datetime.utcnow() + timedelta(hours=1)
+            db.update_session(session.sid, session, expiration, collection=self.collection_name)
+            response.set_cookie(app.session_cookie_name, session.sid,
+                                expires=self.get_expiration_time(app, session),
+                                httponly=True, domain=domain)
