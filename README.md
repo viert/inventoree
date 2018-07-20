@@ -49,7 +49,6 @@ authorizer is set until configured explicitly.
 
 ## Roadmap
 
-### v6.10
-  * Action Loggin UI
+### v6.12
   * Tag search UI
   * Applications Registry API
