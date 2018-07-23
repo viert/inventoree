@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Inventoree API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,500" rel="stylesheet">
+  <style>
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+      font-family: 'PT Sans', OpenSans, 'Helvetica Neue', Helvetica, Ubuntu, Arial, sans-serif;
+    }
+
+    body {
+      background: #eeeeee;
+      padding: 0;
+      margin: 0;
+      font-family: Roboto;
+      font-weight: 300;
+      font-size: 14px;
+    }
+
+    main {
+      max-width: 840px;
+      margin: 0 auto;
+      border-left: 1px solid #cccccc;
+      border-right: 1px solid #cccccc;
+      padding: 20px;
+      background: white;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    p {
+      font-weight: 300;
+      font-family: Roboto;
+      font-size: 14px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+      /* margin: 0 0 8px; */
+    }
+
+    section {
+      margin: 20px 0;
+    }
+
+    p {
+      line-height: 1.4em;
+    }
+
+    code {
+      font-family: 'PT Sans Mono', 'OpenSans Mono', Monaco, 'Ubuntu Mono', Consolas, 'Courier New', monospace;
+      font-size: 12px;
+      padding: 1px 4px;
+      color: #4444cc;
+      background: #eeeeee;
+      margin-bottom: 2px;
+      display: inline-block;
+    }
+
+    pre>code {
+      padding: 4px;
+      border: 1px solid #cccccc;
+    }
+
+    code.handler {
+      font-size: 18px;
+      background: #eeeeee;
+      padding: 4px;
+      border: 1px solid gray;
+      margin: 0 auto 0 0;
+      display: inline-block;
+    }
+
+    .warning {
+      background: #ffffcc;
+      padding: 2px 4px;
+      color: #444400;
+    }
+
+    code.handler a {
+      color: black;
+    }
+
+    hr {
+      border-bottom: 1px solid #cccccc;
+      border-top: none;
+    }
+
+    ul.toc,
+    ul.fieldlist {
+      list-style: none;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1 style="margin-top: 0;">Inventoree API documentation</h1>
+    <small>Inventoree version 6.11
+      <a href="https://github.com/viert/inventoree">Source code</a>
+    </small>
+    <h3>Table of contents</h3>
+    <ul class="toc">
+      <li>
+        <a href="#account">Account</a>
+      </li>
+      <li>
+        <a href="#actions">Actions</a>
+      </li>
+      <li>
+        <a href="#datacenters">Datacenters</a>
+      </li>
+      <li>
+        <a href="#groups">Groups</a>
+      </li>
+      <li>
+        <a href="#hosts">Hosts</a>
+      </li>
+      <li>
+        <a href="#open">Open</a>
+      </li>
+      <li>
+        <a href="#projects">Projects</a>
+      </li>
+      <li>
+        <a href="#users">Users</a>
+      </li>
+    </ul>
+    <section>
+      <a name="account"></a>
+      <h2>Account API</h2>
+      <p>Most of Inventoree handlers require authorization so Account API is the thing you should definitely start from. As
+        the web ui uses the same API, users can be both authorized with cookie when using web UI or authentification token.
+        Authentification tokens may be passed using
+        <code>X-Api-Auth-Token</code> HTTP header passing the token as is or using
+        <code>Authorization</code> header prefixing the token with
+        <b>Token </b> string, i.e.
+        <br/>
+        <code>X-Api-Auth-Token: 7b637aa4-8112-4d01-af60-4f749d66665a</code> or
+        <br/>
+        <code>Authorization: Token 7b637aa4-8112-4d01-af60-4f749d66665a</code> whatever you prefer.
+      </p>
+      <hr>
+      <code class="handler">GET
+        <a href="/api/v1/account/me" target="_blank">
+         /api/v1/account/me
+        </a>
+      </code>
+      <p>
+        Gives an information on current user logged in.
+      </p>
+      <pre><code>{
+    "data": {
+        "_id": "5a056884cd2b4f1f9626fa3a", 
+        "auth_token": "a34e8aa1-25d1-4e32-a24b-e57acb872e58", 
+        "avatar_url": "", 
+        "created_at": "Fri, 10 Nov 2017 08:51:14 GMT", 
+        "custom_data": {}, 
+        "email": "", 
+        "ext_id": null, 
+        "first_name": "", 
+        "last_name": "", 
+        "supervisor": true, 
+        "updated_at": "Wed, 07 Mar 2018 13:38:02 GMT", 
+        "username": "admin"
+    }
+}</code></pre>
+      <p>
+        <code>ext_id</code> and
+        <code>custom_data</code> fields are filled in if you're using an external auth plugin and if the plugin explicitly uses it.
+        <code>ext_id</code> must be used by any external auth as the field is indexed and used to find user by an ID provided by ext auth provider.
+        While
+        <code>custom_data</code> is an object with additional fields which may be filled by provider although it's completely optional.
+      </p>
+      <hr>
+      <code class="handler">POST 
+        <a href="/api/v1/account/authenticate" target="_blank">
+          /api/v1/account/authenticate
+        </a>
+      </code>
+      <p>
+        Authenticates user with a login and a password fields of JSON body.
+      </p>
+      <pre><code>{ 
+  "username": "admin",
+  "password": "SuP3r$ecR3t" 
+}</code></pre>
+      <p>
+        Passwords are stored encrypted and being used only by built-in auth mechanism. If you're using ext auth provider, no passwords
+        are stored. Passwords must never be reached by any API handler even in encrypted form.
+      </p>
+      <p>
+        Handler with response with the user data when authentication went well
+      </p>
+      <pre><code>{
+    "data": {
+        "_id": "5a056884cd2b4f1f9626fa3a", 
+        "auth_token": "a34e8aa1-25d1-4e32-a24b-e57acb872e58", 
+        "avatar_url": "", 
+        "created_at": "Fri, 10 Nov 2017 08:51:14 GMT", 
+        "custom_data": {}, 
+        "email": "", 
+        "ext_id": null, 
+        "first_name": "", 
+        "last_name": "", 
+        "supervisor": true, 
+        "updated_at": "Wed, 07 Mar 2018 13:38:02 GMT", 
+        "username": "admin"
+    },
+    "status": "authenticated"
+}</code></pre>
+      <p>
+        Handler will response with
+        <code>AuthenticationError</code> if user doesn't exist or password doesn't match.
+      </p>
+
+      <hr>
+      <code class="handler">POST
+        <a href="/api/v1/account/logout" target="_blank">
+          /api/v1/account/logout
+        </a>
+      </code>
+      <p>
+        Clears the user's session as well as deletes the session cookie. Doesn't mean much when requesting using auth token.
+      </p>
+
+    </section>
+    <section>
+      <a name="actions"> </a>
+      <h2>Actions API</h2>
+      <p>
+        Actions API provides action logging capabilities of Inventoree i.e. every action done by user is logged and can be read using
+        Actions API. All the handlers require auth and all of them are read-only. Actions are created using internal mechanisms
+        and this should not be interfered from the outside.
+      </p>
+      <code class="handler">GET
+        <a href="/api/v1/actions/" target="_blank">
+          /api/v1/actions/
+        </a>
+      </code>
+      <p>
+        Provides a paginated list of actions. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc.
+      </p>
+      <p>
+        Action list can be filtered out using the following query parameters:
+      </p>
+      <p>
+        <code>_users</code> accepts a comma-separated list of usernames. This will show only actions done by particular users.
+      </p>
+      <p>
+        <code>_action_types</code> accepts a comma-separated list of action types. Only actions of those types will be listed. For the list of available
+        action types please refer to
+        <code>/api/v1/actions/action_types</code> handler description below.
+      </p>
+      <hr/>
+      <code class="handler">GET
+        <a href="/api/v1/actions/action_types" target="_blank">
+          /api/v1/actions/action_types
+        </a>
+      </code>
+      <p>This handler responses with a complete list of available action types. This is tipically used by the UI to autosuggest
+        an action type in a type-ahead input field. However it may be handy for an automation scripts used for an action
+        logging audit</p>
+    </section>
+    <section>
+      <a name="datacenters"> </a>
+      <h2>Datacenters API</h2>
+      <p>
+        Datacenters API lets user manipulate datacenters. All the handlers require auth.
+      </p>
+      <code class="handler">GET
+        <a href="/api/v1/datacenters/" target="_blank">
+          /api/v1/datacenters/
+        </a>
+      </code>
+      <p>
+        Provides a paginated list of datacenters. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by datacenter name using
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of datacenter name. Filters shorter than 2 symbols
+        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+      </p>
+      <p>
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        list of field names. Available datacenter fields are:
+        <ul class="fieldlist">
+          <li>
+            <code>_id</code> is the unique id of the datacenter
+          </li>
+          <li>
+            <code>name</code> is the unique name
+          </li>
+          <li>
+            <code>description</code> speaks for itself. Can be null.
+          </li>
+          <li>
+            <code>created_at</code> - datetime of the model creation.
+          </li>
+          <li>
+            <code>updated_at</code> - datetime of the last model update.
+          </li>
+          <li>
+            <code>parent_id</code> - id of the parent datacenter. When null i.e. the datacenter has no parent, that means the datacenter is one
+            of root DCs.
+          </li>
+          <li>
+            <code>parent</code> - the parent datacenter itself as an object. Has only the default fields list which is not affected by
+            <code>_fields</code> param. Can be null.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>root_id</code> - the id of the root dc for the datacenter i.e. the highest parent. Can be null if the DC has no parent.
+          </li>
+          <li>
+            <code>root</code> - the whole root datacenter as an object. Has only the default fields list which is not affected by
+            <code>_fields</code> param. Can be null.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>child_ids</code> - the list of ids of direct children.
+          </li>
+          <li>
+            <code>children</code> - the list of children as objects.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>all_children</code> - the whole children tree recursively represented as a list of objects.
+            <span class="warning">This can be a lot of additional database lookups depending on your datacenter structure. Can be a heavy request.</span>
+          </li>
+          <li>
+            <code>is_root</code> - boolean field returning
+            <code>true</code> only if the datacenter has no parents.
+          </li>
+          <li>
+            <code>hosts</code> - the list of hosts (as objects) directly located in the datacenter.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>all_hosts</code> - this is a recursively created list of all the hosts located in the datacenter and all its children.
+            <span class="warning">This can be a lot of additional database lookups depending on your datacenter structure. Can be a heavy request.</span>
+          </li>
+
+        </ul>
+      </p>
+      <p>
+        The default example response (without
+        <code>_filter</code> and
+        <code>_fields</code> params) will look like:
+      </p>
+      <pre><code>{
+  "count": 3, 
+  "data": [
+    {
+      "_id": "5a058c92cd2b4f254f02fa73", 
+      "child_ids": [], 
+      "created_at": "Fri, 10 Nov 2017 11:25:06 GMT", 
+      "description": "B0 Jakarta Datacenter", 
+      "name": "b0", 
+      "parent_id": null, 
+      "root_id": null, 
+      "updated_at": "Thu, 22 Feb 2018 09:43:02 GMT"
+    }, 
+    {
+      "_id": "5a0593a2cd2b4f26297d2921", 
+      "child_ids": [
+        "5a0593becd2b4f26297d2924"
+      ], 
+      "created_at": "Fri, 10 Nov 2017 11:55:14 GMT", 
+      "description": null, 
+      "name": "dc1", 
+      "parent_id": null, 
+      "root_id": null, 
+      "updated_at": "Thu, 12 Apr 2018 07:10:09 GMT"
+    }, 
+    {
+      "_id": "5a0593becd2b4f26297d2924", 
+      "child_ids": [], 
+      "created_at": "Fri, 10 Nov 2017 11:55:42 GMT", 
+      "description": null, 
+      "name": "dc1.1", 
+      "parent_id": "5a0593a2cd2b4f26297d2921", 
+      "root_id": "5a0593a2cd2b4f26297d2921", 
+      "updated_at": "Tue, 13 Feb 2018 11:18:52 GMT"
+    }
+  ],
+  "page": 1, 
+  "total_pages": 1
+}</code></pre>
+      <p>
+        Datacenter can and should be structured as a tree. They should be interpreted as
+        <i>locations</i>. This will allow to filter out hosts by countries, cities, datacenters, and even racks. Such kind of
+        tree is organized by
+        <code>parent_id</code>,
+        <code>root_id</code>, and
+        <code>child_ids</code> fields of a datacenter model.
+      </p>
+      <hr/>
+      <code class="handler">GET
+        <a href="/api/v1/datacenters/:id" target="_blank">
+          /api/v1/datacenters/:id
+        </a>
+      </code>
+      <p>
+        Provides the same functionality as list of datacenters but for only one datacenter identified via
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>name</code> as they are both unique. The result behaves the same, that is, returns a list of one element in
+        <code>data</code> field of the response.
+      </p>
+      <hr/>
+      <code class="handler">POST
+        <a href="/api/v1/datacenters/" target="_blank">
+          /api/v1/datacenters/
+        </a>
+      </code>
+      <p>
+        Creates a new datacenter out of JSON payload. The only required field is
+        <code>name</code>. Provide
+        <code>parent_id</code> to make the new datacenter a child of an existing one.
+        <code>_fields</code> query param is valid for this request so you're able to filter out datacenter's fields in the response.
+      </p>
+      <hr/>
+      <code class="handler">PUT
+        <a href="/api/v1/datacenters/:id" target="_blank">
+          /api/v1/datacenters/:id
+        </a>
+      </code>
+      <p>
+        Updates datacenter identified by
+        <code>:id</code> param (which can be either
+        <code>_id</code> or
+        <code>name</code>) with a JSON payload. Provide
+        <code>parent_id</code> field to set the parent of the datacenter you're updating (children of the new parent are filled up automatically)
+        if it has no parent. Be aware that you can't move the datacenter from one parent to another as this is a two-step
+        process (first unset and then set the new one) and as it might make an exception during any of those steps, it's
+        been decided to make this process a special handler. (See /api/v1/datacenters/:id/set_parent)
+        <code>_fields</code> query param is valid for this request so you're able to filter out datacenter's fields in the response.
+      </p>
+      <hr/>
+      <code class="handler">DELETE
+        <a href="/api/v1/datacenters/:id" target="_blank">
+          /api/v1/datacenters/:id
+        </a>
+      </code>
+      <p>Deletes the datacenter identified by
+        <code>:id</code> param (which can be either
+        <code>_id</code> or
+        <code>name</code>). Returns the datacenter just been deleted.
+        <code>_fields</code> param is also relevant for this handler.
+      </p>
+      <hr/>
+      <code class="handler">PUT
+        <a href="/api/v1/datacenters/:id" target="_blank">
+          /api/v1/datacenters/:id/set_parent
+        </a>
+      </code>
+      <p>
+        Sets the datacenter's parent using
+        <code>parent_id</code> field of the JSON payload. If it's not there or it's null, the parent will be unset. Children of both new and old
+        parents will be set automatically.
+      </p>
+    </section>
+    <section>
+      <a name="groups"></a>
+      <h2>Groups API</h2>
+      <p>
+        Groups API allows user to manipulate groups. Every group must be included into a project. Group without a project is not
+        valid. Group may have a number of parents and a number of children, thus, it's not a tree but a graph or to be more
+        precise a set of graphs as groups in one project can not be connected to groups in other project.
+      </p>
+      <p>
+        Groups can have tags and custom fields attached to them. Tags are arbitrary string items while custom fields are objects
+        in particular format:
+        <code>{ "key": ..., "value": ... }</code>
+      </p>
+      <p>
+        Here's a couple of example use-cases of tags and custom fields: let's say you have a group of servers with different OSes
+        installed by historical reasons. In this case you can make a group like
+        <i>my_super_service_frontend</i> and attach a custom field to it like this:
+        <code>{ "os_type": "debian" }</code>. For a group
+        <i>my_super_service_db</i> you use CentOS as you run OracleDB on those servers, so you attach
+        <code>{ "os_type": "centos" }</code> to that group. All those custom fields are inherited group by group down to the end servers. So requesting info
+        on a particular host using
+        <a href="#hosts">Hosts API</a>, you will get
+        <code>os_type</code> custom field attached to the host.
+      </p>
+      <p>
+        In other case you want to somehow indicate some hosts which have SSD in them. If you use a custom field like
+        <code>ssd_installed: true</code> you'll anyway face the problem: now you have to attach
+        <code>ssd_installed: false</code> to every host not having SSDs which is not very convenient. There's a way out: just attach a tag
+        <code>ssd</code> to hosts or a group of hosts having SSDs.
+      </p>
+      <code class="handler">GET
+        <a href="/api/v1/groups/" target="_blank">
+          /api/v1/groups/
+        </a>
+      </code>
+      <p>
+        Provides a paginated list of groups. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by group name using
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of group name. Filters shorter than 2 symbols are
+        ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+      </p>
+      <p>
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        list of field names. Available datacenter fields are:
+        <ul class="fieldlist">
+          <li>
+            <code>_id</code> - a unique id of the group
+          </li>
+          <li>
+            <code>name</code> - a unique name of the group
+          </li>
+          <li>
+            <code>description</code> - a description of the group. Can be null.
+          </li>
+          <li>
+            <code>created_at</code> - datetime of the model creation.
+          </li>
+          <li>
+            <code>updated_at</code> - datetime of the last model update.
+          </li>
+          <li>
+            <code>project_id</code> - id of the project group belongs to
+          </li>
+          <li>
+            <code>parent_ids</code> - a list of group's parents ids
+          </li>
+          <li>
+            <code>child_ids</code> - a list of group's children ids
+          </li>
+          <li>
+            <code>tags</code> - a list of tags attached to the group directly
+          </li>
+          <li>
+            <code>custom_fields</code> - a list of custom fields attached to the group directly.
+          </li>
+          <li>
+            <code>hosts</code> - a list of hosts attached to the group directly.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>host_ids</code> - a list of ids of hosts attached to the group directly.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>empty</code> - a boolean field indicating that the group has neither children nor hosts to it.
+            <span class="warning">This is an additional indexed database lookup as the hosts are located in another MongoDB collection</span>
+          </li>
+          <li>
+            <code>parents</code> - a list of direct parents of the group as objects.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>children</code> - a list of direct children of the group as objects.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>project</code> - a project the group belongs to as an object.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>modification_allowed</code> - a boolean field indicating if user is allowed to modificate this group.
+            <span class="warning">This is a couple of additional database lookups as this depends on user relations to the group's project.</span>
+          </li>
+          <li>
+            <code>all_tags</code> - a list of all tags attached to the group directly plus all the tags attached to all parent groups (inherited
+            tags).
+            <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
+          </li>
+          <li>
+            <code>all_custom_fields</code> - a list of all custom fields attached to the group directly plus all the custom fields attached to all parent
+            groups (inherited custom fields).
+            <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
+          </li>
+          <li>
+            <code>project_name</code> - a group's project name as a string. This is a shortcut to reduce the response size in case you need only project's
+            name not the whole project object, made primarily for the web ui.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+        </ul>
+      </p>
+    </section>
+    <hr/>
+    <section>
+      <a name="pagination"></a>
+      <h3>Appendix A: Pagination</h3>
+      <p>
+        List handlers are paginated by default. This particularly means that the response data will be located in
+        <code>data</code> field of the JSON response and there also will be three additional fields:
+        <ul class="fieldlist">
+          <li>
+            <code>count</code> - the
+            <b>total</b> number of elements matching requested criteria, i.e. how many items you would get if it weren't paginated.
+          </li>
+          <li>
+            <code>page</code> - the current page number
+          </li>
+          <li>
+            <code>total_pages</code> - the number of pages matching the criteria.
+          </li>
+        </ul>
+        By default the page param equals to 1 (starts from 1, no programmers' stuff here). To get other pages just add
+        <code>_page=[page_num]</code> to the request query string.
+      </p>
+      <p>
+        You can also reduce or increase the page size using
+        <code>_limit</code> query param like
+        <code>_limit=30</code>. The default limit depends on the inventoree backend configuration (
+        <code>DOCUMENTS_PER_PAGE</code> param in
+        <code>app.py</code> config)
+      </p>
+      <p>
+        In case you don't want to use pagination at all (may reduce performance), add
+        <code>_nopaging=true</code> to the query string.
+      </p>
+    </section>
+
+  </main>
+</body>
+
+</html>

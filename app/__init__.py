@@ -10,6 +10,10 @@ class App(BaseApp):
         from app.controllers.main import main_ctrl
         self.flask.register_blueprint(main_ctrl, url_prefix="/")
 
+        self.logger.debug("doc_ctrl at /api")
+        from app.controllers.api.doc import doc_ctrl
+        self.flask.register_blueprint(doc_ctrl, url_prefix="/api")
+
         self.logger.debug("projects_ctrl at /api/v1/projects")
         from app.controllers.api.v1.projects import projects_ctrl
         self.flask.register_blueprint(projects_ctrl, url_prefix="/api/v1/projects")
