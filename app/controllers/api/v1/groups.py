@@ -80,7 +80,7 @@ def set_children(group_id):
     orig = group.child_ids
     upd = request.json["child_ids"]
     upd = [ObjectId(x) for x in upd if x is not None]
-    d =  diff(orig, upd)
+    d = diff(orig, upd)
     exs = []
     for item in d.remove:
         try:
@@ -95,6 +95,7 @@ def set_children(group_id):
     if len(exs) > 0:
         raise ApiError(["%s: %s" % (x.__class__.__name__, x.message) for x in exs])
     return json_response({ "data": group.to_dict(get_request_fields()), "status": "ok" })
+
 
 @groups_ctrl.route("/<group_id>/set_hosts", methods=["PUT"])
 @logged_action("group_set_hosts")
@@ -194,6 +195,13 @@ def mass_move():
     if len(groups) == 0:
         raise NotFound("no groups found to be moved")
 
+    disallowed = []
+    for g in groups:
+        if not g.modification_allowed:
+            disallowed.append(g.name)
+    if len(disallowed) > 0:
+        raise Forbidden("You don't have permissions to modify groups [%s]" % ', '.join(disallowed))
+
     all_groups = set()
     for group in groups:
         all_groups.add(group)
@@ -242,6 +250,13 @@ def mass_delete():
         raise NotFound("no groups found to be deleted")
 
     groups = groups.all()
+
+    disallowed = []
+    for g in groups:
+        if not g.modification_allowed:
+            disallowed.append(g.name)
+    if len(disallowed) > 0:
+        raise Forbidden("You don't have permissions to delete groups [%s]" % ', '.join(disallowed))
 
     for group in groups:
         group.remove_all_children()

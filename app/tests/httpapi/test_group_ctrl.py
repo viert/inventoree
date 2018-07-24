@@ -101,6 +101,12 @@ class TestGroupCtrl(HttpApiTestCase):
         g2.add_child(g3)
         g3.add_child(g4)
         group_ids = [str(g2._id), str(g3._id)]
+
+        # insufficient permissions
+        r = self.post_json("/api/v1/groups/mass_delete", {"group_ids": group_ids}, supervisor=False)
+        self.assertEqual(403, r.status_code)
+
+        # supervisor permissions
         r = self.post_json("/api/v1/groups/mass_delete", { "group_ids": group_ids })
         self.assertEqual(200, r.status_code)
         deleted_groups = Group.find({"_id": {"$in":[g2._id, g3._id]}})
@@ -109,7 +115,6 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertEqual(0, len(g1.child_ids))
         g4 = Group.find_one({"_id":g4._id})
         self.assertEqual(0, len(g4.parent_ids))
-
 
     def test_set_children(self):
         g1 = Group(name="g1", project_id=self.project1._id)
@@ -135,7 +140,6 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertItemsEqual(group_data["child_ids"], child_ids)
         g1 = Group.find_one({ "_id": g1._id })
         self.assertItemsEqual([str(x) for x in g1.child_ids], child_ids)
-
 
     def test_mass_move(self):
         g1 = Group(name="g1", project_id=self.project1._id)
@@ -171,12 +175,15 @@ class TestGroupCtrl(HttpApiTestCase):
         r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(ObjectId()), "group_ids": [str(g2._id)] })
         self.assertEqual(r.status_code, 404)
 
-        # real case
+        # insufficient permissions
         payload = {
             "group_ids": [str(g2._id)],
             "project_id": str(self.project2._id)
         }
+        r = self.post_json("/api/v1/groups/mass_move", payload, supervisor=False)
+        self.assertEqual(r.status_code, 403)
 
+        # real case
         r = self.post_json("/api/v1/groups/mass_move", payload)
         self.assertEqual(r.status_code, 200)
 
