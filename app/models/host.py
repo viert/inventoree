@@ -75,9 +75,9 @@ class Host(StorableModel):
         custom_keys = set()
         for cf in self.custom_fields:
             if type(cf) is not dict:
-                raise InvalidCustomFields("Custom field must be a dict")
+                raise InvalidCustomFields("Every custom field item must be a dict")
             if "key" not in cf or "value" not in cf:
-                raise InvalidCustomFields("Custom field must contain key and value fields")
+                raise InvalidCustomFields("Every custom field item must contain key and value fields")
             else:
                 if cf["key"].strip() == "":
                     raise InvalidCustomFields("Custom field key can't be empty")

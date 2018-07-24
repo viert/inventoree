@@ -515,7 +515,7 @@
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
-        list of field names. Available datacenter fields are:
+        list of field names. Available group fields are:
         <ul class="fieldlist">
           <li>
             <code>_id</code> - a unique id of the group
@@ -690,6 +690,24 @@
         <code>{ "group_ids": [...], "project_id": "..." }</code> and moves all listed groups to the new project. Groups are detached from their parents as parents remain in previous
         project so can't be connected anymore.
       </p>
+      <p>
+        Groups are moved if user has a membership in all the projects all the groups belong to. User don't have to have a membership
+        in a target project so one should be aware that in this case user loses control over the groups he's just moved.
+        This works like giving away without any way to get groups back without help of target project members.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/groups/mass_delete" target="_blank">
+          /api/v1/groups/mass_delete
+        </a>
+      </code>
+      <p>
+        Accepts JSON payload like
+        <code>{ "group_ids": [...] }</code> and deletes all listed groups. All the children and hosts are being detached from the groups being deleted.
+      </p>
+      <p>
+        Groups are deleted if user has a membership in all the projects all the groups belong to.
+      </p>
       <hr />
       <code class="handler">GET
         <a href="/api/v1/groups/:id/structure" target="_blank">
@@ -713,9 +731,134 @@
       </p>
       <p>This is potentially very heavy request as it's fetching groups and hosts recursively</p>
     </section>
+    <hr/>
+    <section>
+      <a name="hosts"></a>
+      <h2>Hosts API</h2>
+      <p>
+        Hosts API allows user to manipulate hosts. A host may be included in exactly one group. A host may also be attached to a
+        datacenter.
+      </p>
+      <p>Hosts may have their own tags and custom fields, extending or overwriting tags and custom fields derived from groups
+        hosts included in. Refer to
+        <a href="#groups">Groups API</a> section for more info on tags and custom fields.</p>
+      <p>
+        Hosts have unique FQDNs and may have a list of aliases which don't have to be unique. Aliases are indexed and easy to be
+        searched by.
+      </p>
+      <code class="handler">GET
+        <a href="/api/v1/hosts/" target="_blank">
+          /api/v1/hosts/
+        </a>
+      </code>
+      <p>
+        Provides a paginated list of hosts. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by host fqdn using
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of host fqdn. Filters shorter than 2 symbols are
+        ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+      </p>
+      <p>
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        list of field names. Available host fields are:
+        <ul class="fieldlist">
+          <li>
+            <code>_id</code> - a unique id of the host
+          </li>
+          <li>
+            <code>fqdn</code> - a unique fqdn (fully qualified domain name) of the host
+          </li>
+          <li>
+            <code>description</code> - a description of the host. Can be null.
+          </li>
+          <li>
+            <code>created_at</code> - datetime of the model creation.
+          </li>
+          <li>
+            <code>updated_at</code> - datetime of the last model update.
+          </li>
+          <li>
+            <code>group_id</code> - id of the group the host belongs to. Can be null.
+          </li>
+          <li>
+            <code>datacenter_id</code> - id of the datacenter the host belongs to. Can be null.
+          </li>
+          <li>
+            <code>aliases</code> - a list of host's aliases
+          </li>
+          <li>
+            <code>tags</code> - a list of tags attached to the host directly
+          </li>
+          <li>
+            <code>custom_fields</code> - a list of custom fields attached to the host directly.
+          </li>
+          <li>
+            <code>group</code> - host's group as an object. If
+            <code>group_id</code> is null which is allowed,
+            <code>group</code> also returns null.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>group_name</code> - host's group name as a string. It's a shortcut for group.name, useful when you don't need the entire group
+            object.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>datacenter</code> - the datacenter of the host as an object. If
+            <code>datacenter_id</code>> is null,
+            <code>datacenter</code> returns null as well.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>datacenter_name</code> - host's datacenter name as a string. It's a shortcut for datacenter.name, useful when you don't need the entire
+            datacenter object.
+            <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>location</code> - is an alias to
+            <code>datacenter</code> field.
+          </li>
+          <li>
+            <code>location_name</code> - is an alias to
+            <code>datacenter_name</code>
+          </li>
+          <li>
+            <code>root_datacenter</code> - the root parent of the datacenter host belongs to as an object.
+            <span class="warning">This is 2 additional database lookups</span>
+          </li>
+          <li>
+            <code>root_datacenter_name</code> - a shortcut to
+            <code>root_datacenter.name</code> useful when you don't need the entire datacenter object.
+            <span class="warning">This is 2 additional database lookups</span>
+          </li>
+          <li>
+            <code>root_location</code> - an alias to
+            <code>root_datacenter</code>
+          </li>
+          <li>
+            <code>root_location_name</code> - an alias to
+            <code>root_datacenter_name</code>
+          </li>
+          <li>
+            <code>modification_allowed</code> - boolean field indicating if current user has permissions to modify this host.
+          </li>
+          <li>
+            <code>destruction_allowed</code> - boolean field indicating if current user has permissions to delete this host.
+          </li>
+          <li>
+            <code>all_tags</code> - a list of all tags attached to the host directly plus all the tags attached to its group and all parent groups
+            (inherited tags).
+            <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
+          </li>
+          <li>
+            <code>all_custom_fields</code> - a list of all custom fields attached to the host directly plus all the custom fields attached to its group
+            and all parent groups (inherited custom fields).
+            <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
+          </li>
+        </ul>
+      </p>
+      <hr />
 
-
-
+    </section>
     <hr/>
     <section>
       <a name="pagination"></a>
