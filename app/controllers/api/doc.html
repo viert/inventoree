@@ -78,7 +78,7 @@
       background: #eeeeee;
       padding: 4px;
       border: 1px solid gray;
-      margin: 0 auto 0 0;
+      margin: 12px auto 0 0;
       display: inline-block;
     }
 
@@ -592,26 +592,151 @@
           </li>
         </ul>
       </p>
+      <hr />
+      <code class="handler">GET
+        <a href="/api/v1/groups/:id" target="_blank">
+          /api/v1/groups/:id
+        </a>
+      </code>
+      <p>
+        Behaves exactly as the groups list handler but for only one group identified by
+        <code>:id</code> parameter which can be both
+        <code>_id</code> or
+        <code>name</code> as group name is also unique. Response behaves exactly the same so you get a list of groups with only one element.
+        <code>_fields</code> parameter is relevant here as well however
+        <code>_filter</code> is prohibited.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/groups/" target="_blank">
+          /api/v1/groups/
+        </a>
+      </code>
+      <p>
+        Create a group with a given JSON payload. Group has to belong to a project which can be indicated by
+        <code>project_id</code> field of payload or by
+        <code>project_name</code> field if you find it more convenient. Both methods are equal.
+      </p>
+      <p>
+        Group can be modified only if user is a member of the project the group is going to belong to.
+      </p>
+      <hr />
+      <code class="handler">PUT
+        <a href="/api/v1/groups/:id" target="_blank">
+          /api/v1/groups/:id
+        </a>
+      </code>
+      <p>
+        Updates a group with a given id which is supposed to be
+        <code>_id</code> or
+        <code>name</code> of the group being updated with JSON payload. Note that
+        <code>child_ids</code> and
+        <code>parent_ids</code> can not be modified with this handler as they required a lot more work to do with connecting and disconnecting graph
+        nodes and may confuse if are not in a separated handler.
+      </p>
+      <p>
+        Group can be modified only if user is a member of the project the group belongs to.
+      </p>
+      <hr />
+      <code class="handler">DELETE
+        <a href="/api/v1/groups/:id" target="_blank">
+          /api/v1/groups/:id
+        </a>
+      </code>
+      <p>
+        Deletes a group with a given id which is supposed to be
+        <code>_id</code> or
+        <code>name</code> of the group being updated with JSON payload. The group can't be deleted if it has connections to other groups or
+        hosts so you have to drop those connections first.
+      </p>
+      <p>
+        Group can be deleted only if user is a member of the project the group belongs to.
+      </p>
+      <hr />
+      <code class="handler">PUT
+        <a href="/api/v1/groups/:id/set_children" target="_blank">
+          /api/v1/groups/:id/set_children
+        </a>
+      </code>
+      <p>
+        Modifies the set of group's children. Children IDs must be given in a
+        <code>child_ids</code> field of JSON payload as a list of IDs.
+      </p>
+      <p>
+        Modifies group's children only if user is a member of the project the group belongs to.
+      </p>
+      <hr />
+      <code class="handler">PUT
+        <a href="/api/v1/groups/:id/set_hosts" target="_blank">
+          /api/v1/groups/:id/set_hosts
+        </a>
+      </code>
+      <p>
+        Modifies the set of hosts directly included into the group. Host IDs must be given in a
+        <code>host_ids</code> field of JSON payload as a list of IDs. Note that a host can be included only in one group directly. This particularly
+        means that hosts listed in your request lose membership in groups they belonged to before.
+      </p>
+      <p>
+        Modifies group's hosts only if user is a member of the project the group belongs to.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/groups/mass_move" target="_blank">
+          /api/v1/groups/mass_move
+        </a>
+      </code>
+      <p>
+        Accepts JSON payload like
+        <code>{ "group_ids": [...], "project_id": "..." }</code> and moves all listed groups to the new project. Groups are detached from their parents as parents remain in previous
+        project so can't be connected anymore.
+      </p>
+      <hr />
+      <code class="handler">GET
+        <a href="/api/v1/groups/:id/structure" target="_blank">
+          /api/v1/groups/:id/structure
+        </a>
+      </code>
+      <p>
+        Returns a tree-like structure with indicated group as a root. Every group in the structure has
+        <code>children</code> field containing all child groups,
+        <code>parents</code> field, containing parent groups, and
+        <code>hosts</code> field, containing hosts included into group directly.
+      </p>
+      <p>Target group is identified by
+        <code>:id</code> parameter which can be both
+        <code>_id</code> or
+        <code>name</code> as group name is also unique.
+      </p>
+      <p>Accepts
+        <code>_fields</code> and
+        <code>_host_fields</code> query string parameters, optionally allowing to limit response to particular fields for each model correspondingly.
+      </p>
+      <p>This is potentially very heavy request as it's fetching groups and hosts recursively</p>
     </section>
+
+
+
     <hr/>
     <section>
       <a name="pagination"></a>
       <h3>Appendix A: Pagination</h3>
       <p>
-        List handlers are paginated by default. This particularly means that the response data will be located in
-        <code>data</code> field of the JSON response and there also will be three additional fields:
-        <ul class="fieldlist">
-          <li>
-            <code>count</code> - the
-            <b>total</b> number of elements matching requested criteria, i.e. how many items you would get if it weren't paginated.
-          </li>
-          <li>
-            <code>page</code> - the current page number
-          </li>
-          <li>
-            <code>total_pages</code> - the number of pages matching the criteria.
-          </li>
-        </ul>
+        List handlers are paginated by default. This particularly means that the response data is located in
+        <code>data</code> field of the JSON response and there are also three additional fields:
+      </p>
+      <ul class="fieldlist">
+        <li>
+          <code>count</code> - the
+          <b>total</b> number of elements matching requested criteria, i.e. how many items you would get if it weren't paginated.
+        </li>
+        <li>
+          <code>page</code> - the current page number
+        </li>
+        <li>
+          <code>total_pages</code> - the number of pages matching the criteria.
+        </li>
+      </ul>
+      <p>
         By default the page param equals to 1 (starts from 1, no programmers' stuff here). To get other pages just add
         <code>_page=[page_num]</code> to the request query string.
       </p>
@@ -623,7 +748,7 @@
         <code>app.py</code> config)
       </p>
       <p>
-        In case you don't want to use pagination at all (may reduce performance), add
+        In case you don't want to use pagination at all (can reduce performance), add
         <code>_nopaging=true</code> to the query string.
       </p>
     </section>
