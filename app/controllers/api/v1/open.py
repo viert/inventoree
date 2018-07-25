@@ -93,6 +93,7 @@ def ansible():
     response.headers["Content-Type"] = "text/plain"
     return response
 
+
 @open_ctrl.route("/app")
 def info():
     from app import app
@@ -119,6 +120,7 @@ def info():
     }
 
     return json_response({ "app_info": results })
+
 
 def _get_hosts(group_names=None, tags=None):
     from app.models import Group

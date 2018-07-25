@@ -1013,6 +1013,75 @@
     </section>
     <hr/>
     <section>
+      <a name="open"></a>
+      <h2>Open API</h2>
+      <p>
+        Open API contains a set of handlers of different nature. The only thing they have in common is that they don't require any
+        authentication, thus, are read-only.
+      </p>
+      <code class="handler">GET 
+        <a href="/api/v1/open/executer_data">
+          /api/v1/open/executer_data
+        </a>
+      </code>
+      <p>
+        Returns a structure containing groups, hosts, projects and datacenters in format compatible with
+        <a href="https://github.com/viert/xcute" target="_blank">XCute</a> CLI (and is commonly used exactly by xcute in fact)
+      </p>
+      <p>
+        Accepts a number of query string parameters:
+      </p>
+      <p>
+        <code>projects</code> - comma-separated list of project names to limit the output to.
+      </p>
+      <p>
+        <code>recursive</code> - a boolean field indicating that
+        <code>all_tags</code>> and
+        <code>all_custom_fields</code> are attached to all groups and hosts in output. This makes the request quite heavy otherwise powerful.
+      </p>
+      <p>
+        <code>include_unattached</code> - a boolean field indicating that all the hosts should be in the output no matter if they're attached to groups
+        or not. If this value is false, groupless hosts are ignored.
+      </p>
+      <hr/>
+      <code class="handler">GET
+        <a href="/api/v1/open/ansible">/api/v1/open/ansible</a>
+      </code>
+      <p>Returns hosts attached to groups in
+        <a href="https://www.ansible.com">ansible</a> inventory-file format.
+      </p>
+      <p>
+        Accepts
+        <code>projects</code> query string parameter - a comma-separated list of project names allowing to limit the output to the given projects.
+      </p>
+      <hr/>
+      <code class="handler">GET
+        <a href="/api/v1/open/app">/api/v1/open/app</a>
+      </code>
+      <p>
+        Returns a brief application info including app version and versions of frameworks and services used by the app like Flask
+        or MongoDB.
+      </p>
+      <hr/>
+      <code class="handler">GET
+        <a href="/api/v1/open/resolve_hosts">/api/v1/open/resolve_hosts</a>
+      </code>
+      <p>
+        Accepts
+        <code>groups</code> and
+        <code>tags</code> query string parameters and returns a list of hosts in the grouplist provided optionally filtered by a tag list.
+        Also accepts
+        <code>fields</code> parameter limiting host model to the specified field list.
+      </p>
+
+    </section>
+    <hr/>
+    <section>
+      <a name="projects"></a>
+      <h2>Projects API</h2>
+    </section>
+
+    <section>
       <a name="pagination"></a>
       <h3>Appendix A: Pagination</h3>
       <p>
