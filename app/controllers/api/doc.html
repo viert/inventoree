@@ -916,7 +916,100 @@
         an FQDN pattern.
       </p>
 
-
+      <p>
+        In case of providing
+        <code>group_id</code> field, host(s) will be created in the chosen group however this will require user's permissions to modify this group.
+        By default new hosts are groupless and datacenterless to make it easier for automated provisioning systems to create
+        new hosts in Inventoree via API. In most cases it's up to a system administrator how to markup servers and combine
+        them into groups.
+      </p>
+      <hr/>
+      <code class="handler">PUT
+        <a href="/api/v1/hosts/:id" target="_blank">
+          /api/v1/hosts/:id
+        </a>
+      </code>
+      <p>
+        Updates a host identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>fqdn</code> as host's fqdn has to be unique.
+      </p>
+      <p>
+        To modify host user has to have permissions. Host in a group can be modified if user has permissions to modify that group.
+        Groupless hosts are editable for everyone however if you want to change host's group_id, i.e. put a groupless host
+        into a group, you have to have permissions to modify the target group. To move host from one group to another permissions
+        for both source and target groups are required.
+      </p>
+      <hr />
+      <code class="handler">DELETE
+        <a href="/api/v1/hosts/:id" target="_blank">
+          /api/v1/hosts/:id
+        </a>
+      </code>
+      <p>
+        Deletes a host identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>fqdn</code> as host's fqdn has to be unique.
+      </p>
+      <p>
+        To modify host user has to have permissions. Host in a group can be deleted if user has permissions to modify that group.
+        Groupless hosts can be deleted only by supervisors.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/hosts/mass_move" target="_blank">
+          /api/v1/hosts/mass_move
+        </a>
+      </code>
+      <p>
+        The handler moves a list of hosts to a new group. Accepts JSON payload
+        <code>{ "host_ids": [...], "group_id": "..." }</code>.
+      </p>
+      <p>
+        User has to have permissions to modify every host in the given list to perform the operation. Also modification permissions
+        for the target group are required.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/hosts/mass_set_datacenter" target="_blank">
+          /api/v1/hosts/mass_set_datacenter
+        </a>
+      </code>
+      <p>
+        The handler moves a list of hosts to a new datacenter. Accepts JSON payload
+        <code>{ "host_ids": [...], "datacenter_id": "..." }</code>.
+      </p>
+      <p>
+        User has to have permissions to modify every host in the given list to perform the operation.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/hosts/mass_detach" target="_blank">
+          /api/v1/hosts/mass_detach
+        </a>
+      </code>
+      <p>
+        The handler makes a list of hosts groupless. Accepts JSON payload
+        <code>{ "host_ids": [...] }</code>.
+      </p>
+      <p>
+        User has to have permissions to modify every host in the given list to perform the operation.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/hosts/mass_delete" target="_blank">
+          /api/v1/hosts/mass_delete
+        </a>
+      </code>
+      <p>
+        The handler deletes a list of hosts according to JSON payload
+        <code>{ "host_ids": [...] }</code>.
+      </p>
+      <p>
+        User has to have permissions to delete every host in the given list to perform the operation.
+      </p>
     </section>
     <hr/>
     <section>
