@@ -1079,6 +1079,85 @@
     <section>
       <a name="projects"></a>
       <h2>Projects API</h2>
+      <p>
+        Projects API allows user to manipulate projects. Projects are high level models connecting users with all the structures
+        Inventoree has.
+      </p>
+      <code class="handler">GET
+        <a href="/api/v1/projects/" target="_blank">
+          /api/v1/projects/
+        </a>
+      </code>
+      <p>
+        Provides a paginated list of projects. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by project name using
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of project name. Filters shorter than 2 symbols
+        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+      </p>
+      <p>
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        list of field names. Available host fields are:
+      </p>
+      <ul class="fieldlist">
+        <li>
+          <code>_id</code> - a unique id of the project
+        </li>
+        <li>
+          <code>name</code> - a unique name of the project
+        </li>
+        <li>
+          <code>description</code> - a description of the project. Can be null
+        </li>
+        <li>
+          <code>email</code> - a email associated with the project. Can be null
+        </li>
+        <li>
+          <code>root_email</code> - in first versions of conductor this field used to keep the address for root email for servers in the project.
+          Can be null.
+        </li>
+        <li>
+          <code>owner_id</code> - this is an ID of the project's owner (user)
+        </li>
+        <li>
+          <code>members_id</code> - this is a list of IDs of project's members (users as well)
+        </li>
+        <li>
+          <code>created_at</code> - datetime of the model creation.
+        </li>
+        <li>
+          <code>updated_at</code> - datetime of the last model update.
+        </li>
+        <li>
+          <code>owner</code> - project's owner as an object.
+          <span class="warning">This is an additional database lookup</span>
+        </li>
+        <li>
+          <code>owner_name</code> - a shortcut to owner.name
+          <span class="warning">This is an additional database lookup</span>
+        </li>
+        <li>
+          <code>members</code> - a list of project's members as objects.
+          <span class="warning">This is an additional database lookup</span>
+        </li>
+        <li>
+          <code>member_usernames</code> - a list of project's member names.
+          <span class="warning">This is an additional database lookup</span>
+        </li>
+        <li>
+          <code>modification_allowed</code> - a boolean field indicating if current user has permissions to modify the project
+        </li>
+        <li>
+          <code>member_list_modification_allowed</code> - a boolean field indicating if current user has permissions to modify the project's member list
+        </li>
+        <li>
+          <code>groups_count</code> - a number of groups in the project
+          <span class="warning">This is an additional database lookup</span>
+        </li>
+        <li>
+          <code>groups</code> - a list of groups included in the project as objects
+          <span class="warning">This is an additional database lookup</span>
+        </li>
+      </ul>
     </section>
 
     <section>
