@@ -65,7 +65,10 @@ def create():
 
     if "group_id" in host_attrs and host_attrs["group_id"] is not None:
         group = Group.get(host_attrs["group_id"], GroupNotFound("group not found"))
+        if not group.modification_allowed:
+            raise Forbidden("You don't have permissions to create hosts in this group")
         host_attrs["group_id"] = group._id
+
 
     if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
         datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))

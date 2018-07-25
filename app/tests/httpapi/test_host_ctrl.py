@@ -1,7 +1,8 @@
 from httpapi_testcase import HttpApiTestCase
 from flask import json
-from app.models import Host
+from app.models import Host, Group
 from bson.objectid import ObjectId
+from copy import deepcopy
 
 TEST_HOST_1 = {
     "fqdn": "host1.example.com",
@@ -41,6 +42,14 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertEqual(payload["fqdn"], host.fqdn)
         self.assertEqual(payload["description"], host.description)
         self.assertItemsEqual(payload["tags"], host.tags)
+
+    def test_create_host_insufficient_permissions(self):
+        g1 = Group(name="g1", project_id=self.project1._id)
+        g1.save()
+        payload = deepcopy(TEST_HOST_1)
+        payload["group_id"] = g1._id
+        r = self.post_json("/api/v1/hosts/", payload, supervisor=False)
+        self.assertEqual(r.status_code, 403)
 
     def test_show_host(self):
         h = Host(**TEST_HOST_1)
