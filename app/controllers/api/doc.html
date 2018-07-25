@@ -857,6 +857,65 @@
         </ul>
       </p>
       <hr />
+      <code class="handler">GET
+        <a href="/api/v1/hosts/:id" target="_blank">
+          /api/v1/hosts/:id
+        </a>
+      </code>
+      <p>
+        Behaves exactly as the hosts list handler but for only one host identified by
+        <code>:id</code> parameter which can be both
+        <code>_id</code> or
+        <code>fqdn</code> as host fqdn is also unique. Response behaves exactly the same so you get a list of hosts with only one element.
+        <code>_fields</code> parameter is relevant here as well however
+        <code>_filter</code> is prohibited.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/hosts/">/api/v1/hosts/</a>
+      </code>
+      <p>
+        Creates a host or a list of hosts depending on JSON payload.
+      </p>
+      <p>
+        There are two methods of creating host(s):
+      </p>
+      <ol>
+        <li>Pass a JSON object with the host's fields. The only field required is
+          <code>fqdn</code>, others are optional</li>
+        <li>Pass a JSON object just like before but instead of
+          <code>fqdn</code> field use
+          <code>fqdn_pattern</code>
+        </li>
+      </ol>
+      <p>
+        The second aption allows you to create a list of hosts matching fqdn pattern. The pattern allows to use range and list expressions
+        in square brackets.
+        <h4>List expressions</h4>
+        List expressions are comma-separated lists of values.
+        <code>host[1,2,3].example.com</code> pattern will generate 3 hosts with FQDNs
+        <code>host1.example.com</code>,
+        <code>host2.example.com</code> and
+        <code>host3.example.com</code> correspondingly.
+        <h4>Range expressions</h4>
+        Range expressions are two values delimited by a hyphen.
+        <code>host[1-3].example.com</code> will give you the same result as in the list expression example above.
+      </p>
+      <p>
+        Note that range expressions behave like Ruby ranges although may differ being implemented in python from scratch. This means
+        that you can create ranges like
+        <code>[a-e]</code> ===
+        <code>a,b,c,d,e</code> or even
+        <code>[a0-b9]</code> ===
+        <code>a0,a1,a2,a3...a9,b0,b1,...,b9</code>
+      </p>
+      <p>
+        You can use as many expressions as you want in
+        <code>fqdn_pattern</code>. Combining them lets you create really huge group of servers in one step. For example,
+        <code>service-[back,front][0-9][a-c].example.com</code>. If you use Inventoree Web UI, the host creation page will give you a brief list of result FQDNs if you start typing
+        an FQDN pattern.
+      </p>
+
 
     </section>
     <hr/>
