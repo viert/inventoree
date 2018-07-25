@@ -79,6 +79,24 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertItemsEqual(host.tags, TEST_HOST_2["tags"])
         self.assertItemsEqual(host.aliases, TEST_HOST_2["aliases"])
 
+    def test_update_host_insufficient_permissions(self):
+        g1 = Group(name="g1", project_id=self.project2._id)
+        g1.save()
+        g2 = Group(name="g2", project_id=self.project1._id)
+        g2.save()
+        host = Host(**TEST_HOST_1)
+        host.group_id = g2._id
+        host.save()
+        payload = { "group_id": str(g1._id) }
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=False)
+        self.assertEqual(r.status_code, 403)
+
+        host.group_id = g1._id
+        host.save()
+        payload = { "group_id": str(g2._id) }
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=False)
+        self.assertEqual(r.status_code, 403)
+
     def test_delete_host(self):
         self.test_create_host()
         host = Host.find_one({ "fqdn": TEST_HOST_1["fqdn"] })

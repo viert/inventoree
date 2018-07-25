@@ -98,6 +98,8 @@ def update(host_id):
 
     if "group_id" in host_attrs and host_attrs["group_id"] is not None:
         group = Group.get(host_attrs["group_id"], GroupNotFound("group not found"))
+        if not group.modification_allowed:
+            raise Forbidden("You don't have permissions to move hosts to group %s" % group.name)
         host_attrs["group_id"] = group._id
 
     if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
@@ -273,7 +275,7 @@ def mass_delete():
 
     failed_hosts = []
     for host in hosts:
-        if not host.modification_allowed:
+        if not host.destruction_allowed:
             failed_hosts.append(host)
     if len(failed_hosts) > 0:
         failed_hosts = ', '.join([h.fqdn for h in failed_hosts])
