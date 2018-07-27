@@ -613,12 +613,12 @@
         </a>
       </code>
       <p>
-        Create a group with a given JSON payload. Group has to belong to a project which can be indicated by
+        Creates a group with a given JSON payload. Group has to belong to a project which can be indicated by
         <code>project_id</code> field of payload or by
         <code>project_name</code> field if you find it more convenient. Both methods are equal.
       </p>
       <p>
-        Group can be modified only if user is a member of the project the group is going to belong to.
+        Group can be created only if user is a member of the project the group is going to belong to.
       </p>
       <hr />
       <code class="handler">PUT
@@ -1158,8 +1158,113 @@
           <span class="warning">This is an additional database lookup</span>
         </li>
       </ul>
+      <hr />
+      <code class="handler">GET
+        <a href="/api/v1/projects/:id" target="_blank">
+          /api/v1/projects/:id
+        </a>
+      </code>
+      <p>
+        Behaves exactly as the project list handler but for only one project identified by
+        <code>:id</code> parameter which can be both
+        <code>_id</code> or
+        <code>name</code> as project name is also unique. Response behaves exactly the same so you get a list of hosts with only one element.
+        <code>_fields</code> parameter is relevant here as well however
+        <code>_filter</code> is prohibited.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/projects/" target="_blank">
+          /api/v1/projects/
+        </a>
+      </code>
+      <p>
+        Creates a project with a given JSON payload. Project's owner is being set automatically and equals to current user.
+      </p>
+      <hr />
+      <code class="handler">PUT
+        <a href="/api/v1/projects/:id" target="_blank">
+          /api/v1/projects/:id
+        </a>
+      </code>
+      <p>
+        Updates a project with a given id which is supposed to be
+        <code>_id</code> or
+        <code>name</code> of the project being updated with JSON payload. Note that
+        <code>member_ids</code> and
+        <code>owner_id</code> can not be modified this way.
+      </p>
+      <p>
+        A project can be modified only if user is a project's member or has supervisor privileges.
+      </p>
+      <hr />
+      <code class="handler">DELETE
+        <a href="/api/v1/projects/:id" target="_blank">
+          /api/v1/projects/:id
+        </a>
+      </code>
+      <p>
+        Deletes a project with a given id which is supposed to be
+        <code>_id</code> or
+        <code>name</code> of the project.
+      </p>
+      <p>
+        A project can be deleted only if user is a project's owner or has supervisor privileges.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/projects/:id/add_member" target="_blank">
+          /api/v1/projects/:id/add_member
+        </a>
+      </code>
+      <p>
+        Adds a project's member according to JSON payload
+        <code>{ "user_id": "..." }</code>
+      </p>
+      <p>
+        Member lists can only be modified by project's owner or a user with supervisor privileges.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/projects/:id/remove_member" target="_blank">
+          /api/v1/projects/:id/remove_member
+        </a>
+      </code>
+      <p>
+        Removes a project's member according to JSON payload
+        <code>{ "user_id": "..." }</code>
+      </p>
+      <p>
+        Member lists can only be modified by project's owner or a user with supervisor privileges.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/projects/:id/set_members" target="_blank">
+          /api/v1/projects/:id/set_members
+        </a>
+      </code>
+      <p>
+        Re-sets project's members according to JSON payload
+        <code>{ "member_ids": [...] }</code>. Note that the handler completely replaces the current member list.
+      </p>
+      <p>
+        Member lists can only be modified by project's owner or a user with supervisor privileges.
+      </p>
+      <hr />
+      <code class="handler">POST
+        <a href="/api/v1/projects/:id/switch_owner" target="_blank">
+          /api/v1/projects/:id/switch_owner
+        </a>
+      </code>
+      <p>
+        Changes the project owner to a given user according to JSON payload
+        <code>{ "owner_id": "..." }</code>.
+      </p>
+      <p>
+        Owner can be changed either by the current owner or by a user with supervisor privileges.
+      </p>
     </section>
-
+    <hr />
     <section>
       <a name="pagination"></a>
       <h3>Appendix A: Pagination</h3>

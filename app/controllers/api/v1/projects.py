@@ -58,7 +58,7 @@ def delete(project_id):
     from app.models import Project
 
     project = Project.get(project_id, ProjectNotFound("project not found"))
-    if not project.modification_allowed:
+    if not project.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     project.destroy()
     return json_response({ "data": project.to_dict(get_request_fields()), "status": "deleted" })
@@ -70,7 +70,7 @@ def add_member(project_id):
     from app.models import Project, User
 
     project = Project.get(project_id, ProjectNotFound("project not found"))
-    if not project.modification_allowed:
+    if not project.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     if not "user_id" in request.json:
         raise ApiError("no user_id given in request payload")
@@ -86,7 +86,7 @@ def remove_member(project_id):
     from app.models import Project, User
 
     project = Project.get(project_id, ProjectNotFound("project not found"))
-    if not project.modification_allowed:
+    if not project.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this project")
     if not "user_id" in request.json:
         raise ApiError("no user_id given in request payload")
@@ -124,7 +124,7 @@ def set_members(project_id):
 
     project = Project.get(project_id, ProjectNotFound("project not found"))
     if not project.member_list_modification_allowed:
-        raise Forbidden("you don't have permission to modify the project's owner")
+        raise Forbidden("you don't have permission to modify the project's members")
     if not "member_ids" in request.json:
         raise ApiError("you should provide member_ids field")
     if type(request.json["member_ids"]) != list:
