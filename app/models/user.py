@@ -44,7 +44,8 @@ class User(StorableModel):
 
     RESTRICTED_FIELDS = [
         "password_hash",
-        "tokens"
+        "tokens",
+        "salt"
     ]
 
     REQUIRED_FIELDS = (

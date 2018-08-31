@@ -572,7 +572,7 @@
             <span class="warning">This is an additional database lookup</span>
           </li>
           <li>
-            <code>modification_allowed</code> - a boolean field indicating if user is allowed to modificate this group.
+            <code>modification_allowed</code> - a boolean field indicating if user is allowed to modify this group.
             <span class="warning">This is a couple of additional database lookups as this depends on user relations to the group's project.</span>
           </li>
           <li>
@@ -1168,7 +1168,7 @@
         Behaves exactly as the project list handler but for only one project identified by
         <code>:id</code> parameter which can be both
         <code>_id</code> or
-        <code>name</code> as project name is also unique. Response behaves exactly the same so you get a list of hosts with only one element.
+        <code>name</code> as project name is also unique. Response behaves exactly the same so you get a list of projects with only one element.
         <code>_fields</code> parameter is relevant here as well however
         <code>_filter</code> is prohibited.
       </p>
@@ -1262,6 +1262,108 @@
       </p>
       <p>
         Owner can be changed either by the current owner or by a user with supervisor privileges.
+      </p>
+    </section>
+    <hr />
+    <section>
+      <a name="users"></a>
+      <h2>Users API</h2>
+      <p>
+        Users API allows to manipulate inventoree users. Note that in most cases of using external auth users are created automatically.
+        However to get control over users you'll need either a local auth user with supervisor privileges created with
+        <code>inventoree shell</code> or an external auth user granted with supervisor privileges with
+        <code>inventoree shell</code> as well.
+      </p>
+      <code class="handler">
+        GET <a href="/api/v1/users/">/api/v1/users</a>
+      </code>
+      <p>
+        Provides a paginated list of users. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by user username using
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of user's username. Filters shorter than 2 symbols
+        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+      </p>
+      <p>
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        list of field names. Available host fields are:
+      </p>
+      <ul class="fieldlist">
+        <li>
+          <code>_id</code> - a unique id of user
+        </li>
+        <li>
+          <code>username</code> - a unique username
+        </li>
+        <li>
+          <code>first_name</code> - user's first name
+        </li>
+        <li>
+          <code>last_name</code> - user's last name
+        </li>
+        <li>
+          <code>email</code> - user's email
+        </li>
+        <li>
+          <code>avatar_url</code> - user's avatar image url
+        </li>
+        <li>
+          <code>supervisor</code> - a boolean field indicating if user has supervisor privileges
+        </li>
+        <li>
+          <code>ext_id</code> - a string indexed field containing a unique user's id in external auth system. Used in external auth plugins.
+        </li>
+        <li>
+          <code>custom_data</code> - an object field with optional custom data related to user derived from external auth system. Used in external
+          auth plugins.
+        </li>
+        <li>
+          <code>created_at</code> - datetime of the model creation.
+        </li>
+        <li>
+          <code>updated_at</code> - datetime of the last model update.
+        </li>
+        <li>
+          <code>projects_owned</code> - a list of projects owned by user as objects.
+          <span class="warning">This is an additional database lookup</span>
+        </li>
+        <li>
+          <code>projects_included_into</code> - a list of projects user is a member of.
+          <span class="warning">This is an additional database lookup</span>
+        </li>
+        <li>
+          <code>modification_allowed</code> - a boolean field indicating if the current user has permissions to modify the listed user.
+        </li>
+        <li>
+          <code>supervisor_set_allowed</code> - a boolean field indicating if the current user has permissions to grant the listed user supervisor privileges.
+        </li>
+      </ul>
+      <hr />
+      <code class="handler">
+        GET <a href="/api/v1/users/:id">/api/v1/users/:id</a>
+      </code>
+      <p>
+        Behaves exactly as the user list handler but for only one user identified by
+        <code>:id</code> parameter which can be both
+        <code>_id</code> or
+        <code>username</code> as username is also unique. Response behaves exactly the same so you get a list of users with only one element.
+        <code>_fields</code> parameter is relevant here as well however
+        <code>_filter</code> is prohibited.
+      </p>
+      <hr />
+      <code class="handler">
+        POST <a href="/api/v1/users/">/api/v1/users/</a>
+      </code>
+      <p>
+        Creates a user according to JSON payload. Note that you can't provide
+        <code>password_hash</code> field that way which is the field where the bcrypt-based password hash is stored and actually you never need to
+        manually access
+        <code>password_hash</code> field.
+      </p>
+      <p>
+        To provide a password for a new user, use
+        <code>password_raw</code> and
+        <code>password_raw_confirm</code> fields which have to match.
+        <code>password_hash</code> will be calculated and stored during the user creation.
       </p>
     </section>
     <hr />
