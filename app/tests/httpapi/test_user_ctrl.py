@@ -62,6 +62,10 @@ class TestUserCtrl(HttpApiTestCase):
         user = User.get(user_id)
         self.assertEqual(user.username, self.NEW_USER["username"])
 
+    def test_user_create_insufficient(self):
+        r = self.post_json("/api/v1/users/", self.NEW_USER, supervisor=False)
+        self.assertEqual(r.status_code, 403)
+
     def test_user_create_existing(self):
         r = self.post_json("/api/v1/users/", {"username": self.supervisor.username})
         self.assertEqual(r.status_code, 409)
