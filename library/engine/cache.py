@@ -30,16 +30,15 @@ def cached_function(cache_key_prefix=DEFAULT_CACHE_PREFIX, cache_timeout=DEFAULT
             from app import app
             cache_key, cached_call = _get_cache_key(cache_key_prefix, func.__name__, args, kwargs)
             t1 = datetime.now()
-            value = app.cache.get(cache_key)
-            if value is None:
-                value = func(*args, **kwargs)
-                if value is not None:
-                    # caching only positive if positive_only
-                    if not positive_only or value:
-                        app.cache.set(cache_key, value, timeout=cache_timeout)
-                app.logger.debug("Cache MISS %s (%.3f seconds)" % (cached_call, (datetime.now() - t1).total_seconds() ))
+
+            if app.cache.has(cache_key):
+                value = app.cache.get(cache_key)
+                app.logger.debug("Cache HIT %s (%.3f seconds)" % (cached_call, (datetime.now() - t1).total_seconds()))
             else:
-                app.logger.debug("Cache HIT %s (%.3f seconds)" % (cached_call, (datetime.now() - t1).total_seconds() ))
+                value = func(*args, **kwargs)
+                if value or not positive_only:
+                    app.cache.set(cache_key, value, timeout=cache_timeout)
+                app.logger.debug("Cache MISS %s (%.3f seconds)" % (cached_call, (datetime.now() - t1).total_seconds()))
             return value
         return wrapper
     return cache_decorator
@@ -74,7 +73,7 @@ def request_time_cache(cache_key_prefix=DEFAULT_CACHE_PREFIX):
             from app import app
             try:
                 request_id = request.id
-            except RuntimeError:
+            except (RuntimeError, AttributeError):
                 # cache only if request id is available
                 return func(*args, **kwargs)
             cache_key, cached_call = _get_cache_key(cache_key_prefix, func.__name__, args, kwargs)
