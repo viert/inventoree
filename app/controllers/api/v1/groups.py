@@ -244,7 +244,8 @@ def mass_delete():
     # resolving Groups
     group_ids = [resolve_id(x) for x in request.json["group_ids"]]
     group_ids = set([x for x in group_ids if x is not None])
-    groups = Group.find({"_id": {"$in": list(group_ids)}})
+    query = {"_id": {"$in": list(group_ids)}}
+    groups = Group.find(query)
 
     if groups.count() == 0:
         raise NotFound("no groups found to be deleted")
@@ -261,6 +262,11 @@ def mass_delete():
     for group in groups:
         group.remove_all_children()
         group.remove_all_hosts()
+
+    # reload
+    groups = Group.find(query)
+
+    for group in groups:
         group.destroy()
 
     result = {
