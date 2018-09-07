@@ -102,7 +102,7 @@ class ApiAction(StorableModel):
                 for k, v in self.params.iteritems():
                     if k in Host.FIELDS:
                         old_value = getattr(host, k)
-                        if v != old_value and str(v) != str(old_value):
+                        if v != old_value and unicode(v) != unicode(old_value):
                             host_data[k] = v
             if "group_id" in host_data:
                 group_name = ""
@@ -245,7 +245,7 @@ class ApiAction(StorableModel):
             for k, v in self.params.iteritems():
                 if k in Group.FIELDS:
                     old_value = getattr(group, k)
-                    if v != old_value and str(v) != str(old_value):
+                    if v != old_value and unicode(v) != unicode(old_value):
                         group_data[k] = v
             if "project_id" in group_data:
                 project_name = ""
@@ -296,7 +296,7 @@ class ApiAction(StorableModel):
                     if k == "parent_id":
                         continue
                     old_value = getattr(dc, k)
-                    if old_value != v and str(v) != str(old_value):
+                    if old_value != v and unicode(v) != unicode(old_value):
                         datacenter_data[k] = v
         self.computed = {
             "datacenter_name": datacenter_name,
@@ -378,7 +378,7 @@ class ApiAction(StorableModel):
             for k, v in self.params.iteritems():
                 if k in Project.FIELDS:
                     old_value = getattr(project, k)
-                    if v != old_value and str(v) != str(old_value):
+                    if v != old_value and unicode(v) != unicode(old_value):
                         project_data[k] = v
         self.computed = {
             "project_name": project_name,
@@ -437,7 +437,7 @@ class ApiAction(StorableModel):
                     continue
                 if k in User.FIELDS:
                     old_value = getattr(user, k)
-                    if v != old_value and str(v) != str(old_value):
+                    if v != old_value and unicode(v) != unicode(old_value):
                         user_data[k] = v
         self.computed = {
             "username": username,
