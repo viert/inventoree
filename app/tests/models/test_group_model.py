@@ -1,6 +1,7 @@
 from unittest import TestCase
 from app.tests.models.test_models import TestProject, TestGroup, TestHost, TestUser
 from library.engine.errors import FieldRequired, ParentCycle, ChildAlreadyExists, ParentAlreadyExists, InvalidTags
+from bson.objectid import ObjectId
 
 TEST_CUSTOM_FIELDS_G1 = [
     { "key": "field1", "value": "1" },
@@ -241,3 +242,16 @@ class TestGroupModel(TestCase):
         g2.destroy()
         g1 = TestGroup.find_one({ "_id": parent_id })
         self.assertItemsEqual([], g1.children)
+
+    def test_remove_faulty_child(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id)
+        g1.save()
+        ch_id = ObjectId(None)
+        g1.child_ids = [ch_id]
+        g1.save(skip_callback=True)
+        g1 = TestGroup.find_one({ "_id": g1._id })
+        self.assertEqual(len(g1.child_ids), 1)
+        g1.remove_child(str(ch_id))
+        g1 = TestGroup.find_one({ "_id": g1._id })
+        self.assertEqual(len(g1.child_ids), 0)
+

@@ -3,7 +3,7 @@ from library.engine.errors import InvalidTags, ChildDoesNotExist, ChildAlreadyEx
 from library.engine.errors import InvalidProjectId
 from library.engine.cache import request_time_cache
 from app.models.storable_model import StorableModel, now, save_required
-from bson.objectid import ObjectId
+from bson.objectid import ObjectId, InvalidId
 
 
 class Group(StorableModel):
@@ -97,7 +97,23 @@ class Group(StorableModel):
 
     @save_required
     def remove_parent(self, parent):
-        parent, parent_id = self._resolve_group(parent)
+        try:
+            parent, parent_id = self._resolve_group(parent)
+        except GroupNotFound:
+            # this can happen due to previous system bugs having allowed to have unconnected
+            # ObjectIds in parent_ids
+            try:
+                parent_id = ObjectId(parent)
+            except InvalidId:
+                parent_id = parent
+
+            if parent_id not in self.parent_ids:
+                raise ParentDoesNotExist("Group %s doesn't have a parent %s" % (self.name, parent_id))
+            else:
+                self.parent_ids.remove(parent_id)
+                self.save()
+                return
+
         if parent_id not in self.parent_ids:
             raise ParentDoesNotExist("Group %s is not a parent of group %s" % (parent.name, self.name))
         parent.child_ids.remove(self._id)
@@ -123,7 +139,23 @@ class Group(StorableModel):
 
     @save_required
     def remove_child(self, child):
-        child, child_id = self._resolve_group(child)
+        try:
+            child, child_id = self._resolve_group(child)
+        except GroupNotFound:
+            # this can happen due to previous system bugs having allowed to have unconnected
+            # ObjectIds in child_ids
+            try:
+                child_id = ObjectId(child)
+            except InvalidId:
+                child_id = child
+
+            if child_id not in self.child_ids:
+                raise ChildDoesNotExist("Group %s doesn't have a child %s" % (self.name, child_id))
+            else:
+                self.child_ids.remove(child_id)
+                self.save()
+                return
+
         if child_id not in self.child_ids:
             raise ChildDoesNotExist("Group %s is not a child of group %s" % (child.name, self.name))
         child.parent_ids.remove(self._id)
