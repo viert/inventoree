@@ -78,16 +78,34 @@ def ansible():
     from app.models import Project
     from library.engine.utils import full_group_structure
     project_ids = [x._id for x in Project.find(query).all()]
-    structure = full_group_structure(project_ids)
+
+    include_vars = request.values.get("vars") in ("yes", "true", "1")
+    if include_vars:
+        from app.models import Host
+        host_fields = list(Host.FIELDS) + ["all_custom_fields"]
+    else:
+        host_fields = None
+    structure = full_group_structure(project_ids, host_fields=host_fields)
     render = "# This ansible inventory file was rendered from inventoree database, %s\n# For more info on inventoree please refer to https://github.com/viert/inventoree\n\n" % datetime.now().isoformat()
     for group_id, group in structure.items():
         if len(group["all_hosts"]) > 0:
             render += "[%s]\n" % group["name"]
-            host_names = [x["fqdn"] for x in group["all_hosts"].values()]
-            host_names.sort()
-            for fqdn in host_names:
-                render += fqdn + "\n"
-            render += "\n\n"
+            if include_vars:
+                hosts = group["all_hosts"].values()
+                hosts.sort(key=lambda x: x["fqdn"])
+                for host in hosts:
+                    render += host["fqdn"]
+                    for cf in host["all_custom_fields"]:
+                        if cf["key"].startswith("ansible:"):
+                            key = cf["key"][8:]
+                            render += " %s=%s" % (key, cf["value"])
+                    render += "\n"
+            else:
+                host_names = [x["fqdn"] for x in group["all_hosts"].values()]
+                host_names.sort()
+                for fqdn in host_names:
+                    render += fqdn + "\n"
+                render += "\n\n"
 
     response = make_response(render)
     response.headers["Content-Type"] = "text/plain"

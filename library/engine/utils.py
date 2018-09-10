@@ -151,7 +151,7 @@ def get_user_from_app_context():
     return user
 
 
-def full_group_structure(project_ids=None):
+def full_group_structure(project_ids=None, group_fields=None, host_fields=None):
     query = {}
 
     if project_ids is not None:
@@ -162,9 +162,9 @@ def full_group_structure(project_ids=None):
 
     from app.models import Group, Host
     groups = Group.find(query)
-    groups = dict([(group._id, group.to_dict()) for group in groups])
+    groups = dict([(group._id, group.to_dict(fields=group_fields)) for group in groups])
     hosts = Host.find({})
-    hosts = dict([(host._id, host.to_dict()) for host in hosts])
+    hosts = dict([(host._id, host.to_dict(fields=host_fields)) for host in hosts])
 
     for group in groups.values():
         group["children"] = {}
