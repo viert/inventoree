@@ -1,7 +1,6 @@
 import functools
 from datetime import datetime
 from flask import request, g
-from library.db import ObjectsCursor
 
 DEFAULT_CACHE_PREFIX = 'microeng'
 DEFAULT_CACHE_TIMEOUT = 3600
@@ -71,6 +70,7 @@ def request_time_cache(cache_key_prefix=DEFAULT_CACHE_PREFIX):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             from app import app
+            from library.db import ObjectsCursor
             try:
                 request_id = request.id
             except (RuntimeError, AttributeError):
