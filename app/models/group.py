@@ -224,6 +224,9 @@ class Group(StorableModel):
     def modification_allowed(self):
         return self.project.modification_allowed
 
+    def modification_allowed_for(self, user_id):
+        return self.project.modification_allowed_for(user_id)
+
     @request_time_cache()
     def get_all_children(self):
         children = self.children[:]

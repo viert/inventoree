@@ -184,6 +184,22 @@ class Host(StorableModel):
                 return False
         return self.group.modification_allowed
 
+    def modification_allowed_for(self, user_id):
+        if self.group is None:
+            return True
+        return self.group.modification_allowed_for(user_id)
+
+    def destruction_allowed_for(self, user_id):
+        if self.group is None:
+            from app.models import User
+
+            user = User.get(user_id)
+            if user is not None and user.supervisor:
+                return True
+            else:
+                return False
+        return self.group.modification_allowed_for(user_id)
+
     @property
     @request_time_cache()
     def all_tags(self):

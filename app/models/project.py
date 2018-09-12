@@ -92,9 +92,25 @@ class Project(StorableModel):
         if user._id in self.member_ids: return True
         return False
 
+    def modification_allowed_for(self, user_id):
+        from app.models import User
+        user = User.get(user_id)
+        if user is None: return False
+        if user.supervisor or self.owner._id == user._id: return True
+        if user._id in self.member_ids: return True
+        return False
+
+
     @property
     def member_list_modification_allowed(self):
         user = get_user_from_app_context()
+        if user is None: return False
+        if user.supervisor or self.owner._id == user._id: return True
+        return False
+
+    def member_list_modification_allowed_for(self, user_id):
+        from app.models import User
+        user = User.get(user_id)
         if user is None: return False
         if user.supervisor or self.owner._id == user._id: return True
         return False
