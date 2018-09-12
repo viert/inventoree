@@ -72,10 +72,12 @@ def get_limit():
     return limit
 
 
-def get_request_fields():
+def get_request_fields(values=None):
+    if values is None:
+        values = request.values
     try:
-        if "_fields" in request.values:
-            return request.values["_fields"].split(",")
+        if "_fields" in values:
+            return values["_fields"].split(",")
         else:
             return None
     except RuntimeError:

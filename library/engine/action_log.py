@@ -8,8 +8,9 @@ action_types = []
 
 def logged_action(action_type):
     global action_types
-    action_types.append(action_type)
-    action_types.sort()
+    if not action_type in action_types:
+        action_types.append(action_type)
+        action_types.sort()
 
     def log_action_decorator(func):
         @functools.wraps(func)
@@ -78,5 +79,78 @@ def logged_action(action_type):
             app.logger.debug("action '%s' status updated to %s" % (action.action_type, action.status))
             action.save()
             return response
+        return wrapper
+    return log_action_decorator
+
+
+def logged_async_action(action_type):
+    """
+    Decorator for matching new actions API for async tasks.
+    """
+
+    global action_types
+    if not action_type in action_types:
+        action_types.append(action_type)
+        action_types.sort()
+
+    def log_action_decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            from app import app
+            from app.models import User, ApiAction
+            if not app.action_logging:
+                return func(*args, **kwargs)
+
+
+            user_id = kwargs["user_id"]
+            user = User.get(user_id)
+            if user is None:
+                username = "_unauthorized_"
+            else:
+                username = user.username
+
+            if kwargs.get("body") is not None:
+                action_args = copy.deepcopy(kwargs["body"])
+            else:
+                action_args = {}
+
+            arg_keys = action_args.keys()
+
+            # removing plain text passwords from action log
+            for k in arg_keys:
+                if k.startswith("password"):
+                    del(action_args[k])
+
+            action = ApiAction(
+                username=username,
+                action_type=action_type,
+                kwargs=kwargs,
+                params=action_args,
+                status="requested"
+            )
+            action.save()
+            app.logger.debug("action '%s' created" % action.action_type)
+            try:
+                result = func(*args, **kwargs)
+                action.status = "success"
+            except ApiError as ae:
+                action.status = "error"
+                response = handle_api_error(ae)
+                data = json.loads(response.data)
+                action.errors = data["errors"]
+                app.logger.debug("action '%s' status updated to %s" % (action.action_type, action.status))
+                action.save()
+                raise
+            except Exception as e:
+                action.status = "error"
+                response = handle_other_errors(e)
+                data = json.loads(response.data)
+                action.errors = data["errors"]
+                app.logger.debug("action '%s' status updated to %s" % (action.action_type, action.status))
+                action.save()
+                raise
+            app.logger.debug("action '%s' status updated to %s" % (action.action_type, action.status))
+            action.save()
+            return result
         return wrapper
     return log_action_decorator

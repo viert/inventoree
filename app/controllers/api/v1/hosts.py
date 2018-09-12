@@ -1,5 +1,5 @@
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
+from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields, get_user_from_app_context
 from library.engine.permutation import expand_pattern
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound
@@ -69,7 +69,6 @@ def create():
             raise Forbidden("You don't have permissions to create hosts in this group")
         host_attrs["group_id"] = group._id
 
-
     if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
         datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))
         host_attrs["datacenter_id"] = datacenter._id
@@ -86,42 +85,25 @@ def create():
 
 
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
-@logged_action("host_update")
 def update(host_id):
-    from app.models import Host, Group, Datacenter
-    host = Host.get(host_id, HostNotFound("host not found"))
-
-    if not host.modification_allowed:
-        raise Forbidden("You don't have permissions to modify this host")
-
-    host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
-
-    if "group_id" in host_attrs and host_attrs["group_id"] is not None:
-        group = Group.get(host_attrs["group_id"], GroupNotFound("group not found"))
-        if not group.modification_allowed:
-            raise Forbidden("You don't have permissions to move hosts to group %s" % group.name)
-        host_attrs["group_id"] = group._id
-
-    if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
-        datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))
-        host_attrs["datacenter_id"] = datacenter._id
-
-    host.update(host_attrs)
-    data = { "data": host.to_dict(get_request_fields()) }
+    from app.actions.hosts import action_host_update
+    user_id = None
+    user = get_user_from_app_context()
+    if user is not None:
+        user_id = user._id
+    data = action_host_update(user_id=user_id, host_id=host_id, values=request.values, body=request.json)
     return json_response(data)
 
 
 @hosts_ctrl.route("/<host_id>", methods=["DELETE"])
-@logged_action("host_delete")
 def delete(host_id):
-    from app.models import Host
-    host = Host.get(host_id, HostNotFound("host not found"))
-
-    if not host.destruction_allowed:
-        raise Forbidden("You don't have permission to modify this host")
-
-    host.destroy()
-    return json_response({ "data": host.to_dict(get_request_fields()) })
+    from app.actions.hosts import action_host_delete
+    user_id = None
+    user = get_user_from_app_context()
+    if user is not None:
+        user_id = user._id
+    data = action_host_delete(user_id=user_id, host_id=host_id, values=request.values)
+    return json_response(data)
 
 
 @hosts_ctrl.route("/mass_move", methods=["POST"])
