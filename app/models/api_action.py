@@ -122,6 +122,96 @@ class ApiAction(StorableModel):
             "host_fqdn": host_fqdn
         }
 
+    def _compute_host_set_custom_fields(self):
+        from app.models import Host
+        host_fqdn = ""
+        custom_fields_added = []
+        custom_fields_replaced = []
+        if "host_id" in self.kwargs:
+            host = Host.get(self.kwargs["host_id"])
+            if host is not None:
+                host_fqdn = host.fqdn
+                new_cfs = self.params.get("custom_fields")
+
+                if new_cfs is not None:
+                    if type(new_cfs) == dict:
+                        new_cfs = [{"key": x[0], "value": x[1]} for x in new_cfs.iteritems()]
+
+                    old_cfs_dict = dict([(x["key"], x["value"]) for x in host.custom_fields])
+                    for item in new_cfs:
+                        if item["key"] in old_cfs_dict:
+                            custom_fields_replaced.append({
+                                "key": item["key"],
+                                "old_value": old_cfs_dict[item["key"]],
+                                "new_value": item["value"]
+                            })
+                        else:
+                            custom_fields_added.append(item)
+        self.computed = {
+            "host_fqdn": host_fqdn,
+            "custom_fields_added": custom_fields_added,
+            "custom_fields_replaced": custom_fields_replaced
+        }
+
+    def _compute_host_remove_custom_fields(self):
+        from app.models import Host
+        host_fqdn = ""
+        custom_fields_removed = []
+        if "host_id" in self.kwargs:
+            host = Host.get(self.kwargs["host_id"])
+            if host is not None:
+                host_fqdn = host.fqdn
+                cfs = self.params.get("custom_fields")
+                old_cfs_dict = dict([(x["key"], x["value"]) for x in host.custom_fields])
+
+                if cfs is not None:
+                    if type(cfs) == dict:
+                        cfs = [{"key": x} for x in cfs]
+
+                    for item in cfs:
+                        if item["key"] in old_cfs_dict:
+                            custom_fields_removed.append({"key": item["key"], "value": old_cfs_dict[item["key"]]})
+        self.computed = {
+            "host_fqdn": host_fqdn,
+            "custom_fields_removed": custom_fields_removed
+        }
+
+    def _compute_host_add_tags(self):
+        from app.models import Host
+        host_fqdn = ""
+        tags_added = []
+        if "host_id" in self.kwargs:
+            host = Host.get(self.kwargs["host_id"])
+            if host is not None:
+                host_fqdn = host.fqdn
+                tags = self.params.get("tags")
+                if tags is not None:
+                    for tag in tags:
+                        if tag not in host.tags:
+                            tags_added.append(tag)
+        self.computed = {
+            "host_fqdn": host_fqdn,
+            "tags_added": tags_added
+        }
+
+    def _compute_host_remove_tags(self):
+        from app.models import Host
+        host_fqdn = ""
+        tags_removed = []
+        if "host_id" in self.kwargs:
+            host = Host.get(self.kwargs["host_id"])
+            if host is not None:
+                host_fqdn = host.fqdn
+                tags = self.params.get("tags")
+                if tags is not None:
+                    for tag in tags:
+                        if tag in host.tags:
+                            tags_removed.append(tag)
+        self.computed = {
+            "host_fqdn": host_fqdn,
+            "tags_removed": tags_removed
+        }
+
     def _compute_host_mass_move(self):
         from app.models import Host, Group
         group_name = ""

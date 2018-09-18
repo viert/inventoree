@@ -141,15 +141,17 @@
     <section>
       <a name="account"></a>
       <h2>Account API</h2>
-      <p>Most of Inventoree handlers require authorization so Account API is the thing you should definitely start from. As
-        the web ui uses the same API, users can be both authorized with cookie when using web UI or authentification token.
+      <p>Most of Inventoree handlers require authorization so Account API is the thing you should definitely start
+        from. As
+        the web ui uses the same API, users can be both authorized with cookie when using web UI or authentification
+        token.
         Authentification tokens may be passed using
         <code>X-Api-Auth-Token</code> HTTP header passing the token as is or using
         <code>Authorization</code> header prefixing the token with
         <b>Token </b> string, i.e.
-        <br/>
+        <br />
         <code>X-Api-Auth-Token: 7b637aa4-8112-4d01-af60-4f749d66665a</code> or
-        <br/>
+        <br />
         <code>Authorization: Token 7b637aa4-8112-4d01-af60-4f749d66665a</code> whatever you prefer.
       </p>
       <hr>
@@ -179,10 +181,13 @@
 }</code></pre>
       <p>
         <code>ext_id</code> and
-        <code>custom_data</code> fields are filled in if you're using an external auth plugin and if the plugin explicitly uses it.
-        <code>ext_id</code> must be used by any external auth as the field is indexed and used to find user by an ID provided by ext auth provider.
+        <code>custom_data</code> fields are filled in if you're using an external auth plugin and if the plugin
+        explicitly uses it.
+        <code>ext_id</code> must be used by any external auth as the field is indexed and used to find user by an ID
+        provided by ext auth provider.
         While
-        <code>custom_data</code> is an object with additional fields which may be filled by provider although it's completely optional.
+        <code>custom_data</code> is an object with additional fields which may be filled by provider although it's
+        completely optional.
       </p>
       <hr>
       <code class="handler">POST 
@@ -198,7 +203,8 @@
   "password": "SuP3r$ecR3t" 
 }</code></pre>
       <p>
-        Passwords are stored encrypted and being used only by built-in auth mechanism. If you're using ext auth provider, no passwords
+        Passwords are stored encrypted and being used only by built-in auth mechanism. If you're using ext auth
+        provider, no passwords
         are stored. Passwords must never be reached by any API handler even in encrypted form.
       </p>
       <p>
@@ -233,7 +239,8 @@
         </a>
       </code>
       <p>
-        Clears the user's session as well as deletes the session cookie. Doesn't mean much when requesting using auth token.
+        Clears the user's session as well as deletes the session cookie. Doesn't mean much when requesting using auth
+        token.
       </p>
 
     </section>
@@ -241,8 +248,10 @@
       <a name="actions"> </a>
       <h2>Actions API</h2>
       <p>
-        Actions API provides action logging capabilities of Inventoree i.e. every action done by user is logged and can be read using
-        Actions API. All the handlers require auth and all of them are read-only. Actions are created using internal mechanisms
+        Actions API provides action logging capabilities of Inventoree i.e. every action done by user is logged and can
+        be read using
+        Actions API. All the handlers require auth and all of them are read-only. Actions are created using internal
+        mechanisms
         and this should not be interfered from the outside.
       </p>
       <code class="handler">GET
@@ -258,21 +267,25 @@
         Action list can be filtered out using the following query parameters:
       </p>
       <p>
-        <code>_users</code> accepts a comma-separated list of usernames. This will show only actions done by particular users.
+        <code>_users</code> accepts a comma-separated list of usernames. This will show only actions done by particular
+        users.
       </p>
       <p>
-        <code>_action_types</code> accepts a comma-separated list of action types. Only actions of those types will be listed. For the list of available
+        <code>_action_types</code> accepts a comma-separated list of action types. Only actions of those types will be
+        listed. For the list of available
         action types please refer to
         <code>/api/v1/actions/action_types</code> handler description below.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">GET
         <a href="/api/v1/actions/action_types" target="_blank">
           /api/v1/actions/action_types
         </a>
       </code>
-      <p>This handler responses with a complete list of available action types. This is tipically used by the UI to autosuggest
-        an action type in a type-ahead input field. However it may be handy for an automation scripts used for an action
+      <p>This handler responses with a complete list of available action types. This is tipically used by the UI to
+        autosuggest
+        an action type in a type-ahead input field. However it may be handy for an automation scripts used for an
+        action
         logging audit</p>
     </section>
     <section>
@@ -289,11 +302,13 @@
       <p>
         Provides a paginated list of datacenters. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by datacenter name using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of datacenter name. Filters shorter than 2 symbols
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of datacenter name.
+        Filters shorter than 2 symbols
         are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
-        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
+        Accepts comma-separated
         list of field names. Available datacenter fields are:
         <ul class="fieldlist">
           <li>
@@ -312,19 +327,23 @@
             <code>updated_at</code> - datetime of the last model update.
           </li>
           <li>
-            <code>parent_id</code> - id of the parent datacenter. When null i.e. the datacenter has no parent, that means the datacenter is one
+            <code>parent_id</code> - id of the parent datacenter. When null i.e. the datacenter has no parent, that
+            means the datacenter is one
             of root DCs.
           </li>
           <li>
-            <code>parent</code> - the parent datacenter itself as an object. Has only the default fields list which is not affected by
+            <code>parent</code> - the parent datacenter itself as an object. Has only the default fields list which is
+            not affected by
             <code>_fields</code> param. Can be null.
             <span class="warning">This is an additional database lookup</span>
           </li>
           <li>
-            <code>root_id</code> - the id of the root dc for the datacenter i.e. the highest parent. Can be null if the DC has no parent.
+            <code>root_id</code> - the id of the root dc for the datacenter i.e. the highest parent. Can be null if the
+            DC has no parent.
           </li>
           <li>
-            <code>root</code> - the whole root datacenter as an object. Has only the default fields list which is not affected by
+            <code>root</code> - the whole root datacenter as an object. Has only the default fields list which is not
+            affected by
             <code>_fields</code> param. Can be null.
             <span class="warning">This is an additional database lookup</span>
           </li>
@@ -337,7 +356,8 @@
           </li>
           <li>
             <code>all_children</code> - the whole children tree recursively represented as a list of objects.
-            <span class="warning">This can be a lot of additional database lookups depending on your datacenter structure. Can be a heavy request.</span>
+            <span class="warning">This can be a lot of additional database lookups depending on your datacenter
+              structure. Can be a heavy request.</span>
           </li>
           <li>
             <code>is_root</code> - boolean field returning
@@ -348,8 +368,10 @@
             <span class="warning">This is an additional database lookup</span>
           </li>
           <li>
-            <code>all_hosts</code> - this is a recursively created list of all the hosts located in the datacenter and all its children.
-            <span class="warning">This can be a lot of additional database lookups depending on your datacenter structure. Can be a heavy request.</span>
+            <code>all_hosts</code> - this is a recursively created list of all the hosts located in the datacenter and
+            all its children.
+            <span class="warning">This can be a lot of additional database lookups depending on your datacenter
+              structure. Can be a heavy request.</span>
           </li>
 
         </ul>
@@ -400,13 +422,14 @@
 }</code></pre>
       <p>
         Datacenter can and should be structured as a tree. They should be interpreted as
-        <i>locations</i>. This will allow to filter out hosts by countries, cities, datacenters, and even racks. Such kind of
+        <i>locations</i>. This will allow to filter out hosts by countries, cities, datacenters, and even racks. Such
+        kind of
         tree is organized by
         <code>parent_id</code>,
         <code>root_id</code>, and
         <code>child_ids</code> fields of a datacenter model.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">GET
         <a href="/api/v1/datacenters/:id" target="_blank">
           /api/v1/datacenters/:id
@@ -416,10 +439,11 @@
         Provides the same functionality as list of datacenters but for only one datacenter identified via
         <code>:id</code> param which can be both
         <code>_id</code> or
-        <code>name</code> as they are both unique. The result behaves the same, that is, returns a list of one element in
+        <code>name</code> as they are both unique. The result behaves the same, that is, returns a list of one element
+        in
         <code>data</code> field of the response.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">POST
         <a href="/api/v1/datacenters/" target="_blank">
           /api/v1/datacenters/
@@ -429,9 +453,10 @@
         Creates a new datacenter out of JSON payload. The only required field is
         <code>name</code>. Provide
         <code>parent_id</code> to make the new datacenter a child of an existing one.
-        <code>_fields</code> query param is valid for this request so you're able to filter out datacenter's fields in the response.
+        <code>_fields</code> query param is valid for this request so you're able to filter out datacenter's fields in
+        the response.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">PUT
         <a href="/api/v1/datacenters/:id" target="_blank">
           /api/v1/datacenters/:id
@@ -442,13 +467,17 @@
         <code>:id</code> param (which can be either
         <code>_id</code> or
         <code>name</code>) with a JSON payload. Provide
-        <code>parent_id</code> field to set the parent of the datacenter you're updating (children of the new parent are filled up automatically)
-        if it has no parent. Be aware that you can't move the datacenter from one parent to another as this is a two-step
-        process (first unset and then set the new one) and as it might make an exception during any of those steps, it's
+        <code>parent_id</code> field to set the parent of the datacenter you're updating (children of the new parent
+        are filled up automatically)
+        if it has no parent. Be aware that you can't move the datacenter from one parent to another as this is a
+        two-step
+        process (first unset and then set the new one) and as it might make an exception during any of those steps,
+        it's
         been decided to make this process a special handler. (See /api/v1/datacenters/:id/set_parent)
-        <code>_fields</code> query param is valid for this request so you're able to filter out datacenter's fields in the response.
+        <code>_fields</code> query param is valid for this request so you're able to filter out datacenter's fields in
+        the response.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">DELETE
         <a href="/api/v1/datacenters/:id" target="_blank">
           /api/v1/datacenters/:id
@@ -460,7 +489,7 @@
         <code>name</code>). Returns the datacenter just been deleted.
         <code>_fields</code> param is also relevant for this handler.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">PUT
         <a href="/api/v1/datacenters/:id" target="_blank">
           /api/v1/datacenters/:id/set_parent
@@ -468,7 +497,8 @@
       </code>
       <p>
         Sets the datacenter's parent using
-        <code>parent_id</code> field of the JSON payload. If it's not there or it's null, the parent will be unset. Children of both new and old
+        <code>parent_id</code> field of the JSON payload. If it's not there or it's null, the parent will be unset.
+        Children of both new and old
         parents will be set automatically.
       </p>
     </section>
@@ -476,22 +506,27 @@
       <a name="groups"></a>
       <h2>Groups API</h2>
       <p>
-        Groups API allows user to manipulate groups. Every group must be included into a project. Group without a project is not
-        valid. Group may have a number of parents and a number of children, thus, it's not a tree but a graph or to be more
+        Groups API allows user to manipulate groups. Every group must be included into a project. Group without a
+        project is not
+        valid. Group may have a number of parents and a number of children, thus, it's not a tree but a graph or to be
+        more
         precise a set of graphs as groups in one project can not be connected to groups in other project.
       </p>
       <p>
-        Groups can have tags and custom fields attached to them. Tags are arbitrary string items while custom fields are objects
+        Groups can have tags and custom fields attached to them. Tags are arbitrary string items while custom fields
+        are objects
         in particular format:
         <code>{ "key": ..., "value": ... }</code>
       </p>
       <p>
-        Here's a couple of example use-cases of tags and custom fields: let's say you have a group of servers with different OSes
+        Here's a couple of example use-cases of tags and custom fields: let's say you have a group of servers with
+        different OSes
         installed by historical reasons. In this case you can make a group like
         <i>my_super_service_frontend</i> and attach a custom field to it like this:
         <code>{ "os_type": "debian" }</code>. For a group
         <i>my_super_service_db</i> you use CentOS as you run OracleDB on those servers, so you attach
-        <code>{ "os_type": "centos" }</code> to that group. All those custom fields are inherited group by group down to the end servers. So requesting info
+        <code>{ "os_type": "centos" }</code> to that group. All those custom fields are inherited group by group down
+        to the end servers. So requesting info
         on a particular host using
         <a href="#hosts">Hosts API</a>, you will get
         <code>os_type</code> custom field attached to the host.
@@ -499,7 +534,8 @@
       <p>
         In other case you want to somehow indicate some hosts which have SSD in them. If you use a custom field like
         <code>ssd_installed: true</code> you'll anyway face the problem: now you have to attach
-        <code>ssd_installed: false</code> to every host not having SSDs which is not very convenient. There's a way out: just attach a tag
+        <code>ssd_installed: false</code> to every host not having SSDs which is not very convenient. There's a way
+        out: just attach a tag
         <code>ssd</code> to hosts or a group of hosts having SSDs.
       </p>
       <code class="handler">GET
@@ -510,11 +546,13 @@
       <p>
         Provides a paginated list of groups. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by group name using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of group name. Filters shorter than 2 symbols are
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of group name. Filters
+        shorter than 2 symbols are
         ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
-        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
+        Accepts comma-separated
         list of field names. Available group fields are:
         <ul class="fieldlist">
           <li>
@@ -557,7 +595,8 @@
           </li>
           <li>
             <code>empty</code> - a boolean field indicating that the group has neither children nor hosts to it.
-            <span class="warning">This is an additional indexed database lookup as the hosts are located in another MongoDB collection</span>
+            <span class="warning">This is an additional indexed database lookup as the hosts are located in another
+              MongoDB collection</span>
           </li>
           <li>
             <code>parents</code> - a list of direct parents of the group as objects.
@@ -573,20 +612,24 @@
           </li>
           <li>
             <code>modification_allowed</code> - a boolean field indicating if user is allowed to modify this group.
-            <span class="warning">This is a couple of additional database lookups as this depends on user relations to the group's project.</span>
+            <span class="warning">This is a couple of additional database lookups as this depends on user relations to
+              the group's project.</span>
           </li>
           <li>
-            <code>all_tags</code> - a list of all tags attached to the group directly plus all the tags attached to all parent groups (inherited
+            <code>all_tags</code> - a list of all tags attached to the group directly plus all the tags attached to all
+            parent groups (inherited
             tags).
             <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
           </li>
           <li>
-            <code>all_custom_fields</code> - a list of all custom fields attached to the group directly plus all the custom fields attached to all parent
+            <code>all_custom_fields</code> - a list of all custom fields attached to the group directly plus all the
+            custom fields attached to all parent
             groups (inherited custom fields).
             <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
           </li>
           <li>
-            <code>project_name</code> - a group's project name as a string. This is a shortcut to reduce the response size in case you need only project's
+            <code>project_name</code> - a group's project name as a string. This is a shortcut to reduce the response
+            size in case you need only project's
             name not the whole project object, made primarily for the web ui.
             <span class="warning">This is an additional database lookup</span>
           </li>
@@ -602,7 +645,8 @@
         Behaves exactly as the groups list handler but for only one group identified by
         <code>:id</code> parameter which can be both
         <code>_id</code> or
-        <code>name</code> as group name is also unique. Response behaves exactly the same so you get a list of groups with only one element.
+        <code>name</code> as group name is also unique. Response behaves exactly the same so you get a list of groups
+        with only one element.
         <code>_fields</code> parameter is relevant here as well however
         <code>_filter</code> is prohibited.
       </p>
@@ -631,7 +675,8 @@
         <code>_id</code> or
         <code>name</code> of the group being updated with JSON payload. Note that
         <code>child_ids</code> and
-        <code>parent_ids</code> can not be modified with this handler as they required a lot more work to do with connecting and disconnecting graph
+        <code>parent_ids</code> can not be modified with this handler as they required a lot more work to do with
+        connecting and disconnecting graph
         nodes and may confuse if are not in a separated handler.
       </p>
       <p>
@@ -646,7 +691,8 @@
       <p>
         Deletes a group with a given id which is supposed to be
         <code>_id</code> or
-        <code>name</code> of the group being updated with JSON payload. The group can't be deleted if it has connections to other groups or
+        <code>name</code> of the group being updated with JSON payload. The group can't be deleted if it has
+        connections to other groups or
         hosts so you have to drop those connections first.
       </p>
       <p>
@@ -673,7 +719,8 @@
       </code>
       <p>
         Modifies the set of hosts directly included into the group. Host IDs must be given in a
-        <code>host_ids</code> field of JSON payload as a list of IDs. Note that a host can be included only in one group directly. This particularly
+        <code>host_ids</code> field of JSON payload as a list of IDs. Note that a host can be included only in one
+        group directly. This particularly
         means that hosts listed in your request lose membership in groups they belonged to before.
       </p>
       <p>
@@ -687,12 +734,15 @@
       </code>
       <p>
         Accepts JSON payload like
-        <code>{ "group_ids": [...], "project_id": "..." }</code> and moves all listed groups to the new project. Groups are detached from their parents as parents remain in previous
+        <code>{ "group_ids": [...], "project_id": "..." }</code> and moves all listed groups to the new project. Groups
+        are detached from their parents as parents remain in previous
         project so can't be connected anymore.
       </p>
       <p>
-        Groups are moved if user has a membership in all the projects all the groups belong to. User don't have to have a membership
-        in a target project so one should be aware that in this case user loses control over the groups he's just moved.
+        Groups are moved if user has a membership in all the projects all the groups belong to. User don't have to have
+        a membership
+        in a target project so one should be aware that in this case user loses control over the groups he's just
+        moved.
         This works like giving away without any way to get groups back without help of target project members.
       </p>
       <hr />
@@ -703,7 +753,8 @@
       </code>
       <p>
         Accepts JSON payload like
-        <code>{ "group_ids": [...] }</code> and deletes all listed groups. All the children and hosts are being detached from the groups being deleted.
+        <code>{ "group_ids": [...] }</code> and deletes all listed groups. All the children and hosts are being
+        detached from the groups being deleted.
       </p>
       <p>
         Groups are deleted if user has a membership in all the projects all the groups belong to.
@@ -727,23 +778,27 @@
       </p>
       <p>Accepts
         <code>_fields</code> and
-        <code>_host_fields</code> query string parameters, optionally allowing to limit response to particular fields for each model correspondingly.
+        <code>_host_fields</code> query string parameters, optionally allowing to limit response to particular fields
+        for each model correspondingly.
       </p>
       <p>This is potentially very heavy request as it's fetching groups and hosts recursively</p>
     </section>
-    <hr/>
+    <hr />
     <section>
       <a name="hosts"></a>
       <h2>Hosts API</h2>
       <p>
-        Hosts API allows user to manipulate hosts. A host may be included in exactly one group. A host may also be attached to a
+        Hosts API allows user to manipulate hosts. A host may be included in exactly one group. A host may also be
+        attached to a
         datacenter.
       </p>
-      <p>Hosts may have their own tags and custom fields, extending or overwriting tags and custom fields derived from groups
+      <p>Hosts may have their own tags and custom fields, extending or overwriting tags and custom fields derived from
+        groups
         hosts included in. Refer to
         <a href="#groups">Groups API</a> section for more info on tags and custom fields.</p>
       <p>
-        Hosts have unique FQDNs and may have a list of aliases which don't have to be unique. Aliases are indexed and easy to be
+        Hosts have unique FQDNs and may have a list of aliases which don't have to be unique. Aliases are indexed and
+        easy to be
         searched by.
       </p>
       <code class="handler">GET
@@ -754,11 +809,13 @@
       <p>
         Provides a paginated list of hosts. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by host fqdn using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of host fqdn. Filters shorter than 2 symbols are
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of host fqdn. Filters
+        shorter than 2 symbols are
         ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
-        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
+        Accepts comma-separated
         list of field names. Available host fields are:
         <ul class="fieldlist">
           <li>
@@ -798,7 +855,8 @@
             <span class="warning">This is an additional database lookup</span>
           </li>
           <li>
-            <code>group_name</code> - host's group name as a string. It's a shortcut for group.name, useful when you don't need the entire group
+            <code>group_name</code> - host's group name as a string. It's a shortcut for group.name, useful when you
+            don't need the entire group
             object.
             <span class="warning">This is an additional database lookup</span>
           </li>
@@ -809,7 +867,8 @@
             <span class="warning">This is an additional database lookup</span>
           </li>
           <li>
-            <code>datacenter_name</code> - host's datacenter name as a string. It's a shortcut for datacenter.name, useful when you don't need the entire
+            <code>datacenter_name</code> - host's datacenter name as a string. It's a shortcut for datacenter.name,
+            useful when you don't need the entire
             datacenter object.
             <span class="warning">This is an additional database lookup</span>
           </li>
@@ -839,18 +898,22 @@
             <code>root_datacenter_name</code>
           </li>
           <li>
-            <code>modification_allowed</code> - boolean field indicating if current user has permissions to modify this host.
+            <code>modification_allowed</code> - boolean field indicating if current user has permissions to modify this
+            host.
           </li>
           <li>
-            <code>destruction_allowed</code> - boolean field indicating if current user has permissions to delete this host.
+            <code>destruction_allowed</code> - boolean field indicating if current user has permissions to delete this
+            host.
           </li>
           <li>
-            <code>all_tags</code> - a list of all tags attached to the host directly plus all the tags attached to its group and all parent groups
+            <code>all_tags</code> - a list of all tags attached to the host directly plus all the tags attached to its
+            group and all parent groups
             (inherited tags).
             <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
           </li>
           <li>
-            <code>all_custom_fields</code> - a list of all custom fields attached to the host directly plus all the custom fields attached to its group
+            <code>all_custom_fields</code> - a list of all custom fields attached to the host directly plus all the
+            custom fields attached to its group
             and all parent groups (inherited custom fields).
             <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
           </li>
@@ -866,7 +929,8 @@
         Behaves exactly as the hosts list handler but for only one host identified by
         <code>:id</code> parameter which can be both
         <code>_id</code> or
-        <code>fqdn</code> as host fqdn is also unique. Response behaves exactly the same so you get a list of hosts with only one element.
+        <code>fqdn</code> as host fqdn is also unique. Response behaves exactly the same so you get a list of hosts
+        with only one element.
         <code>_fields</code> parameter is relevant here as well however
         <code>_filter</code> is prohibited.
       </p>
@@ -889,7 +953,8 @@
         </li>
       </ol>
       <p>
-        The second aption allows you to create a list of hosts matching fqdn pattern. The pattern allows to use range and list expressions
+        The second aption allows you to create a list of hosts matching fqdn pattern. The pattern allows to use range
+        and list expressions
         in square brackets.
         <h4>List expressions</h4>
         List expressions are comma-separated lists of values.
@@ -902,7 +967,8 @@
         <code>host[1-3].example.com</code> will give you the same result as in the list expression example above.
       </p>
       <p>
-        Note that range expressions behave like Ruby ranges although may differ being implemented in python from scratch. This means
+        Note that range expressions behave like Ruby ranges although may differ being implemented in python from
+        scratch. This means
         that you can create ranges like
         <code>[a-e]</code> ===
         <code>a,b,c,d,e</code> or even
@@ -911,19 +977,24 @@
       </p>
       <p>
         You can use as many expressions as you want in
-        <code>fqdn_pattern</code>. Combining them lets you create really huge group of servers in one step. For example,
-        <code>service-[back,front][0-9][a-c].example.com</code>. If you use Inventoree Web UI, the host creation page will give you a brief list of result FQDNs if you start typing
+        <code>fqdn_pattern</code>. Combining them lets you create really huge group of servers in one step. For
+        example,
+        <code>service-[back,front][0-9][a-c].example.com</code>. If you use Inventoree Web UI, the host creation page
+        will give you a brief list of result FQDNs if you start typing
         an FQDN pattern.
       </p>
 
       <p>
         In case of providing
-        <code>group_id</code> field, host(s) will be created in the chosen group however this will require user's permissions to modify this group.
-        By default new hosts are groupless and datacenterless to make it easier for automated provisioning systems to create
-        new hosts in Inventoree via API. In most cases it's up to a system administrator how to markup servers and combine
+        <code>group_id</code> field, host(s) will be created in the chosen group however this will require user's
+        permissions to modify this group.
+        By default new hosts are groupless and datacenterless to make it easier for automated provisioning systems to
+        create
+        new hosts in Inventoree via API. In most cases it's up to a system administrator how to markup servers and
+        combine
         them into groups.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">PUT
         <a href="/api/v1/hosts/:id" target="_blank">
           /api/v1/hosts/:id
@@ -936,12 +1007,114 @@
         <code>fqdn</code> as host's fqdn has to be unique.
       </p>
       <p>
-        To modify host user has to have permissions. Host in a group can be modified if user has permissions to modify that group.
-        Groupless hosts are editable for everyone however if you want to change host's group_id, i.e. put a groupless host
-        into a group, you have to have permissions to modify the target group. To move host from one group to another permissions
+        To modify host user has to have permissions. Host in a group can be modified if user has permissions to modify
+        that group.
+        Groupless hosts are editable for everyone however if you want to change host's group_id, i.e. put a groupless
+        host
+        into a group, you have to have permissions to modify the target group. To move host from one group to another
+        permissions
         for both source and target groups are required.
       </p>
+      <p>
+        Note that <code>tags</code> and <code>custom_fields</code> lists are fully replaced with the data given in the
+        payload.
+        If you want to manipulate tags and custom fields in a more flexible way, use
+        <code>/api/v1/hosts/:id/set_custom_fields</code>,
+        <code>/api/v1/hosts/:id/remove_custom_fields</code>,
+        <code>/api/v1/hosts/:id/add_tags</code> and
+        <code>/api/v1/hosts/:id/remove_tags</code> handlers described below.
+      </p>
       <hr />
+
+      <code class="handler">POST
+        <a href="/api/v1/hosts/:id/set_custom_fields" target="_blank">
+          /api/v1/hosts/:id/set_custom_fields
+        </a>
+      </code>
+      <p>
+        Updates a custom field list of a host identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>fqdn</code> according to JSON payload like
+        <code>{"custom_fields": [{"key": ..., "value": ...}, {"key": ..., "value": ...}]}</code> or in an object way
+        like
+        <code>{"custom_fields": { "key1": "value1", "key2": "value2", ...}}</code>.
+      </p>
+      <p>
+        If the host already has a custom field with a specified key, the value of that custom field will be replaced
+        with the new one.
+        New keys are added to custom fields list in the usual way.
+      </p>
+      <p>
+        To modify host user has to have permissions. Host in a group can be modified if user has permissions to modify
+        that group. Groupless hosts are editable for everyone.
+      </p>
+      <hr />
+
+      <code class="handler">POST
+        <a href="/api/v1/hosts/:id/remove_custom_fields" target="_blank">
+          /api/v1/hosts/:id/remove_custom_fields
+        </a>
+      </code>
+      <p>
+        Removes specified custom fields from a host identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>fqdn</code> according to JSON payload like
+        <code>{"custom_fields": [{"key": ... }, {"key": ...}]}</code> or in an object way like
+        <code>{"custom_fields": { "key1": &lt;any value&gt;, "key2": &lt;any value&gt;, ...}}</code>.
+      </p>
+      <p>
+        If the host doesn't have a custom field with a specified key, the key will be ignored.
+      </p>
+      <p>
+        To modify host user has to have permissions. Host in a group can be modified if user has permissions to modify
+        that group. Groupless hosts are editable for everyone.
+      </p>
+      <hr />
+
+      <code class="handler">POST
+        <a href="/api/v1/hosts/:id/add_tags" target="_blank">
+          /api/v1/hosts/:id/add_tags
+        </a>
+      </code>
+      <p>
+        Adds a list of tags to a host identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>fqdn</code> according to JSON payload like
+        <code>{"tags": ["tag1", "tag2", ...]}</code>.
+      </p>
+      <p>
+        If the host already has a tag provided, the tag will be ignored as the list of tags must be unique.
+      </p>
+      <p>
+        To modify host user has to have permissions. Host in a group can be modified if user has permissions to modify
+        that group. Groupless hosts are editable for everyone.
+      </p>
+      <hr />
+
+      <code class="handler">POST
+        <a href="/api/v1/hosts/:id/remove_tags" target="_blank">
+          /api/v1/hosts/:id/remove_tags
+        </a>
+      </code>
+      <p>
+        Removes a given list of tags from a host identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>fqdn</code> according to JSON payload like
+        <code>{"tags": ["tag1", "tag2", ...]}</code>.
+      </p>
+      <p>
+        If the host doesn't have a tag provided for deletion, the tag will be ignored.
+      </p>
+      <p>
+        To modify host user has to have permissions. Host in a group can be modified if user has permissions to modify
+        that group. Groupless hosts are editable for everyone.
+      </p>
+      <hr />
+
       <code class="handler">DELETE
         <a href="/api/v1/hosts/:id" target="_blank">
           /api/v1/hosts/:id
@@ -954,7 +1127,8 @@
         <code>fqdn</code> as host's fqdn has to be unique.
       </p>
       <p>
-        To modify host user has to have permissions. Host in a group can be deleted if user has permissions to modify that group.
+        To modify host user has to have permissions. Host in a group can be deleted if user has permissions to modify
+        that group.
         Groupless hosts can be deleted only by supervisors.
       </p>
       <hr />
@@ -968,7 +1142,8 @@
         <code>{ "host_ids": [...], "group_id": "..." }</code>.
       </p>
       <p>
-        User has to have permissions to modify every host in the given list to perform the operation. Also modification permissions
+        User has to have permissions to modify every host in the given list to perform the operation. Also modification
+        permissions
         for the target group are required.
       </p>
       <hr />
@@ -1011,12 +1186,13 @@
         User has to have permissions to delete every host in the given list to perform the operation.
       </p>
     </section>
-    <hr/>
+    <hr />
     <section>
       <a name="open"></a>
       <h2>Open API</h2>
       <p>
-        Open API contains a set of handlers of different nature. The only thing they have in common is that they don't require any
+        Open API contains a set of handlers of different nature. The only thing they have in common is that they don't
+        require any
         authentication, thus, are read-only.
       </p>
       <code class="handler">GET 
@@ -1026,7 +1202,8 @@
       </code>
       <p>
         Returns a structure containing groups, hosts, projects and datacenters in format compatible with
-        <a href="https://github.com/viert/xcute" target="_blank">XCute</a> CLI (and is commonly used exactly by xcute in fact)
+        <a href="https://github.com/viert/xcute" target="_blank">XCute</a> CLI (and is commonly used exactly by xcute
+        in fact)
       </p>
       <p>
         Accepts a number of query string parameters:
@@ -1037,13 +1214,15 @@
       <p>
         <code>recursive</code> - a boolean field indicating that
         <code>all_tags</code>> and
-        <code>all_custom_fields</code> are attached to all groups and hosts in output. This makes the request quite heavy otherwise powerful.
+        <code>all_custom_fields</code> are attached to all groups and hosts in output. This makes the request quite
+        heavy otherwise powerful.
       </p>
       <p>
-        <code>include_unattached</code> - a boolean field indicating that all the hosts should be in the output no matter if they're attached to groups
+        <code>include_unattached</code> - a boolean field indicating that all the hosts should be in the output no
+        matter if they're attached to groups
         or not. If this value is false, groupless hosts are ignored.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">GET
         <a href="/api/v1/open/ansible">/api/v1/open/ansible</a>
       </code>
@@ -1052,35 +1231,39 @@
       </p>
       <p>
         Accepts
-        <code>projects</code> query string parameter - a comma-separated list of project names allowing to limit the output to the given projects.
+        <code>projects</code> query string parameter - a comma-separated list of project names allowing to limit the
+        output to the given projects.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">GET
         <a href="/api/v1/open/app">/api/v1/open/app</a>
       </code>
       <p>
-        Returns a brief application info including app version and versions of frameworks and services used by the app like Flask
+        Returns a brief application info including app version and versions of frameworks and services used by the app
+        like Flask
         or MongoDB.
       </p>
-      <hr/>
+      <hr />
       <code class="handler">GET
         <a href="/api/v1/open/resolve_hosts">/api/v1/open/resolve_hosts</a>
       </code>
       <p>
         Accepts
         <code>groups</code> and
-        <code>tags</code> query string parameters and returns a list of hosts in the grouplist provided optionally filtered by a tag list.
+        <code>tags</code> query string parameters and returns a list of hosts in the grouplist provided optionally
+        filtered by a tag list.
         Also accepts
         <code>fields</code> parameter limiting host model to the specified field list.
       </p>
 
     </section>
-    <hr/>
+    <hr />
     <section>
       <a name="projects"></a>
       <h2>Projects API</h2>
       <p>
-        Projects API allows user to manipulate projects. Projects are high level models connecting users with all the structures
+        Projects API allows user to manipulate projects. Projects are high level models connecting users with all the
+        structures
         Inventoree has.
       </p>
       <code class="handler">GET
@@ -1091,11 +1274,13 @@
       <p>
         Provides a paginated list of projects. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by project name using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of project name. Filters shorter than 2 symbols
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of project name. Filters
+        shorter than 2 symbols
         are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
-        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
+        Accepts comma-separated
         list of field names. Available host fields are:
       </p>
       <ul class="fieldlist">
@@ -1112,7 +1297,8 @@
           <code>email</code> - a email associated with the project. Can be null
         </li>
         <li>
-          <code>root_email</code> - in first versions of conductor this field used to keep the address for root email for servers in the project.
+          <code>root_email</code> - in first versions of conductor this field used to keep the address for root email
+          for servers in the project.
           Can be null.
         </li>
         <li>
@@ -1144,10 +1330,12 @@
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
-          <code>modification_allowed</code> - a boolean field indicating if current user has permissions to modify the project
+          <code>modification_allowed</code> - a boolean field indicating if current user has permissions to modify the
+          project
         </li>
         <li>
-          <code>member_list_modification_allowed</code> - a boolean field indicating if current user has permissions to modify the project's member list
+          <code>member_list_modification_allowed</code> - a boolean field indicating if current user has permissions to
+          modify the project's member list
         </li>
         <li>
           <code>groups_count</code> - a number of groups in the project
@@ -1168,7 +1356,8 @@
         Behaves exactly as the project list handler but for only one project identified by
         <code>:id</code> parameter which can be both
         <code>_id</code> or
-        <code>name</code> as project name is also unique. Response behaves exactly the same so you get a list of projects with only one element.
+        <code>name</code> as project name is also unique. Response behaves exactly the same so you get a list of
+        projects with only one element.
         <code>_fields</code> parameter is relevant here as well however
         <code>_filter</code> is prohibited.
       </p>
@@ -1179,7 +1368,8 @@
         </a>
       </code>
       <p>
-        Creates a project with a given JSON payload. Project's owner is being set automatically and equals to current user.
+        Creates a project with a given JSON payload. Project's owner is being set automatically and equals to current
+        user.
       </p>
       <hr />
       <code class="handler">PUT
@@ -1269,7 +1459,8 @@
       <a name="users"></a>
       <h2>Users API</h2>
       <p>
-        Users API allows to manipulate inventoree users. Note that in most cases of using external auth users are created automatically.
+        Users API allows to manipulate inventoree users. Note that in most cases of using external auth users are
+        created automatically.
         However to get control over users you'll need either a local auth user with supervisor privileges created with
         <code>inventoree shell</code> or an external auth user granted with supervisor privileges with
         <code>inventoree shell</code> as well.
@@ -1280,11 +1471,13 @@
       <p>
         Provides a paginated list of users. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by user username using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of user's username. Filters shorter than 2 symbols
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of user's username.
+        Filters shorter than 2 symbols
         are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
-        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show. Accepts comma-separated
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
+        Accepts comma-separated
         list of field names. Available host fields are:
       </p>
       <ul class="fieldlist">
@@ -1310,10 +1503,12 @@
           <code>supervisor</code> - a boolean field indicating if user has supervisor privileges
         </li>
         <li>
-          <code>ext_id</code> - a string indexed field containing a unique user's id in external auth system. Used in external auth plugins.
+          <code>ext_id</code> - a string indexed field containing a unique user's id in external auth system. Used in
+          external auth plugins.
         </li>
         <li>
-          <code>custom_data</code> - an object field with optional custom data related to user derived from external auth system. Used in external
+          <code>custom_data</code> - an object field with optional custom data related to user derived from external
+          auth system. Used in external
           auth plugins.
         </li>
         <li>
@@ -1331,10 +1526,12 @@
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
-          <code>modification_allowed</code> - a boolean field indicating if the current user has permissions to modify the listed user.
+          <code>modification_allowed</code> - a boolean field indicating if the current user has permissions to modify
+          the listed user.
         </li>
         <li>
-          <code>supervisor_set_allowed</code> - a boolean field indicating if the current user has permissions to grant the listed user supervisor privileges.
+          <code>supervisor_set_allowed</code> - a boolean field indicating if the current user has permissions to grant
+          the listed user supervisor privileges.
         </li>
       </ul>
       <hr />
@@ -1345,7 +1542,8 @@
         Behaves exactly as the user list handler but for only one user identified by
         <code>:id</code> parameter which can be both
         <code>_id</code> or
-        <code>username</code> as username is also unique. Response behaves exactly the same so you get a list of users with only one element.
+        <code>username</code> as username is also unique. Response behaves exactly the same so you get a list of users
+        with only one element.
         <code>_fields</code> parameter is relevant here as well however
         <code>_filter</code> is prohibited.
       </p>
@@ -1355,7 +1553,8 @@
       </code>
       <p>
         Creates a user according to JSON payload. Note that you can't provide
-        <code>password_hash</code> field that way which is the field where the bcrypt-based password hash is stored and actually you never need to
+        <code>password_hash</code> field that way which is the field where the bcrypt-based password hash is stored and
+        actually you never need to
         manually access
         <code>password_hash</code> field.
       </p>
@@ -1377,7 +1576,8 @@
       <ul class="fieldlist">
         <li>
           <code>count</code> - the
-          <b>total</b> number of elements matching requested criteria, i.e. how many items you would get if it weren't paginated.
+          <b>total</b> number of elements matching requested criteria, i.e. how many items you would get if it weren't
+          paginated.
         </li>
         <li>
           <code>page</code> - the current page number

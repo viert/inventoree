@@ -292,3 +292,103 @@ def mass_delete():
     }
 
     return json_response(result)
+
+
+@hosts_ctrl.route("/<host_id>/set_custom_fields", methods=["POST"])
+@logged_action("host_set_custom_fields")
+def set_custom_fields(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not host.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this host")
+
+    if not "custom_fields" in request.json:
+        raise ApiError("no custom_fields provided")
+
+    cfs = request.json["custom_fields"]
+    if type(cfs) == dict:
+        cfs = [{"key": x[0], "value": x[1]} for x in cfs.iteritems()]
+
+    for item in cfs:
+        host.set_custom_field(item["key"], item["value"])
+
+    host.save()
+
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@hosts_ctrl.route("/<host_id>/remove_custom_fields", methods=["POST", "DELETE"])
+@logged_action("host_remove_custom_fields")
+def remove_custom_fields(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not host.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this host")
+
+    if not "custom_fields" in request.json:
+        raise ApiError("no custom_fields provided")
+
+    cfs = request.json["custom_fields"]
+    if type(cfs) == dict:
+        cfs = [{"key": x} for x in cfs]
+
+    for item in cfs:
+        host.remove_custom_field(item["key"])
+
+    host.save()
+
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@hosts_ctrl.route("/<host_id>/add_tags", methods=["POST"])
+@logged_action("host_add_tags")
+def add_tags(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not host.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this host")
+
+    if not "tags" in request.json:
+        raise ApiError("no tags provided")
+
+    tags = request.json["tags"]
+    if type(tags) != list:
+        raise ApiError("tags should be an array type")
+
+    for tag in tags:
+        host.add_tag(tag)
+
+    host.save()
+
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@hosts_ctrl.route("/<host_id>/remove_tags", methods=["POST", "DELETE"])
+@logged_action("host_remove_tags")
+def remove_tags(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not host.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this host")
+
+    if not "tags" in request.json:
+        raise ApiError("no tags provided")
+
+    tags = request.json["tags"]
+    if type(tags) != list:
+        raise ApiError("tags should be an array type")
+
+    for tag in tags:
+        host.remove_tag(tag)
+
+    host.save()
+
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)

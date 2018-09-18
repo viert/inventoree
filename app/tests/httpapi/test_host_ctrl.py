@@ -79,6 +79,69 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertItemsEqual(host.tags, TEST_HOST_2["tags"])
         self.assertItemsEqual(host.aliases, TEST_HOST_2["aliases"])
 
+    def test_host_set_custom_fields(self):
+        self.test_create_host()
+        host = Host.find_one({"fqdn": TEST_HOST_1["fqdn"]})
+
+        payload = {"custom_fields": [{"key": "blah", "value": "minor"}]}
+        r = self.post_json("/api/v1/hosts/%s/set_custom_fields" % host._id, payload)
+        self.assertEqual(r.status_code, 200)
+
+        host = Host.find_one({"_id": host._id})
+        self.assertItemsEqual([{"key": "blah", "value": "minor"}], host.custom_fields)
+
+        payload = {"custom_fields": {"blah": "major", "key2": "newvalue"}}
+        r = self.post_json("/api/v1/hosts/%s/set_custom_fields" % host._id, payload)
+        self.assertEqual(r.status_code, 200)
+
+        host = Host.find_one({"_id": host._id})
+        self.assertItemsEqual([{"key": "blah", "value": "major"}, {"key": "key2", "value": "newvalue"}], host.custom_fields)
+
+    def test_host_remove_custom_fields(self):
+        host = Host(fqdn="host1.example.com", custom_fields=[
+            {"key": "key1", "value": "value1"},
+            {"key": "key2", "value": "value2"},
+        ])
+        host.save()
+
+        payload = {"custom_fields": {"key1": ""}}
+        r = self.post_json("/api/v1/hosts/%s/remove_custom_fields" % host._id, payload)
+        self.assertEqual(r.status_code, 200)
+
+        host = Host.get(host._id)
+        self.assertItemsEqual([{"key": "key2", "value": "value2"}], host.custom_fields)
+
+        payload = {"custom_fields": [{"key": "key2"}, {"key": "non-existent"}]}
+        r = self.post_json("/api/v1/hosts/%s/remove_custom_fields" % host._id, payload)
+        self.assertEqual(r.status_code, 200)
+
+        host = Host.get(host._id)
+        self.assertItemsEqual([], host.custom_fields)
+
+    def test_host_add_tags(self):
+        self.test_create_host()
+        host = Host.find_one({"fqdn": TEST_HOST_1["fqdn"]})
+
+        payload = {"tags": ["add1", "add2", "boo"]}
+        r = self.post_json("/api/v1/hosts/%s/add_tags" % host._id, payload)
+        self.assertEqual(r.status_code, 200)
+
+        host = Host.get(host._id)
+        self.assertItemsEqual(TEST_HOST_1["tags"] + ["add1", "add2"], host.tags)
+
+    def test_host_remove_tags(self):
+        self.test_create_host()
+        host = Host.find_one({"fqdn": TEST_HOST_1["fqdn"]})
+
+        payload = {"tags": ["add1", "add2", "boo"]}
+        r = self.post_json("/api/v1/hosts/%s/remove_tags" % host._id, payload)
+        self.assertEqual(r.status_code, 200)
+
+        host = Host.get(host._id)
+        tags = TEST_HOST_1["tags"][:]
+        tags.remove("boo")
+        self.assertItemsEqual(tags, host.tags)
+
     def test_update_host_insufficient_permissions(self):
         g1 = Group(name="g1", project_id=self.project2._id)
         g1.save()
