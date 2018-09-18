@@ -66,6 +66,8 @@ class Host(StorableModel):
             raise DatacenterNotFound("Can not find datacenter with id %s" % self.datacenter_id)
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("Tags must be of array type")
+        if len(set(self.tags)) != len(self.tags):
+            raise InvalidTags("Tags must be unique")
         if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
             raise InvalidAliases("Aliases must be of array type")
 
@@ -210,6 +212,28 @@ class Host(StorableModel):
 
         return custom_fields
 
+    def set_custom_field(self, key, value):
+        i = -1
+        for (ind, cf) in enumerate(self.custom_fields):
+            if cf["key"] == key:
+                i = ind
+                break
+        if i < 0:
+            self.custom_fields.append({"key": key, "value": value})
+        else:
+            self.custom_fields[i]["value"] = value
+
+    def remove_custom_field(self, key):
+        i = -1
+        for (ind, cf) in enumerate(self.custom_fields):
+            if cf["key"] == key:
+                i = ind
+                break
+        if i < 0:
+            return
+
+        self.custom_fields = self.custom_fields[:i] + self.custom_fields[i+1:]
+
     @classmethod
     def unset_datacenter(cls, datacenter_id):
         from library.db import db
@@ -218,3 +242,13 @@ class Host(StorableModel):
     @classmethod
     def unset_location(cls, location_id):
         cls.unset_datacenter(location_id)
+
+    def add_tag(self, tag):
+        if tag in self.tags:
+            return
+        self.tags.append(tag)
+
+    def remove_tag(self, tag):
+        if tag not in self.tags:
+            return
+        self.tags.remove(tag)
