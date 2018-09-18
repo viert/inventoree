@@ -1,8 +1,11 @@
+import re
 from storable_model import StorableModel, now
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
-                                GroupNotFound, InvalidAliases
+                                GroupNotFound, InvalidAliases, InvalidFQDN
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
+
+FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
 
 
 class Host(StorableModel):
@@ -60,6 +63,8 @@ class Host(StorableModel):
         return hash(self.fqdn + "." + str(self._id))
 
     def _before_save(self):
+        if not FQDN_EXPR.match(self.fqdn):
+            raise InvalidFQDN("FQDN %s is invalid" % self.fqdn)
         if self.group_id is not None and self.group is None:
             raise GroupNotFound("Can not find group with id %s" % self.group_id)
         if self.datacenter_id is not None and self.datacenter is None:

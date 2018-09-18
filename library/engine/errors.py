@@ -83,6 +83,9 @@ class FieldRequired(ApiError):
 class InvalidTags(IntegrityError):
     pass
 
+class InvalidFQDN(IntegrityError):
+    pass
+
 
 class InvalidCustomFields(IntegrityError):
     pass
