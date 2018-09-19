@@ -534,6 +534,96 @@ class ApiAction(StorableModel):
             "user_data": user_data
         }
 
+    def _compute_group_set_custom_fields(self):
+        from app.models import Group
+        group_name = ""
+        custom_fields_added = []
+        custom_fields_replaced = []
+        if "group_id" in self.kwargs:
+            group = Group.get(self.kwargs["group_id"])
+            if group is not None:
+                group_name = group.name
+                new_cfs = self.params.get("custom_fields")
+
+                if new_cfs is not None:
+                    if type(new_cfs) == dict:
+                        new_cfs = [{"key": x[0], "value": x[1]} for x in new_cfs.iteritems()]
+
+                    old_cfs_dict = dict([(x["key"], x["value"]) for x in group.custom_fields])
+                    for item in new_cfs:
+                        if item["key"] in old_cfs_dict:
+                            custom_fields_replaced.append({
+                                "key": item["key"],
+                                "old_value": old_cfs_dict[item["key"]],
+                                "new_value": item["value"]
+                            })
+                        else:
+                            custom_fields_added.append(item)
+        self.computed = {
+            "group_name": group_name,
+            "custom_fields_added": custom_fields_added,
+            "custom_fields_replaced": custom_fields_replaced
+        }
+
+    def _compute_group_remove_custom_fields(self):
+        from app.models import Group
+        group_name = ""
+        custom_fields_removed = []
+        if "group_id" in self.kwargs:
+            group = Group.get(self.kwargs["group_id"])
+            if group is not None:
+                group_name = group.name
+                cfs = self.params.get("custom_fields")
+                old_cfs_dict = dict([(x["key"], x["value"]) for x in group.custom_fields])
+
+                if cfs is not None:
+                    if type(cfs) == dict:
+                        cfs = [{"key": x} for x in cfs]
+
+                    for item in cfs:
+                        if item["key"] in old_cfs_dict:
+                            custom_fields_removed.append({"key": item["key"], "value": old_cfs_dict[item["key"]]})
+        self.computed = {
+            "group_name": group_name,
+            "custom_fields_removed": custom_fields_removed
+        }
+
+    def _compute_group_add_tags(self):
+        from app.models import Group
+        group_name = ""
+        tags_added = []
+        if "group_id" in self.kwargs:
+            group = Group.get(self.kwargs["group_id"])
+            if group is not None:
+                group_name = group.name
+                tags = self.params.get("tags")
+                if tags is not None:
+                    for tag in tags:
+                        if tag not in group.tags:
+                            tags_added.append(tag)
+        self.computed = {
+            "group_name": group_name,
+            "tags_added": tags_added
+        }
+
+    def _compute_group_remove_tags(self):
+        from app.models import Group
+        group_name = ""
+        tags_removed = []
+        if "group_id" in self.kwargs:
+            group = Group.get(self.kwargs["group_id"])
+            if group is not None:
+                group_name = group.name
+                tags = self.params.get("tags")
+                if tags is not None:
+                    for tag in tags:
+                        if tag in group.tags:
+                            tags_removed.append(tag)
+        self.computed = {
+            "group_name": group_name,
+            "tags_removed": tags_removed
+        }
+
     def _set_computed(self):
         method_name = "_compute_" + self.action_type
         if not hasattr(self, method_name):

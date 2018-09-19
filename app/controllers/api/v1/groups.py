@@ -276,3 +276,102 @@ def mass_delete():
         }
     }
     return json_response(result)
+
+@groups_ctrl.route("/<group_id>/set_custom_fields", methods=["POST"])
+@logged_action("group_set_custom_fields")
+def set_custom_fields(group_id):
+    from app.models import Group
+    group = Group.get(group_id, GroupNotFound("group not found"))
+
+    if not group.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this group")
+
+    if not "custom_fields" in request.json:
+        raise ApiError("no custom_fields provided")
+
+    cfs = request.json["custom_fields"]
+    if type(cfs) == dict:
+        cfs = [{"key": x[0], "value": x[1]} for x in cfs.iteritems()]
+
+    for item in cfs:
+        group.set_custom_field(item["key"], item["value"])
+
+    group.save()
+
+    data = {"data": group.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@groups_ctrl.route("/<group_id>/remove_custom_fields", methods=["POST", "DELETE"])
+@logged_action("group_remove_custom_fields")
+def remove_custom_fields(group_id):
+    from app.models import Group
+    group = Group.get(group_id, GroupNotFound("group not found"))
+
+    if not group.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this group")
+
+    if not "custom_fields" in request.json:
+        raise ApiError("no custom_fields provided")
+
+    cfs = request.json["custom_fields"]
+    if type(cfs) == dict:
+        cfs = [{"key": x} for x in cfs]
+
+    for item in cfs:
+        group.remove_custom_field(item["key"])
+
+    group.save()
+
+    data = {"data": group.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@groups_ctrl.route("/<group_id>/add_tags", methods=["POST"])
+@logged_action("group_add_tags")
+def add_tags(group_id):
+    from app.models import Group
+    group = Group.get(group_id, GroupNotFound("group not found"))
+
+    if not group.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this group")
+
+    if not "tags" in request.json:
+        raise ApiError("no tags provided")
+
+    tags = request.json["tags"]
+    if type(tags) != list:
+        raise ApiError("tags should be an array type")
+
+    for tag in tags:
+        group.add_tag(tag)
+
+    group.save()
+
+    data = {"data": group.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@groups_ctrl.route("/<group_id>/remove_tags", methods=["POST", "DELETE"])
+@logged_action("group_remove_tags")
+def remove_tags(group_id):
+    from app.models import Group
+    group = Group.get(group_id, GroupNotFound("group not found"))
+
+    if not group.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this group")
+
+    if not "tags" in request.json:
+        raise ApiError("no tags provided")
+
+    tags = request.json["tags"]
+    if type(tags) != list:
+        raise ApiError("tags should be an array type")
+
+    for tag in tags:
+        group.remove_tag(tag)
+
+    group.save()
+
+    data = {"data": group.to_dict(get_request_fields())}
+    return json_response(data)

@@ -727,6 +727,92 @@
         Modifies group's hosts only if user is a member of the project the group belongs to.
       </p>
       <hr />
+
+      <code class="handler">POST
+        <a href="/api/v1/groups/:id/set_custom_fields" target="_blank">
+          /api/v1/groups/:id/set_custom_fields
+        </a>
+      </code>
+      <p>
+        Updates a custom field list of a group identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>name</code> according to JSON payload like
+        <code>{"custom_fields": [{"key": ..., "value": ...}, {"key": ..., "value": ...}]}</code> or in an object way
+        like
+        <code>{"custom_fields": { "key1": "value1", "key2": "value2", ...}}</code>.
+      </p>
+      <p>
+        If the group already has a custom field with a specified key, the value of that custom field will be replaced
+        with the new one.
+        New keys are added to custom fields list in the usual way.
+      </p>
+      <p>
+        Modifies the group only if user is a member of the project the group belongs to.
+      </p>
+      <hr />
+
+      <code class="handler">POST
+        <a href="/api/v1/groups/:id/remove_custom_fields" target="_blank">
+          /api/v1/groups/:id/remove_custom_fields
+        </a>
+      </code>
+      <p>
+        Removes specified custom fields from a group identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>name</code> according to JSON payload like
+        <code>{"custom_fields": [{"key": ... }, {"key": ...}]}</code> or in an object way like
+        <code>{"custom_fields": { "key1": &lt;any value&gt;, "key2": &lt;any value&gt;, ...}}</code>.
+      </p>
+      <p>
+        If the group doesn't have a custom field with a specified key, the key will be ignored.
+      </p>
+      <p>
+        Modifies the group only if user is a member of the project the group belongs to.
+      </p>
+      <hr />
+
+      <code class="handler">POST
+        <a href="/api/v1/groups/:id/add_tags" target="_blank">
+          /api/v1/groups/:id/add_tags
+        </a>
+      </code>
+      <p>
+        Adds a list of tags to a group identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>name</code> according to JSON payload like
+        <code>{"tags": ["tag1", "tag2", ...]}</code>.
+      </p>
+      <p>
+        If the group already has a tag provided, the tag will be ignored as the list of tags must be unique.
+      </p>
+      <p>
+        Modifies the group only if user is a member of the project the group belongs to.
+      </p>
+      <hr />
+
+      <code class="handler">POST
+        <a href="/api/v1/groups/:id/remove_tags" target="_blank">
+          /api/v1/groups/:id/remove_tags
+        </a>
+      </code>
+      <p>
+        Removes a given list of tags from a group identified by
+        <code>:id</code> param which can be both
+        <code>_id</code> or
+        <code>name</code> according to JSON payload like
+        <code>{"tags": ["tag1", "tag2", ...]}</code>.
+      </p>
+      <p>
+        If the group doesn't have a tag provided for deletion, the tag will be ignored.
+      </p>
+      <p>
+        Modifies the group only if user is a member of the project the group belongs to.
+      </p>
+      <hr />
+
       <code class="handler">POST
         <a href="/api/v1/groups/mass_move" target="_blank">
           /api/v1/groups/mass_move

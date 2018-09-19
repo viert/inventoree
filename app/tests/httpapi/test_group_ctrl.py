@@ -76,6 +76,63 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertEqual(group["description"], payload["description"])
         self.assertItemsEqual(group["tags"], payload["tags"])
 
+    def test_group_add_tags(self):
+        self.test_create_group()
+        group = Group.find_one({"name": "group1"})
+        payload = {"tags": ["boo", "sre", "swe"]}
+        r = self.post_json("/api/v1/groups/%s/add_tags" % group._id, payload)
+        self.assertEqual(r.status_code, 200)
+        group.reload()
+        self.assertItemsEqual(["boo", "sre", "swe", "meaw", "gang"], group.tags)
+
+    def test_group_remove_tags(self):
+        self.test_create_group()
+        group = Group.find_one({"name": "group1"})
+        payload = {"tags": ["boo", "sre", "swe"]}
+        r = self.post_json("/api/v1/groups/%s/remove_tags" % group._id, payload)
+        self.assertEqual(r.status_code, 200)
+        group.reload()
+        self.assertItemsEqual(["meaw", "gang"], group.tags)
+
+    def test_group_set_custom_fields(self):
+        attrs = {"name": "group1", "project_id": self.project1._id, "custom_fields": [{"key": "key1", "value": "value1"}]}
+        group = Group(**attrs)
+        group.save()
+
+        payload = {"custom_fields": [{"key": "key2", "value": "value2"}]}
+        r = self.post_json("/api/v1/groups/%s/set_custom_fields" % group._id, payload)
+        self.assertEqual(r.status_code, 200)
+        group.reload()
+        self.assertItemsEqual([{"key": "key1", "value": "value1"}, {"key": "key2", "value": "value2"}], group.custom_fields)
+
+        payload = {"custom_fields": {"key3": "value3", "key1": "newvalue1"}}
+        r = self.post_json("/api/v1/groups/%s/set_custom_fields" % group._id, payload)
+        self.assertEqual(r.status_code, 200)
+        group.reload()
+        self.assertItemsEqual([{"key": "key1", "value": "newvalue1"},
+                               {"key": "key2", "value": "value2"},
+                               {"key": "key3", "value": "value3"}], group.custom_fields)
+
+    def test_group_remove_custom_fields(self):
+        attrs = {"name": "group1", "project_id": self.project1._id, "custom_fields": [
+            {"key": "key1", "value": "value1"},
+            {"key": "key2", "value": "value2"},
+        ]}
+        group = Group(**attrs)
+        group.save()
+
+        payload = {"custom_fields": [{"key": "key2"}, {"key": "key4"}]}
+        r = self.post_json("/api/v1/groups/%s/remove_custom_fields" % group._id, payload)
+        self.assertEqual(r.status_code, 200)
+        group.reload()
+        self.assertItemsEqual([{"key": "key1", "value": "value1"}], group.custom_fields)
+
+        payload = {"custom_fields": {"key3": None, "key1": None}}
+        r = self.post_json("/api/v1/groups/%s/remove_custom_fields" % group._id, payload)
+        self.assertEqual(r.status_code, 200)
+        group.reload()
+        self.assertItemsEqual([], group.custom_fields)
+
     def test_delete_group(self):
         self.test_create_group()
         group = Group.find_one({"name": "group1"})
