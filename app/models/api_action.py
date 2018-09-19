@@ -140,11 +140,14 @@ class ApiAction(StorableModel):
                     old_cfs_dict = dict([(x["key"], x["value"]) for x in host.custom_fields])
                     for item in new_cfs:
                         if item["key"] in old_cfs_dict:
-                            custom_fields_replaced.append({
-                                "key": item["key"],
-                                "old_value": old_cfs_dict[item["key"]],
-                                "new_value": item["value"]
-                            })
+                            old_value = old_cfs_dict[item["key"]]
+                            new_value = item["value"]
+                            if old_value != new_value:
+                                custom_fields_replaced.append({
+                                    "key": item["key"],
+                                    "old_value": old_value,
+                                    "new_value": new_value
+                                })
                         else:
                             custom_fields_added.append(item)
         self.computed = {
@@ -552,11 +555,14 @@ class ApiAction(StorableModel):
                     old_cfs_dict = dict([(x["key"], x["value"]) for x in group.custom_fields])
                     for item in new_cfs:
                         if item["key"] in old_cfs_dict:
-                            custom_fields_replaced.append({
-                                "key": item["key"],
-                                "old_value": old_cfs_dict[item["key"]],
-                                "new_value": item["value"]
-                            })
+                            old_value = old_cfs_dict[item["key"]]
+                            new_value = item["value"]
+                            if old_value != new_value:
+                                custom_fields_replaced.append({
+                                    "key": item["key"],
+                                    "old_value": old_value,
+                                    "new_value": new_value
+                                })
                         else:
                             custom_fields_added.append(item)
         self.computed = {
