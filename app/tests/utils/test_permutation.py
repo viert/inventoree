@@ -1,6 +1,5 @@
 from unittest import TestCase
-from library.engine.permutation import succ, sequence
-
+from library.engine.permutation import succ, sequence, expand_pattern_with_vars
 
 class TestPermutation(TestCase):
     """Test cases created from ruby console"""
@@ -19,6 +18,17 @@ class TestPermutation(TestCase):
         ("j3", "m8", ["j3", "j4", "j5", "j6", "j7", "j8", "j9", "k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7", "k8", "k9", "l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "m0", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8"])
     )
 
+    VARS_CASES = (
+        ("a[01-03][a,b]", [
+            ("a01a", ["a01a", "01", "a"]),
+            ("a01b", ["a01b", "01", "b"]),
+            ("a02a", ["a02a", "02", "a"]),
+            ("a02b", ["a02b", "02", "b"]),
+            ("a03a", ["a03a", "03", "a"]),
+            ("a03b", ["a03b", "03", "b"]),
+        ]),
+    )
+
     def test_succ(self):
         for i, nx in self.SUCC_CASES.items():
             self.assertEqual(succ(i), nx)
@@ -26,3 +36,12 @@ class TestPermutation(TestCase):
     def test_sequence(self):
         for fr, to, res in self.SEQUENCE_CASES:
             self.assertItemsEqual(res, sequence(fr, to))
+
+    def test_expand_with_vars(self):
+        for pattern, results in self.VARS_CASES:
+            actual = list(expand_pattern_with_vars(pattern))
+
+            self.assertEqual(len(results), len(actual))
+            for i in xrange(len(results)):
+                self.assertEqual(results[i][0], actual[i][0])       # result pattern
+                self.assertItemsEqual(results[i][1], actual[i][1])  # result vars

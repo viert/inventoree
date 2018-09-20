@@ -1,11 +1,12 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
-from library.engine.permutation import expand_pattern
+from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound
 from library.engine.action_log import logged_action
 from flask import request
 from copy import copy
+from collections import defaultdict
 
 hosts_ctrl = AuthController('hosts', __name__, require_auth=True)
 
@@ -55,12 +56,23 @@ def show(host_id=None):
 def create():
     from app.models import Host, Group, Datacenter
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
+    aliases_map = defaultdict(list)
+
     if "fqdn_pattern" in request.json:
         if "fqdn" in host_attrs:
             raise Conflict("fqdn field is not allowed due to fqdn_pattern param presence")
-        hostnames = list(expand_pattern(request.json["fqdn_pattern"]))
+        hosts_data = list(expand_pattern_with_vars(request.json["fqdn_pattern"]))
+        hostnames = []
+        if "aliases" in host_attrs:
+            for hostname, vars in hosts_data:
+                hostnames.append(hostname)
+                for alias in host_attrs["aliases"]:
+                    aliases_map[hostname].append(apply_vars(alias, vars))
     else:
         hostnames = [host_attrs["fqdn"]]
+        if "aliases" in host_attrs:
+            aliases_map[host_attrs["fqdn"]] = host_attrs["aliases"]
+
         del(host_attrs["fqdn"])
 
     if "group_id" in host_attrs and host_attrs["group_id"] is not None:
@@ -69,7 +81,6 @@ def create():
             raise Forbidden("You don't have permissions to create hosts in this group")
         host_attrs["group_id"] = group._id
 
-
     if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
         datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))
         host_attrs["datacenter_id"] = datacenter._id
@@ -77,6 +88,7 @@ def create():
     for fqdn in hostnames:
         attrs = copy(host_attrs)
         attrs["fqdn"] = fqdn
+        attrs["aliases"] = aliases_map[fqdn]
         host = Host(**attrs)
         host.save()
 

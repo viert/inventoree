@@ -119,3 +119,20 @@ def expand_pattern(pattern):
     for token in expand_single_pattern(pattern[fr+1:to]):
         for result in expand_pattern(pattern[:fr] + token + pattern[to+1:]):
             yield result
+
+
+def expand_pattern_with_vars(pattern, vars=[]):
+    indices = get_braces_indices(pattern)
+    if len(indices) == 0:
+        yield pattern, [pattern] + vars
+        return
+    fr, to = indices[0]
+    for token in expand_single_pattern(pattern[fr+1:to]):
+        for result in expand_pattern_with_vars(pattern[:fr] + token + pattern[to+1:], vars + [token]):
+            yield result
+
+
+def apply_vars(pattern, vars):
+    for i, v in enumerate(vars):
+        pattern = pattern.replace("$%d" % i, v)
+    return pattern
