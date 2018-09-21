@@ -162,9 +162,9 @@ def full_group_structure(project_ids=None, group_fields=None, host_fields=None):
 
     from app.models import Group, Host
     groups = Group.find(query)
-    groups = dict([(group._id, group.to_dict(fields=group_fields)) for group in groups])
+    groups = dict([(str(group._id), group.to_dict(fields=group_fields)) for group in groups])
     hosts = Host.find({})
-    hosts = dict([(host._id, host.to_dict(fields=host_fields)) for host in hosts])
+    hosts = dict([(str(host._id), host.to_dict(fields=host_fields)) for host in hosts])
 
     for group in groups.values():
         group["children"] = {}
@@ -174,7 +174,8 @@ def full_group_structure(project_ids=None, group_fields=None, host_fields=None):
         group["all_hosts"] = {}
 
     for host_id, host in hosts.items():
-        groups[host["group_id"]]["hosts"][host_id] = host
+        if host["group_id"] is not None:
+            groups[str(host["group_id"])]["hosts"][host_id] = host
 
     def get_all_hosts(group):
         hosts = {}
@@ -189,6 +190,33 @@ def full_group_structure(project_ids=None, group_fields=None, host_fields=None):
         group["all_hosts"] = get_all_hosts(group)
 
     return groups
+
+
+def ansible_group_structure(project_ids=None, include_vars=True):
+    from app.models import Group, Host
+    query = {}
+    if project_ids is not None:
+        if not hasattr(project_ids, '__iter__'):
+            project_ids = [project_ids]
+        project_ids = [resolve_id(x) for x in project_ids]
+        query["project_id"] = { "$in": project_ids }
+
+    groups = Group.find(query).all()
+    hosts = Host.find({"group_id": {"$in": [x._id for x in groups]}}).all()
+    result = {}
+
+    for group in groups:
+        result[group.name] = {
+            "hosts": [x.fqdn for x in group.hosts],
+            "children": [x.name for x in group.children]
+        }
+    result["all"] = {"children": ["ungrouped"], "hosts": [x.fqdn for x in hosts]}
+    result["ungrouped"] = {}
+    if include_vars:
+        result["_meta"] = {"hostvars": {}}
+        for host in hosts:
+            result["_meta"]["hostvars"][host.fqdn] = host.ansible_vars
+    return result
 
 
 def get_app_version():

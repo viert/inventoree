@@ -1316,9 +1316,17 @@
         <a href="https://www.ansible.com">ansible</a> inventory-file format.
       </p>
       <p>
-        Accepts
+        Accepts:<br />
         <code>projects</code> query string parameter - a comma-separated list of project names allowing to limit the
-        output to the given projects.
+        output to the given projects. <br />
+        <code>vars</code> query parameter which can be set to <code>true</code>, <code>yes</code> or <code>1</code> for
+        true value otherwise it's false.
+        This indicates if the output should contain host variables for ansible inventory.<br />
+        <code>format</code> query string parameter which can be either <code>plain</code> or <code>json</code>.
+        The default value is <code>plain</code> for backward compatibility purposes. Plain inventory should be saved to
+        text file to use with ansible while
+        JSON version can be used as a dynamic provider according to <a target="_blank" href="https://docs.ansible.com/ansible/2.5/dev_guide/developing_inventory.html">this
+          doc</a>.
       </p>
       <hr />
       <code class="handler">GET

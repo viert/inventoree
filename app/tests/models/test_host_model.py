@@ -28,6 +28,22 @@ TEST_CUSTOM_FIELDS_RESULT2 = [
     {"key": "field3", "value": "host overriden 3"}
 ]
 
+ANSIBLE_CF1 = [
+    {"key": "ansible:port", "value": "5335"},
+    {"key": "ansible:proto", "value": "udp"}
+]
+
+ANSIBLE_CF2 = [
+    {"key": "ansible:port", "value": "8080"},
+    {"key": "ansible:description", "value": "this is a test host"}
+]
+
+ANSIBLE_RESULT = {
+    "port": "8080",
+    "proto": "udp",
+    "description": "this is a test host"
+}
+
 
 class TestHostModel(TestCase):
 
@@ -147,3 +163,10 @@ class TestHostModel(TestCase):
         self.assertItemsEqual(h.all_custom_fields, TEST_CUSTOM_FIELDS_RESULT1)
         g1.add_child(g2)
         self.assertItemsEqual(h.all_custom_fields, TEST_CUSTOM_FIELDS_RESULT2)
+
+    def test_ansible_vars(self):
+        g1 = TestGroup(name="g1", project_id=self.tproject._id, custom_fields=ANSIBLE_CF1)
+        g1.save()
+        h = TestHost(fqdn="host.example.com", group_id=g1._id, custom_fields=ANSIBLE_CF2)
+        h.save()
+        self.assertDictEqual(h.ansible_vars, ANSIBLE_RESULT)

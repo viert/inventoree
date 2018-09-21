@@ -6,7 +6,7 @@ from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
-
+ANSIBLE_CF_PREFIX = "ansible:"
 
 class Host(StorableModel):
 
@@ -216,6 +216,16 @@ class Host(StorableModel):
             custom_fields.append({ "key": k, "value": v })
 
         return custom_fields
+
+    @property
+    def ansible_vars(self):
+        cfs = self.all_custom_fields
+        vars = {}
+        cut = len(ANSIBLE_CF_PREFIX)
+        for cf in cfs:
+            if cf["key"].startswith(ANSIBLE_CF_PREFIX):
+                vars[cf["key"][cut:]] = cf["value"]
+        return vars
 
     def set_custom_field(self, key, value):
         i = -1

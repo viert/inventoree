@@ -2,6 +2,7 @@ from flask import request, make_response
 from datetime import datetime
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import json_response, cursor_to_list, get_app_version
+from library.engine.errors import ApiError
 
 open_ctrl = AuthController("open", __name__, require_auth=False)
 
@@ -70,46 +71,53 @@ def executer_data():
 
 @open_ctrl.route("/ansible")
 def ansible():
+    from app.models import Project
+    from library.engine.utils import full_group_structure, ansible_group_structure
+
     query = {}
     if "projects" in request.values:
         project_names = [x for x in request.values["projects"].split(",") if x != ""]
         if len(project_names) > 0:
             query["name"] = { "$in": project_names }
-    from app.models import Project
-    from library.engine.utils import full_group_structure
     project_ids = [x._id for x in Project.find(query).all()]
 
     include_vars = request.values.get("vars") in ("yes", "true", "1")
     if include_vars:
         from app.models import Host
-        host_fields = list(Host.FIELDS) + ["all_custom_fields"]
+        host_fields = list(Host.FIELDS) + ["ansible_vars"]
     else:
         host_fields = None
-    structure = full_group_structure(project_ids, host_fields=host_fields)
-    render = "# This ansible inventory file was rendered from inventoree database, %s\n# For more info on inventoree please refer to https://github.com/viert/inventoree\n\n" % datetime.now().isoformat()
-    for group_id, group in structure.items():
-        if len(group["all_hosts"]) > 0:
-            render += "[%s]\n" % group["name"]
-            if include_vars:
-                hosts = group["all_hosts"].values()
-                hosts.sort(key=lambda x: x["fqdn"])
-                for host in hosts:
-                    render += host["fqdn"]
-                    for cf in host["all_custom_fields"]:
-                        if cf["key"].startswith("ansible:"):
-                            key = cf["key"][8:]
-                            render += " %s=%s" % (key, cf["value"])
-                    render += "\n"
-            else:
-                host_names = [x["fqdn"] for x in group["all_hosts"].values()]
-                host_names.sort()
-                for fqdn in host_names:
-                    render += fqdn + "\n"
-                render += "\n\n"
 
-    response = make_response(render)
-    response.headers["Content-Type"] = "text/plain"
-    return response
+    fmt = request.values.get("format", "plain")
+    if fmt == "plain":
+        structure = full_group_structure(project_ids, host_fields=host_fields)
+        render = "# This ansible inventory file was rendered from inventoree database, %s\n# For more info on inventoree please refer to https://github.com/viert/inventoree\n\n" % datetime.now().isoformat()
+        for group_id, group in structure.items():
+            if len(group["all_hosts"]) > 0:
+                render += "[%s]\n" % group["name"]
+                if include_vars:
+                    hosts = group["all_hosts"].values()
+                    hosts.sort(key=lambda x: x["fqdn"])
+                    for host in hosts:
+                        print host
+                        render += host["fqdn"]
+                        for key, value in host["ansible_vars"].iteritems():
+                            render += " %s=%s" % (key, value)
+                        render += "\n"
+                else:
+                    host_names = [x["fqdn"] for x in group["all_hosts"].values()]
+                    host_names.sort()
+                    for fqdn in host_names:
+                        render += fqdn + "\n"
+                    render += "\n\n"
+
+        response = make_response(render)
+        response.headers["Content-Type"] = "text/plain"
+        return response
+    elif fmt == "json":
+        return json_response(ansible_group_structure(project_ids, include_vars))
+    else:
+        raise ApiError("Invalid format. Valid formats are either \"plain\" or \"json\". (Defaults to \"plain\"")
 
 
 @open_ctrl.route("/app")
