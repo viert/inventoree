@@ -3,6 +3,7 @@ from library.engine.pbkdf2 import pbkdf2_hex
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 from time import mktime
+from flask import g
 import bcrypt
 
 
@@ -161,6 +162,16 @@ class User(StorableModel):
         token = self.token_class(type="auth", user_id=self._id)
         token.save()
         return token
+
+    @property
+    def auth_token(self):
+        try:
+            current_user = g.user
+        except RuntimeError:
+            return None
+        if current_user.supervisor or current_user._id == self._id:
+            return self.get_auth_token().token
+        return None
 
     @property
     @request_time_cache()
