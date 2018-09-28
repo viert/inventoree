@@ -85,6 +85,16 @@ class Project(StorableModel):
         return [x.username for x in self.members]
 
     @property
+    def participants(self):
+        return self.owner_class.find_one({
+            "_id": {"$in": self.member_ids + [self.owner_id]}
+        })
+
+    @property
+    def participant_usernames(self):
+        return [x.username for x in self.participants]
+
+    @property
     def modification_allowed(self):
         user = get_user_from_app_context()
         if user is None: return False
@@ -139,3 +149,9 @@ class Project(StorableModel):
     @property
     def groups(self):
         return self.group_class.find({ "project_id": self._id })
+
+    @property
+    def hosts(self):
+        from app.models import Host
+        group_ids = [x._id for x in self.groups]
+        return Host.find({"group_id": {"$in": group_ids}})

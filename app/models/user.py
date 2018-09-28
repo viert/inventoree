@@ -186,6 +186,14 @@ class User(StorableModel):
         return Project.find({"member_ids": self._id})
 
     @property
+    def member_of(self):
+        from app.models import Project
+        return Project.find({"$or":[
+            {"member_ids": self._id},
+            {"owner_id": self._id}
+        ]})
+
+    @property
     def modification_allowed(self):
         user = get_user_from_app_context()
         if user is None: return False
