@@ -1,12 +1,12 @@
 from unittest import TestCase
 from app.models.storable_model import StorableModel, FieldRequired
-from datetime import datetime
-import warnings
 
 CALLABLE_DEFAULT_VALUE = 4
 
+
 def callable_default():
     return CALLABLE_DEFAULT_VALUE
+
 
 class TestModel(StorableModel):
 
@@ -39,6 +39,7 @@ class TestModel(StorableModel):
     )
 
     __slots__ = FIELDS
+
 
 class TestStorableModel(TestCase):
 

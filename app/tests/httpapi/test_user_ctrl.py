@@ -29,7 +29,7 @@ class TestUserCtrl(HttpApiTestCase):
         self.assertIs(2, len(body["data"]))
 
     def test_get_user(self):
-        r = self.get("/api/v1/users/%s" % self.supervisor._id, supervisor=False)
+        r = self.get("/api/v1/users/%s?_fields=username,auth_token" % self.supervisor._id, supervisor=False)
         self.assertEqual(r.status_code, 200)
         body = json.loads(r.data)
         self.assertIn("data", body)
@@ -37,10 +37,11 @@ class TestUserCtrl(HttpApiTestCase):
         self.assertIs(1, len(body["data"]))
         user_data = body["data"][0]
         self.assertEqual(user_data["username"], self.supervisor.username)
-        self.assertNotIn("auth_token", user_data)
+        self.assertIn("auth_token", user_data)
+        self.assertIsNone(user_data["auth_token"])
 
     def test_get_user_supervisor(self):
-        r = self.get("/api/v1/users/%s" % self.supervisor._id, supervisor=True)
+        r = self.get("/api/v1/users/%s?_fields=username,auth_token" % self.supervisor._id, supervisor=True)
         self.assertEqual(r.status_code, 200)
         body = json.loads(r.data)
         self.assertIn("data", body)

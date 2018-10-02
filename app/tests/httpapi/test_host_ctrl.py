@@ -23,6 +23,7 @@ class TestHostCtrl(HttpApiTestCase):
 
     def setUp(self):
         Host.destroy_all()
+        Group.destroy_all()
 
     def test_create_host(self):
         payload = TEST_HOST_1
