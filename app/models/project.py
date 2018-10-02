@@ -86,7 +86,7 @@ class Project(StorableModel):
 
     @property
     def participants(self):
-        return self.owner_class.find_one({
+        return self.owner_class.find({
             "_id": {"$in": self.member_ids + [self.owner_id]}
         })
 
