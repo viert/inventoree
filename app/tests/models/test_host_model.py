@@ -57,8 +57,11 @@ class TestHostModel(TestCase):
         Host.ensure_indexes()
         cls.tproject_owner = User(username='viert', password_hash='hash')
         cls.tproject_owner.save()
+        cls.tproject_member = User(username='member', password_hash='hash2')
+        cls.tproject_member.save()
         cls.tproject = Project(name="test_project", owner_id=cls.tproject_owner._id)
         cls.tproject.save()
+        cls.tproject.add_member(cls.tproject_member)
 
     @classmethod
     def tearDownClass(cls):
@@ -170,3 +173,10 @@ class TestHostModel(TestCase):
         h = Host(fqdn="host.example.com", group_id=g1._id, custom_fields=ANSIBLE_CF2)
         h.save()
         self.assertDictEqual(h.ansible_vars, ANSIBLE_RESULT)
+
+    def test_responsibles(self):
+        g1 = Group(name="g1", project_id=self.tproject._id)
+        g1.save()
+        h = Host(fqdn="host.example.com", group_id=g1._id)
+        h.save()
+        self.assertItemsEqual(h.responsibles, [self.tproject_member, self.tproject_owner])
