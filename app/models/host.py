@@ -124,6 +124,13 @@ class Host(StorableModel):
         return project.name
 
     @property
+    def responsibles(self):
+        project = self.project
+        if project is None:
+            return None
+        return project.participants
+
+    @property
     def datacenter(self):
         if self.datacenter_id is None:
             return None
