@@ -20,7 +20,6 @@ class WorkGroup(StorableModel):
         "name",
         "description",
         "email",
-        "root_email",
         "owner_id",
         "member_ids",
         "updated_at",
@@ -43,7 +42,6 @@ class WorkGroup(StorableModel):
         "member_ids": [],
         "description": "",
         "email": "",
-        "root_email": ""
     }
 
     REJECTED_FIELDS = (
