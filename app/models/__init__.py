@@ -1,4 +1,4 @@
-from project import Project
+from work_group import WorkGroup
 from group import Group
 from datacenter import Datacenter
 from user import User

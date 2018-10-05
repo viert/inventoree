@@ -111,24 +111,24 @@ class Host(StorableModel):
 
     @property
     @request_time_cache()
-    def project(self):
+    def work_group(self):
         if self.group is None:
             return None
-        return self.group.project
+        return self.group.work_group
 
     @property
-    def project_name(self):
-        project = self.project
-        if project is None:
+    def work_group_name(self):
+        work_group = self.work_group
+        if work_group is None:
             return None
-        return project.name
+        return work_group.name
 
     @property
     def responsibles(self):
-        project = self.project
-        if project is None:
+        work_group = self.work_group
+        if work_group is None:
             return None
-        return project.participants
+        return work_group.participants
 
     @property
     def datacenter(self):

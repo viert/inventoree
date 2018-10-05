@@ -45,7 +45,7 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertItemsEqual(payload["tags"], host.tags)
 
     def test_create_host_insufficient_permissions(self):
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
         payload = deepcopy(TEST_HOST_1)
         payload["group_id"] = g1._id
@@ -144,9 +144,9 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertItemsEqual(tags, host.tags)
 
     def test_update_host_insufficient_permissions(self):
-        g1 = Group(name="g1", project_id=self.project2._id)
+        g1 = Group(name="g1", work_group_id=self.work_group2._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
         host = Host(**TEST_HOST_1)
         host.group_id = g2._id
@@ -175,7 +175,7 @@ class TestHostCtrl(HttpApiTestCase):
 
     def test_mass_delete(self):
         from app.models import Group
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
         h1 = Host(fqdn="host1", group_id=g1._id)
         h1.save()
@@ -201,9 +201,9 @@ class TestHostCtrl(HttpApiTestCase):
 
     def test_mass_move(self):
         from app.models import Group
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
         h1 = Host(fqdn="host1", group_id=g1._id)
         h1.save()
@@ -234,9 +234,9 @@ class TestHostCtrl(HttpApiTestCase):
 
     def test_mass_detach(self):
         from app.models import Group
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
         h1 = Host(fqdn="host1", group_id=g1._id)
         h1.save()

@@ -6,7 +6,7 @@ from copy import copy
 MODEL_PRIMARY_KEY_NAMES = {
     "host": "fqdn",
     "group": "name",
-    "project": "name",
+    "work_group": "name",
     "datacenter": "name"
 }
 
@@ -14,7 +14,7 @@ MODEL_PRIMARY_KEY_NAMES = {
 class Import(Command):
     def init_argument_parser(self, parser):
         parser.add_argument("filename", type=str, nargs=1, help="name of file to import data from")
-        parser.add_argument("model_type", type=str, nargs=1, choices=["project", "group", "host", "datacenter"],
+        parser.add_argument("model_type", type=str, nargs=1, choices=["work_group", "group", "host", "datacenter"],
                             help="type of the model to import")
         parser.add_argument("model_key", type=str, nargs='?', help="key of the model to import")
         parser.add_argument("-a", "--all", dest='all', action='store_true', default=False,
@@ -92,9 +92,9 @@ class Import(Command):
             children = [self.data["groups"]["id"][id][MODEL_PRIMARY_KEY_NAMES["group"]] for id in child_ids]
             parent_ids = group["parent_ids"][:]
             parents = [self.data["groups"]["id"][id][MODEL_PRIMARY_KEY_NAMES["group"]] for id in parent_ids]
-            project_name = self.data["projects"]["id"][group["project_id"]][MODEL_PRIMARY_KEY_NAMES["project"]]
+            work_group_name = self.data["work_groups"]["id"][group["work_group_id"]][MODEL_PRIMARY_KEY_NAMES["work_group"]]
 
-            project = self.import_project(False, project_name)
+            work_group = self.import_work_group(False, work_group_name)
             group_id = group["_id"]
 
             del(group["_id"])
@@ -102,9 +102,9 @@ class Import(Command):
             del(group["parent_ids"])
             del(group["created_at"])
             del(group["updated_at"])
-            del(group["project_id"])
+            del(group["work_group_id"])
 
-            group["project_id"] = project._id
+            group["work_group_id"] = work_group._id
 
             if existing is not None:
                 print "Group '%s' already exists, skipping" % model_key
@@ -125,26 +125,26 @@ class Import(Command):
                     self.import_host(False, host[MODEL_PRIMARY_KEY_NAMES["host"]])
                 return new_group
 
-    def import_project(self, import_all, model_key):
-        from app.models import Project, User
+    def import_work_group(self, import_all, model_key):
+        from app.models import WorkGroup, User
         if import_all:
-            for project_name in self.data["projects"][MODEL_PRIMARY_KEY_NAMES["project"]]:
-                self.import_project(False, project_name)
+            for work_group_name in self.data["work_groups"][MODEL_PRIMARY_KEY_NAMES["work_group"]]:
+                self.import_work_group(False, work_group_name)
         else:
-            project = copy(self.data["projects"][MODEL_PRIMARY_KEY_NAMES["project"]][model_key])
-            existing = Project.find_one({ MODEL_PRIMARY_KEY_NAMES["project"]: model_key })
+            work_group = copy(self.data["work_groups"][MODEL_PRIMARY_KEY_NAMES["work_group"]][model_key])
+            existing = WorkGroup.find_one({MODEL_PRIMARY_KEY_NAMES["work_group"]: model_key})
             if existing is not None:
                 print "Project '%s' already exists, skipping" % model_key
                 return existing
             else:
-                del(project["_id"])
-                del(project["created_at"])
-                del(project["updated_at"])
-                project["owner_id"] = User.find_one({})._id
-                project["member_ids"] = []
-                new_project = Project(**project)
-                new_project.save()
-                return new_project
+                del(work_group["_id"])
+                del(work_group["created_at"])
+                del(work_group["updated_at"])
+                work_group["owner_id"] = User.find_one({})._id
+                work_group["member_ids"] = []
+                new_work_group = WorkGroup(**work_group)
+                new_work_group.save()
+                return new_work_group
 
     def run(self):
         if self.args.model_key is None and not self.args.all:
@@ -160,9 +160,9 @@ class Import(Command):
         data = json.load(open(filename))["data"]
 
         self.data = {
-            "projects": {
+            "work_groups": {
                 "id": {},
-                MODEL_PRIMARY_KEY_NAMES["project"]: {}
+                MODEL_PRIMARY_KEY_NAMES["work_group"]: {}
             },
             "hosts": {
                 "id": {},
@@ -187,9 +187,9 @@ class Import(Command):
         for group in data["groups"]:
             self.data["groups"]["id"][group["_id"]] = group
             self.data["groups"][MODEL_PRIMARY_KEY_NAMES["group"]][group[MODEL_PRIMARY_KEY_NAMES["group"]]] = group
-        for project in data["projects"]:
-            self.data["projects"]["id"][project["_id"]] = project
-            self.data["projects"][MODEL_PRIMARY_KEY_NAMES["project"]][project[MODEL_PRIMARY_KEY_NAMES["project"]]] = project
+        for work_group in data["work_groups"]:
+            self.data["work_groups"]["id"][work_group["_id"]] = work_group
+            self.data["work_groups"][MODEL_PRIMARY_KEY_NAMES["work_group"]][work_group[MODEL_PRIMARY_KEY_NAMES["work_group"]]] = work_group
 
         method_name = "import_" + model_type
         method = getattr(self, method_name)
