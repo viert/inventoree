@@ -1,6 +1,6 @@
 from library.engine.errors import ParentDoesNotExist, ParentAlreadyExists, ParentCycle, InvalidCustomFields
 from library.engine.errors import InvalidTags, ChildDoesNotExist, ChildAlreadyExists, GroupNotEmpty, GroupNotFound
-from library.engine.errors import InvalidProjectId
+from library.engine.errors import InvalidWorkGroupId
 from library.engine.cache import request_time_cache
 from app.models.storable_model import StorableModel, now, save_required
 from bson.objectid import ObjectId, InvalidId
@@ -89,7 +89,7 @@ class Group(StorableModel):
         if self in parent.get_all_parents():
             raise ParentCycle("Can't add one of (grand)child group as a parent")
         if self.work_group_id != parent.work_group_id:
-            raise InvalidProjectId("Can not add parent from different work_group")
+            raise InvalidWorkGroupId("Can not add parent from different work_group")
         parent.child_ids.append(self._id)
         self.parent_ids.append(parent._id)
         parent.save()
@@ -131,7 +131,7 @@ class Group(StorableModel):
         if self in child.get_all_children():
             raise ParentCycle("Can't add one of (grand)parent group as a child")
         if self.work_group_id != child.work_group_id:
-            raise InvalidProjectId("Can not add child from different work_group")
+            raise InvalidWorkGroupId("Can not add child from different work_group")
         child.parent_ids.append(self._id)
         self.child_ids.append(child._id)
         child.save()
@@ -249,13 +249,13 @@ class Group(StorableModel):
 
     def _check_work_group_ids(self):
         if self.work_group_id is not None and self.work_group is None:
-            raise InvalidProjectId("Project with id %s doesn't exist" % self.work_group_id)
+            raise InvalidWorkGroupId("WorkGroup with id %s doesn't exist" % self.work_group_id)
         for parent in self.parents:
             if parent.work_group_id != self.work_group_id:
-                raise InvalidProjectId("Group can not be in a work_group different from parent's work_group")
+                raise InvalidWorkGroupId("Group can not be in a workgroup different from parent's workgroup")
         for child in self.children:
             if child.work_group_id != self.work_group_id:
-                raise InvalidProjectId("Group can not be in a different work_group than it's children")
+                raise InvalidWorkGroupId("Group can not be in a different workgroup than it's children")
 
     def _check_custom_fields(self):
         # Custom fields validation

@@ -1,7 +1,7 @@
 from flask import request
 from bson.objectid import ObjectId
 from app.controllers.auth_controller import AuthController
-from library.engine.errors import GroupNotFound, Forbidden, ApiError, ProjectNotFound, NotFound
+from library.engine.errors import GroupNotFound, Forbidden, ApiError, WorkGroupNotFound, NotFound
 from library.engine.utils import resolve_id, json_response, paginated_data, diff, get_request_fields
 from library.engine.action_log import logged_action
 
@@ -64,7 +64,7 @@ def update(group_id):
         raise Forbidden("you don't have permission to modify this group")
     group_attrs = request.json.copy()
     if "work_group_id" in group_attrs and group_attrs["work_group_id"] is not None:
-        work_group = WorkGroup.get(group_attrs["work_group_id"], ProjectNotFound("work_group provided has not been found"))
+        work_group = WorkGroup.get(group_attrs["work_group_id"], WorkGroupNotFound("work_group provided has not been found"))
         group_attrs["work_group_id"] = work_group._id
     group.update(group_attrs)
     return json_response({ "data": group.to_dict(get_request_fields()) })
@@ -142,13 +142,13 @@ def create():
                 group_attrs["work_group_id"] = work_group._id
                 del(group_attrs["work_group_name"])
             else:
-                raise ProjectNotFound("work_group provided has not been found")
+                raise WorkGroupNotFound("work_group provided has not been found")
         else:
             raise ApiError("group has to be in a work_group")
     else:
         if group_attrs["work_group_id"] is None:
             raise ApiError("group has to be in a work_group")
-        work_group = WorkGroup.get(group_attrs["work_group_id"], ProjectNotFound("work_group provided has not been found"))
+        work_group = WorkGroup.get(group_attrs["work_group_id"], WorkGroupNotFound("work_group provided has not been found"))
         group_attrs["work_group_id"] = work_group._id
 
     group_attrs = dict([x for x in group_attrs.items() if x[0] in Group.FIELDS])
@@ -184,8 +184,8 @@ def mass_move():
         raise ApiError("no work_group_id provided")
 
     from app.models import Group, WorkGroup
-    # resolving Project
-    work_group = WorkGroup.get(request.json["work_group_id"], ProjectNotFound("work_group not found"))
+    # resolving WorkGroup
+    work_group = WorkGroup.get(request.json["work_group_id"], WorkGroupNotFound("work_group not found"))
     # resolving Groups and their children
     group_ids = [resolve_id(x) for x in request.json["group_ids"]]
     group_ids = set([x for x in group_ids if x is not None])

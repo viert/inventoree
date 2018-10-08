@@ -4,11 +4,11 @@ from app.models.work_group import WorkGroupNotEmpty, InvalidOwner
 from time import sleep
 from pymongo.errors import DuplicateKeyError
 
-TEST_PROJECT_NAME = "testCase.my_unique_test_work_group"
+TEST_WG_NAME = "testCase.my_unique_test_work_group"
 TEST_GROUP_NAME = "testCase.my_unique_test_group"
 
 
-class TestProjectModel(TestCase):
+class TestWorkGroupModel(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -28,33 +28,33 @@ class TestProjectModel(TestCase):
 
     def setUp(self):
         Group.destroy_all()
-        p = WorkGroup.find_one({"name": TEST_PROJECT_NAME})
+        p = WorkGroup.find_one({"name": TEST_WG_NAME})
         if p is not None:
             p.destroy()
 
     def tearDown(self):
         Group.destroy_all()
-        p = WorkGroup.find_one({"name": TEST_PROJECT_NAME})
+        p = WorkGroup.find_one({"name": TEST_WG_NAME})
         if p is not None:
             p.destroy()
 
     def test_unique_index(self):
-        p = WorkGroup(name=TEST_PROJECT_NAME, owner_id=self.owner._id)
+        p = WorkGroup(name=TEST_WG_NAME, owner_id=self.owner._id)
         p.save()
-        p = WorkGroup(name=TEST_PROJECT_NAME, owner_id=self.owner._id)
+        p = WorkGroup(name=TEST_WG_NAME, owner_id=self.owner._id)
         self.assertRaises(DuplicateKeyError, p.save)
 
     def test_touch_on_save(self):
-        p = WorkGroup(name=TEST_PROJECT_NAME, owner_id=self.owner._id)
+        p = WorkGroup(name=TEST_WG_NAME, owner_id=self.owner._id)
         p.save()
         dt1 = p.updated_at
         sleep(1)
         p.save()
         dt2 = p.updated_at
-        self.assertNotEqual(dt1, dt2, msg="updated_at not changed while saving Project")
+        self.assertNotEqual(dt1, dt2, msg="updated_at not changed while saving WorkGroup")
 
     def test_delete_non_empty(self):
-        p = WorkGroup(name=TEST_PROJECT_NAME, owner_id=self.owner._id)
+        p = WorkGroup(name=TEST_WG_NAME, owner_id=self.owner._id)
         p.save()
         g = Group(name=TEST_GROUP_NAME, work_group_id=p._id)
         g.save()
@@ -63,5 +63,5 @@ class TestProjectModel(TestCase):
         p.destroy()
 
     def test_owner(self):
-        p = WorkGroup(name="TEST_PROJECT_NAME", owner_id="arbitrary")
+        p = WorkGroup(name="TEST_WG_NAME", owner_id="arbitrary")
         self.assertRaises(InvalidOwner, p.save)

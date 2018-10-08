@@ -72,12 +72,12 @@ class TestGroupModel(TestCase):
         Host.destroy_all()
 
     def test_incomplete(self):
-        from app.models.group import InvalidProjectId
+        from app.models.group import InvalidWorkGroupId
         group = Group()
         self.assertRaises(FieldRequired, group.save)
         group.name = "my test group"
         group.work_group_id = "some invalid id"
-        self.assertRaises(InvalidProjectId, group.save)
+        self.assertRaises(InvalidWorkGroupId, group.save)
 
     def test_children_before_save(self):
         from app.models.storable_model import ObjectSaveRequired
@@ -149,14 +149,14 @@ class TestGroupModel(TestCase):
         g1.remove_child(str(g2._id))
 
     def test_add_child_with_different_work_group(self):
-        from app.models.group import InvalidProjectId
+        from app.models.group import InvalidWorkGroupId
         g1 = Group(name="g1", work_group_id=self.twork_group._id)
         g1.save()
         g2 = Group(name="g2", work_group_id=self.twork_group2._id)
         g2.save()
 
-        self.assertRaises(InvalidProjectId, g1.add_child, g2)
-        self.assertRaises(InvalidProjectId, g1.add_parent, g2)
+        self.assertRaises(InvalidWorkGroupId, g1.add_child, g2)
+        self.assertRaises(InvalidWorkGroupId, g1.add_parent, g2)
 
     def test_group_hosts(self):
         g1 = Group(name="g1", work_group_id=self.twork_group._id)
@@ -219,7 +219,7 @@ class TestGroupModel(TestCase):
         self.assertRaises(InvalidTags, g1.save)
 
     def test_change_work_group_id(self):
-        from app.models.group import InvalidProjectId
+        from app.models.group import InvalidWorkGroupId
         g1 = Group(name="g1", work_group_id=self.twork_group._id)
         g1.save()
         g2 = Group(name="g2", work_group_id=self.twork_group._id)
@@ -227,9 +227,9 @@ class TestGroupModel(TestCase):
 
         g1.add_child(g2)
         g2.work_group_id = self.twork_group2._id
-        self.assertRaises(InvalidProjectId, g2.save)
+        self.assertRaises(InvalidWorkGroupId, g2.save)
         g1.work_group_id = self.twork_group2._id
-        self.assertRaises(InvalidProjectId, g1.save)
+        self.assertRaises(InvalidWorkGroupId, g1.save)
 
     def test_remove_deleted_group_refs(self):
         g1 = Group(name="g1", work_group_id=self.twork_group._id)

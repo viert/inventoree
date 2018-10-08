@@ -38,9 +38,9 @@ class HttpApiTestCase(TestCase):
         cls.user = user
         cls.usertoken = usertoken.token
 
-        cls.work_group1 = WorkGroup(name="Test Project 1", owner_id=supervisor._id)
+        cls.work_group1 = WorkGroup(name="Test WorkGroup 1", owner_id=supervisor._id)
         cls.work_group1.save()
-        cls.work_group2 = WorkGroup(name="Test Project 2", owner_id=user._id)
+        cls.work_group2 = WorkGroup(name="Test WorkGroup 2", owner_id=user._id)
         cls.work_group2.save()
 
     @classmethod

@@ -2,7 +2,7 @@ from flask import request, g
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
     json_response, clear_aux_fields, get_request_fields
-from library.engine.errors import ProjectNotFound, Forbidden, ApiError, UserNotFound, Conflict
+from library.engine.errors import WorkGroupNotFound, Forbidden, ApiError, UserNotFound, Conflict
 from library.engine.action_log import logged_action
 work_groups_ctrl = AuthController("work_groups", __name__, require_auth=True)
 
@@ -25,7 +25,7 @@ def show(work_group_id=None):
             { "name": work_group_id }
         ] })
         if work_groups.count() == 0:
-            raise ProjectNotFound("work_group not found")
+            raise WorkGroupNotFound("work_group not found")
     return json_response(paginated_data(work_groups.sort("name")))
 
 
@@ -45,7 +45,7 @@ def create():
 def update(work_group_id):
     from app.models import WorkGroup
     data = clear_aux_fields(request.json)
-    work_group = WorkGroup.get(work_group_id, ProjectNotFound("work_group not found"))
+    work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
     work_group.update(data)
@@ -57,7 +57,7 @@ def update(work_group_id):
 def delete(work_group_id):
     from app.models import WorkGroup
 
-    work_group = WorkGroup.get(work_group_id, ProjectNotFound("work_group not found"))
+    work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
     work_group.destroy()
@@ -69,7 +69,7 @@ def delete(work_group_id):
 def add_member(work_group_id):
     from app.models import WorkGroup, User
 
-    work_group = WorkGroup.get(work_group_id, ProjectNotFound("work_group not found"))
+    work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
     if not "user_id" in request.json:
@@ -85,7 +85,7 @@ def add_member(work_group_id):
 def remove_member(work_group_id):
     from app.models import WorkGroup, User
 
-    work_group = WorkGroup.get(work_group_id, ProjectNotFound("work_group not found"))
+    work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
     if not "user_id" in request.json:
@@ -101,7 +101,7 @@ def remove_member(work_group_id):
 def switch_owner(work_group_id):
     from app.models import WorkGroup, User
 
-    work_group = WorkGroup.get(work_group_id, ProjectNotFound("work_group not found"))
+    work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify the work_group's owner")
     if not "owner_id" in request.json:
@@ -122,7 +122,7 @@ def set_members(work_group_id):
     from app.models import WorkGroup, User
     from bson.objectid import ObjectId
 
-    work_group = WorkGroup.get(work_group_id, ProjectNotFound("work_group not found"))
+    work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify the work_group's members")
     if not "member_ids" in request.json:

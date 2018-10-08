@@ -7,7 +7,7 @@ from flask import g
 import bcrypt
 
 
-class UserHasProjects(Exception):
+class UserIsInWorkGroups(Exception):
     pass
 
 
@@ -125,7 +125,7 @@ class User(StorableModel):
 
     def _before_delete(self):
         if self.work_groups_owned.count() > 0:
-            raise UserHasProjects("Can't remove user with work_groups owned by")
+            raise UserIsInWorkGroups("Can't remove user with work_groups owned by")
         for work_group in self.work_groups_included_into:
             work_group.remove_member(self)
 
