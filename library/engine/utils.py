@@ -151,14 +151,14 @@ def get_user_from_app_context():
     return user
 
 
-def full_group_structure(project_ids=None, group_fields=None, host_fields=None):
+def full_group_structure(work_group_ids=None, group_fields=None, host_fields=None):
     query = {}
 
-    if project_ids is not None:
-        if not hasattr(project_ids, '__iter__'):
-            project_ids = [project_ids]
-        project_ids = [resolve_id(x) for x in project_ids]
-        query["project_id"] = { "$in": project_ids }
+    if work_group_ids is not None:
+        if not hasattr(work_group_ids, '__iter__'):
+            work_group_ids = [work_group_ids]
+        work_group_ids = [resolve_id(x) for x in work_group_ids]
+        query["work_group_id"] = { "$in": work_group_ids }
 
     from app.models import Group, Host
     groups = Group.find(query)
@@ -192,14 +192,14 @@ def full_group_structure(project_ids=None, group_fields=None, host_fields=None):
     return groups
 
 
-def ansible_group_structure(project_ids=None, include_vars=True):
+def ansible_group_structure(work_group_ids=None, include_vars=True):
     from app.models import Group, Host
     query = {}
-    if project_ids is not None:
-        if not hasattr(project_ids, '__iter__'):
-            project_ids = [project_ids]
-        project_ids = [resolve_id(x) for x in project_ids]
-        query["project_id"] = { "$in": project_ids }
+    if work_group_ids is not None:
+        if not hasattr(work_group_ids, '__iter__'):
+            work_group_ids = [work_group_ids]
+        work_group_ids = [resolve_id(x) for x in work_group_ids]
+        query["work_group_id"] = { "$in": work_group_ids }
 
     groups = Group.find(query).all()
     hosts = Host.find({"group_id": {"$in": [x._id for x in groups]}}).all()

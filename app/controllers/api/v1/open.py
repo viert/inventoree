@@ -8,7 +8,7 @@ open_ctrl = AuthController("open", __name__, require_auth=False)
 
 
 def get_executer_data(query, recursive=False, include_unattached=False):
-    from app.models import Project, Datacenter, Group, Host
+    from app.models import WorkGroup, Datacenter, Group, Host
 
     host_fields = list(Host.FIELDS)
     group_fields = list(Group.FIELDS)
@@ -17,11 +17,11 @@ def get_executer_data(query, recursive=False, include_unattached=False):
         host_fields += ["all_tags", "all_custom_fields"]
         group_fields += ["all_tags", "all_custom_fields"]
 
-    projects = Project.find(query)
-    projects = cursor_to_list(projects)
-    project_ids = [x["_id"] for x in projects]
+    work_groups = WorkGroup.find(query)
+    work_groups = cursor_to_list(work_groups)
+    work_group_ids = [x["_id"] for x in work_groups]
 
-    groups = Group.find({ "project_id": { "$in": project_ids }})
+    groups = Group.find({ "work_group_id": { "$in": work_group_ids }})
     groups = cursor_to_list(groups, fields=group_fields)
     group_ids = [x["_id"] for x in groups]
 
@@ -35,7 +35,7 @@ def get_executer_data(query, recursive=False, include_unattached=False):
     datacenters = cursor_to_list(datacenters)
     return {
         "datacenters": datacenters,
-        "projects": projects,
+        "work_groups": work_groups,
         "groups": groups,
         "hosts": hosts
     }
@@ -44,10 +44,10 @@ def get_executer_data(query, recursive=False, include_unattached=False):
 @open_ctrl.route("/executer_data")
 def executer_data():
     query = {}
-    if "projects" in request.values:
-        project_names = [x for x in request.values["projects"].split(",") if x != ""]
-        if len(project_names) > 0:
-            query["name"] = { "$in": project_names }
+    if "work_groups" in request.values:
+        work_group_names = [x for x in request.values["work_groups"].split(",") if x != ""]
+        if len(work_group_names) > 0:
+            query["name"] = { "$in": work_group_names }
 
     recursive = False
     include_unattached = False
@@ -71,15 +71,15 @@ def executer_data():
 
 @open_ctrl.route("/ansible")
 def ansible():
-    from app.models import Project
+    from app.models import WorkGroup
     from library.engine.utils import full_group_structure, ansible_group_structure
 
     query = {}
-    if "projects" in request.values:
-        project_names = [x for x in request.values["projects"].split(",") if x != ""]
-        if len(project_names) > 0:
-            query["name"] = { "$in": project_names }
-    project_ids = [x._id for x in Project.find(query).all()]
+    if "work_groups" in request.values:
+        work_group_names = [x for x in request.values["work_groups"].split(",") if x != ""]
+        if len(work_group_names) > 0:
+            query["name"] = { "$in": work_group_names }
+    work_group_ids = [x._id for x in WorkGroup.find(query).all()]
 
     include_vars = request.values.get("vars") in ("yes", "true", "1")
     if include_vars:
@@ -90,7 +90,7 @@ def ansible():
 
     fmt = request.values.get("format", "plain")
     if fmt == "plain":
-        structure = full_group_structure(project_ids, host_fields=host_fields)
+        structure = full_group_structure(work_group_ids, host_fields=host_fields)
         render = "# This ansible inventory file was rendered from inventoree database, %s\n# For more info on inventoree please refer to https://github.com/viert/inventoree\n\n" % datetime.now().isoformat()
         for group_id, group in structure.items():
             if len(group["all_hosts"]) > 0:
@@ -115,7 +115,7 @@ def ansible():
         response.headers["Content-Type"] = "text/plain"
         return response
     elif fmt == "json":
-        return json_response(ansible_group_structure(project_ids, include_vars))
+        return json_response(ansible_group_structure(work_group_ids, include_vars))
     else:
         raise ApiError("Invalid format. Valid formats are either \"plain\" or \"json\". (Defaults to \"plain\"")
 

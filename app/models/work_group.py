@@ -2,7 +2,7 @@ from app.models.storable_model import StorableModel, now
 from library.engine.utils import get_user_from_app_context
 
 
-class ProjectNotEmpty(Exception):
+class WorkGroupNotEmpty(Exception):
     pass
 
 
@@ -10,7 +10,7 @@ class InvalidOwner(Exception):
     pass
 
 
-class Project(StorableModel):
+class WorkGroup(StorableModel):
 
     _owner_class = None
     _group_class = None
@@ -20,7 +20,6 @@ class Project(StorableModel):
         "name",
         "description",
         "email",
-        "root_email",
         "owner_id",
         "member_ids",
         "updated_at",
@@ -43,7 +42,6 @@ class Project(StorableModel):
         "member_ids": [],
         "description": "",
         "email": "",
-        "root_email": ""
     }
 
     REJECTED_FIELDS = (
@@ -133,14 +131,14 @@ class Project(StorableModel):
         if not self.is_new:
             self.touch()
         if self.owner is None:
-            raise InvalidOwner("Can't save project without an owner")
+            raise InvalidOwner("Can't save work_group without an owner")
 
     def touch(self):
         self.updated_at = now()
 
     def _before_delete(self):
         if self.groups.count() > 0:
-            raise ProjectNotEmpty("Can not delete project having groups")
+            raise WorkGroupNotEmpty("Can not delete work_group having groups")
 
     @property
     def groups_count(self):
@@ -148,7 +146,7 @@ class Project(StorableModel):
 
     @property
     def groups(self):
-        return self.group_class.find({ "project_id": self._id })
+        return self.group_class.find({ "work_group_id": self._id })
 
     @property
     def hosts(self):

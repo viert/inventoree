@@ -1,6 +1,6 @@
 from library.engine.errors import ParentDoesNotExist, ParentAlreadyExists, ParentCycle, InvalidCustomFields
 from library.engine.errors import InvalidTags, ChildDoesNotExist, ChildAlreadyExists, GroupNotEmpty, GroupNotFound
-from library.engine.errors import InvalidProjectId
+from library.engine.errors import InvalidWorkGroupId
 from library.engine.cache import request_time_cache
 from app.models.storable_model import StorableModel, now, save_required
 from bson.objectid import ObjectId, InvalidId
@@ -9,7 +9,7 @@ from bson.objectid import ObjectId, InvalidId
 class Group(StorableModel):
 
     _collection = 'groups'
-    _project_class = None
+    _work_group_class = None
     _host_class = None
 
     FIELDS = (
@@ -18,7 +18,7 @@ class Group(StorableModel):
         "description",
         "created_at",
         "updated_at",
-        "project_id",
+        "work_group_id",
         "parent_ids",
         "child_ids",
         "tags",
@@ -37,7 +37,7 @@ class Group(StorableModel):
     }
 
     REQUIRED_FIELDS = (
-        "project_id",
+        "work_group_id",
         "parent_ids",
         "child_ids",
         "name",
@@ -88,8 +88,8 @@ class Group(StorableModel):
             raise ParentCycle("Can't make group parent of itself")
         if self in parent.get_all_parents():
             raise ParentCycle("Can't add one of (grand)child group as a parent")
-        if self.project_id != parent.project_id:
-            raise InvalidProjectId("Can not add parent from different project")
+        if self.work_group_id != parent.work_group_id:
+            raise InvalidWorkGroupId("Can not add parent from different work_group")
         parent.child_ids.append(self._id)
         self.parent_ids.append(parent._id)
         parent.save()
@@ -130,8 +130,8 @@ class Group(StorableModel):
             raise ParentCycle("Can't make group child of itself")
         if self in child.get_all_children():
             raise ParentCycle("Can't add one of (grand)parent group as a child")
-        if self.project_id != child.project_id:
-            raise InvalidProjectId("Can not add child from different project")
+        if self.work_group_id != child.work_group_id:
+            raise InvalidWorkGroupId("Can not add child from different work_group")
         child.parent_ids.append(self._id)
         self.child_ids.append(child._id)
         child.save()
@@ -215,14 +215,14 @@ class Group(StorableModel):
         return self.__class__.find({ "_id": { "$in": self.child_ids }}).all()
 
     @property
-    def project(self):
-        if self.project_id is None:
+    def work_group(self):
+        if self.work_group_id is None:
             return None
-        return self.project_class.find_one({ "_id": self.project_id })
+        return self.work_group_class.find_one({ "_id": self.work_group_id })
 
     @property
     def modification_allowed(self):
-        return self.project.modification_allowed
+        return self.work_group.modification_allowed
 
     @request_time_cache()
     def get_all_children(self):
@@ -247,15 +247,15 @@ class Group(StorableModel):
         if len(set(self.tags)) != len(self.tags):
             raise InvalidTags("Tags must be unique")
 
-    def _check_project_ids(self):
-        if self.project_id is not None and self.project is None:
-            raise InvalidProjectId("Project with id %s doesn't exist" % self.project_id)
+    def _check_work_group_ids(self):
+        if self.work_group_id is not None and self.work_group is None:
+            raise InvalidWorkGroupId("WorkGroup with id %s doesn't exist" % self.work_group_id)
         for parent in self.parents:
-            if parent.project_id != self.project_id:
-                raise InvalidProjectId("Group can not be in a project different from parent's project")
+            if parent.work_group_id != self.work_group_id:
+                raise InvalidWorkGroupId("Group can not be in a workgroup different from parent's workgroup")
         for child in self.children:
-            if child.project_id != self.project_id:
-                raise InvalidProjectId("Group can not be in a different project than it's children")
+            if child.work_group_id != self.work_group_id:
+                raise InvalidWorkGroupId("Group can not be in a different workgroup than it's children")
 
     def _check_custom_fields(self):
         # Custom fields validation
@@ -278,7 +278,7 @@ class Group(StorableModel):
                     custom_keys.add(cf["key"])
 
     def _before_save(self):
-        self._check_project_ids()
+        self._check_work_group_ids()
         self._check_tags()
         self._check_custom_fields()
         if not self.is_new:
@@ -320,19 +320,19 @@ class Group(StorableModel):
         return custom_fields
 
     @property
-    def project_name(self):
-        project = self.project
-        if project is None:
+    def work_group_name(self):
+        work_group = self.work_group
+        if work_group is None:
             return None
         else:
-            return project.name
+            return work_group.name
 
     @property
-    def project_class(self):
-        if self._project_class is None:
-            from app.models import Project
-            self.__class__._project_class = Project
-        return self._project_class
+    def work_group_class(self):
+        if self._work_group_class is None:
+            from app.models import WorkGroup
+            self.__class__._work_group_class = WorkGroup
+        return self._work_group_class
 
     @property
     def host_class(self):

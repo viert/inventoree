@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.models import User, Project, Group, Host
+from app.models import User, WorkGroup, Group, Host
 from app import app
 from flask import json
 
@@ -38,15 +38,15 @@ class HttpApiTestCase(TestCase):
         cls.user = user
         cls.usertoken = usertoken.token
 
-        cls.project1 = Project(name="Test Project 1", owner_id=supervisor._id)
-        cls.project1.save()
-        cls.project2 = Project(name="Test Project 2", owner_id=user._id)
-        cls.project2.save()
+        cls.work_group1 = WorkGroup(name="Test WorkGroup 1", owner_id=supervisor._id)
+        cls.work_group1.save()
+        cls.work_group2 = WorkGroup(name="Test WorkGroup 2", owner_id=user._id)
+        cls.work_group2.save()
 
     @classmethod
     def tearDownClass(cls):
         User.destroy_all()
-        Project.destroy_all()
+        WorkGroup.destroy_all()
         Group.destroy_all()
         Host.destroy_all()
 

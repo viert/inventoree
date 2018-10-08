@@ -107,11 +107,11 @@ class HostNotFound(NotFound):
     pass
 
 
-class ProjectNotFound(NotFound):
+class WorkGroupNotFound(NotFound):
     pass
 
 
-class ProjectNotEmpty(IntegrityError):
+class WorkGroupNotEmpty(IntegrityError):
     pass
 
 
@@ -123,7 +123,7 @@ class UserAlreadyExists(Conflict):
     pass
 
 
-class InvalidProjectId(ApiError):
+class InvalidWorkGroupId(ApiError):
     pass
 
 

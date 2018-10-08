@@ -7,7 +7,7 @@ from flask import g
 import bcrypt
 
 
-class UserHasProjects(Exception):
+class UserIsInWorkGroups(Exception):
     pass
 
 
@@ -124,10 +124,10 @@ class User(StorableModel):
         self.touch()
 
     def _before_delete(self):
-        if self.projects_owned.count() > 0:
-            raise UserHasProjects("Can't remove user with projects owned by")
-        for project in self.projects_included_into:
-            project.remove_member(self)
+        if self.work_groups_owned.count() > 0:
+            raise UserIsInWorkGroups("Can't remove user with work_groups owned by")
+        for work_group in self.work_groups_included_into:
+            work_group.remove_member(self)
 
     def set_password(self, password_raw):
         from app import app
@@ -175,20 +175,20 @@ class User(StorableModel):
 
     @property
     @request_time_cache()
-    def projects_owned(self):
-        from app.models import Project
-        return Project.find({"owner_id": self._id})
+    def work_groups_owned(self):
+        from app.models import WorkGroup
+        return WorkGroup.find({"owner_id": self._id})
 
     @property
     @request_time_cache()
-    def projects_included_into(self):
-        from app.models import Project
-        return Project.find({"member_ids": self._id})
+    def work_groups_included_into(self):
+        from app.models import WorkGroup
+        return WorkGroup.find({"member_ids": self._id})
 
     @property
     def member_of(self):
-        from app.models import Project
-        return Project.find({"$or":[
+        from app.models import WorkGroup
+        return WorkGroup.find({"$or":[
             {"member_ids": self._id},
             {"owner_id": self._id}
         ]})
