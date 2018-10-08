@@ -2,7 +2,7 @@ FROM cdrx/fpm-centos:7
 RUN yum -y install git rsync nmap-ncat python-virtualenv
 
 ADD app /src/app
-ADD commands /src/app
+ADD commands /src/commands
 ADD config /src/config
 ADD extconf /src/extconf
 ADD library /src/library
