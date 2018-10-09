@@ -219,9 +219,12 @@ class StorableModel(object):
 
     @classmethod
     def destroy_all(cls):
-        # print "destroying all, class %s, collection %s" % (cls.__name__, cls.collection)
+        cls.destroy_many({})
+
+    @classmethod
+    def destroy_many(cls, query):
         from library.db import db
-        db.delete_query(cls.collection, {})
+        db.delete_query(cls.collection, query)
 
     @classmethod
     def ensure_indexes(cls, loud=False, overwrite=False):
