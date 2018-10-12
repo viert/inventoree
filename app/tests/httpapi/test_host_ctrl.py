@@ -80,6 +80,28 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertItemsEqual(host.tags, TEST_HOST_2["tags"])
         self.assertItemsEqual(host.aliases, TEST_HOST_2["aliases"])
 
+    def test_update_host_system_fields(self):
+        g = Group(name="test_group", work_group_id=self.work_group1._id)
+        g.save()
+        host = Host(fqdn="host1.example.com", group_id=g._id)
+        host.save()
+
+        payload = {"description": "description", "ip_addrs": [{"type": "e", "addr": "1.3.5.8"}]}
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=True, system=False)
+        self.assertEqual(200, r.status_code)
+
+        host.reload()
+        self.assertEqual(0, len(host.ip_addrs), "ip addresses should not be assigned by supervisor")
+        self.assertEqual("description", host.description, "host description should have been changed")
+
+        payload = {"description": "description2", "ip_addrs": [{"type": "e", "addr": "1.3.5.8"}]}
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=False, system=True)
+        self.assertEqual(200, r.status_code)
+
+        host.reload()
+        self.assertItemsEqual([{"type": "e", "addr": "1.3.5.8"}], host.ip_addrs)
+        self.assertEqual("description", host.description, "host description should have remained unaffected")
+
     def test_host_set_custom_fields(self):
         self.test_create_host()
         host = Host.find_one({"fqdn": TEST_HOST_1["fqdn"]})

@@ -103,10 +103,16 @@ def update(host_id):
     from app.models import Host, Group, Datacenter
     host = Host.get(host_id, HostNotFound("host not found"))
 
-    if not host.modification_allowed:
-        raise Forbidden("You don't have permissions to modify this host")
-
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
+
+    if not host.modification_allowed:
+        if host.system_modification_allowed:
+            # if user is a system user, he still can update SYSTEM_FIELDS
+            # so we cleanup everything but system fields in host_attrs
+            host_attrs = dict([x for x in host_attrs.iteritems() if x[0] in Host.SYSTEM_FIELDS])
+        else:
+            # if user is not a system user he gets the heck out
+            raise Forbidden("You don't have permissions to modify this host")
 
     if "group_id" in host_attrs and host_attrs["group_id"] is not None:
         group = Group.get(host_attrs["group_id"], GroupNotFound("group not found"))

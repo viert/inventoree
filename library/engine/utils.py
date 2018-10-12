@@ -151,6 +151,20 @@ def get_user_from_app_context():
     return user
 
 
+def can_assign_system_fields():
+    from flask import g
+    try:
+        # if current user is a system user, she can assign system fields
+        user = g.user
+        return user.system
+    except AttributeError:
+        # if no user is logged in, system fields are read-only as any other
+        return False
+    except RuntimeError:
+        # if we're in shell (outside app context), we can control everything
+        return True
+
+
 def full_group_structure(work_group_ids=None, group_fields=None, host_fields=None):
     query = {}
 

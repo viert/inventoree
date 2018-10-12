@@ -83,6 +83,11 @@ class FieldRequired(ApiError):
 class InvalidTags(IntegrityError):
     pass
 
+
+class InvalidIpAddresses(IntegrityError):
+    pass
+
+
 class InvalidFQDN(IntegrityError):
     pass
 

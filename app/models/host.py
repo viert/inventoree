@@ -1,7 +1,7 @@
 import re
 from storable_model import StorableModel, now
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
-                                GroupNotFound, InvalidAliases, InvalidFQDN
+                                GroupNotFound, InvalidAliases, InvalidFQDN, InvalidIpAddresses
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 
@@ -24,6 +24,7 @@ class Host(StorableModel):
         "custom_fields",
         "created_at",
         "updated_at",
+        "ip_addrs"
     )
 
     KEY_FIELD = "fqdn"
@@ -42,7 +43,8 @@ class Host(StorableModel):
         "updated_at": now,
         "tags": [],
         "custom_fields": [],
-        "aliases": []
+        "aliases": [],
+        "ip_addrs": []
     }
 
     INDEXES = (
@@ -52,6 +54,10 @@ class Host(StorableModel):
         "tags",
         "aliases",
         [ "custom_fields.key", "custom_fields.value" ]
+    )
+
+    SYSTEM_FIELDS = (
+        "ip_addrs",
     )
 
     __slots__ = FIELDS
@@ -73,6 +79,8 @@ class Host(StorableModel):
             raise InvalidTags("Tags must be of array type")
         if len(set(self.tags)) != len(self.tags):
             raise InvalidTags("Tags must be unique")
+        if not hasattr(self.ip_addrs, "__getitem__") or type(self.ip_addrs) is str:
+            raise InvalidIpAddresses("Ip addresses must be of array type")
         if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
             raise InvalidAliases("Aliases must be of array type")
 
@@ -195,6 +203,11 @@ class Host(StorableModel):
             from app.models import Datacenter
             self.__class__._datacenter_class = Datacenter
         return self._datacenter_class
+
+    @property
+    def system_modification_allowed(self):
+        from library.engine.utils import can_assign_system_fields
+        return can_assign_system_fields()
 
     @property
     def modification_allowed(self):

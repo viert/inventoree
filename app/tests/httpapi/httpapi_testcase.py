@@ -15,6 +15,11 @@ class HttpApiTestCase(TestCase):
         "password": "userpassword"
     }
 
+    SYSTEM_USER = {
+        "username": "sys",
+        "password": "syspassword"
+    }
+
     @classmethod
     def setUpClass(cls):
         cls.session = None
@@ -29,14 +34,24 @@ class HttpApiTestCase(TestCase):
                     password_raw=HttpApiTestCase.GENERAL_USER["password"])
         user.save()
 
+        system = User(username=HttpApiTestCase.SYSTEM_USER["username"],
+                      supervisor=False,
+                      system=True,
+                      password_raw=HttpApiTestCase.SYSTEM_USER["password"])
+        system.save()
+
         supertoken = supervisor.get_auth_token()
         usertoken = user.get_auth_token()
+        systemtoken = system.get_auth_token()
 
         cls.supervisor = supervisor
         cls.supertoken = supertoken.token
 
         cls.user = user
         cls.usertoken = usertoken.token
+
+        cls.systemuser = system
+        cls.systemtoken = systemtoken.token
 
         cls.work_group1 = WorkGroup(name="Test WorkGroup 1", owner_id=supervisor._id)
         cls.work_group1.save()
@@ -54,20 +69,27 @@ class HttpApiTestCase(TestCase):
     def fake_client(self):
         return app.flask.test_client()
 
-    def get(self, url, supervisor=True):
-        token = self.supertoken if supervisor else self.usertoken
+    def get_proper_token(self, supervisor, system):
+        if supervisor:
+            return self.supertoken
+        elif system:
+            return self.systemtoken
+        return self.usertoken
+
+    def get(self, url, supervisor=True, system=False):
+        token = self.get_proper_token(supervisor, system)
         return self.fake_client.get(url, headers={ "X-Api-Auth-Token": token })
 
-    def delete(self, url, supervisor=True):
-        token = self.supertoken if supervisor else self.usertoken
+    def delete(self, url, supervisor=True, system=False):
+        token = self.get_proper_token(supervisor, system)
         return self.fake_client.delete(url, headers={ "X-Api-Auth-Token": token })
 
-    def post_json(self, url, data, supervisor=True):
-        token = self.supertoken if supervisor else self.usertoken
+    def post_json(self, url, data, supervisor=True, system=False):
+        token = self.get_proper_token(supervisor, system)
         data = json.dumps(data, default=app.flask.json_encoder().default)
         return self.fake_client.post(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": token })
 
-    def put_json(self, url, data, supervisor=True):
-        token = self.supertoken if supervisor else self.usertoken
+    def put_json(self, url, data, supervisor=True, system=False):
+        token = self.get_proper_token(supervisor, system)
         data = json.dumps(data, default=app.flask.json_encoder().default)
         return self.fake_client.put(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": token })
