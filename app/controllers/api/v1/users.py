@@ -117,6 +117,27 @@ def set_supervisor(user_id):
     return json_response({"data":user.to_dict(get_request_fields())})
 
 
+@users_ctrl.route("/<user_id>/set_system", methods=["PUT"])
+@logged_action("user_set_system")
+def set_supervisor(user_id):
+    from app.models import User
+    user = User.get(user_id, UserNotFound("user not found"))
+    if not user.system_set_allowed:
+        raise Forbidden("you don't have permissions to set system property for this user")
+
+    try:
+        system = request.json["system"]
+    except KeyError:
+        raise ApiError("no system field provided")
+
+    if type(system) != bool:
+        raise ApiError("invalid system field type")
+
+    user.system = system
+    user.save()
+    return json_response({"data":user.to_dict(get_request_fields())})
+
+
 @users_ctrl.route("/<user_id>", methods=["DELETE"])
 @logged_action("user_delete")
 def delete(user_id):
