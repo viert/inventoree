@@ -1,5 +1,5 @@
 from httpapi_testcase import HttpApiTestCase
-from app.models import ServerGroup
+from app.models import ServerGroup, Host
 
 
 class TestServerGroupCtrl(HttpApiTestCase):
@@ -65,3 +65,14 @@ class TestServerGroupCtrl(HttpApiTestCase):
         r = self.post_json("/api/v1/server_groups/", payload, supervisor=False, system=True)
         self.assertEqual(404, r.status_code)
 
+    def test_delete_server_group_insuff_perms(self):
+        r = self.delete("/api/v1/server_groups/%s" % self.sg1._id, supervisor=True, system=False)
+        self.assertEqual(403, r.status_code)
+
+    def test_delete_server_group_with_hosts(self):
+        h = Host(fqdn="host.example.com", server_group_id=self.sg1._id)
+        h.save()
+        r = self.delete("/api/v1/server_groups/%s" % self.sg1._id, supervisor=False, system=True)
+        self.assertEqual(200, r.status_code)
+        h.reload()
+        self.assertIsNone(h.server_group_id)
