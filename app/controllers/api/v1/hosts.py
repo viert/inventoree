@@ -19,7 +19,7 @@ def show(host_id=None):
         query = {}
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
-            if len(name_filter) >= 2:
+            if len(name_filter) >= 0:
                 query["fqdn"] = { "$regex": "^%s" % name_filter }
         if "group_id" in request.values:
             group_id = resolve_id(request.values["group_id"])

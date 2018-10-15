@@ -15,7 +15,7 @@ def show(work_group_id=None):
         query = {}
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
-            if len(name_filter) > 2:
+            if len(name_filter) > 0:
                 query["name"] = { "$regex": "^%s" % name_filter }
         work_groups = WorkGroup.find(query)
     else:
