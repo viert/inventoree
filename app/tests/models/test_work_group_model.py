@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.models import WorkGroup, User, Group
+from app.models import WorkGroup, User, Group, ServerGroup
 from app.models.work_group import WorkGroupNotEmpty, InvalidOwner
 from time import sleep
 from pymongo.errors import DuplicateKeyError
@@ -62,6 +62,16 @@ class TestWorkGroupModel(TestCase):
         g.destroy()
         p.destroy()
 
+    def test_delete_non_empty_sg(self):
+        p = WorkGroup(name=TEST_WG_NAME, owner_id=self.owner._id)
+        p.save()
+        sg = ServerGroup(name=TEST_GROUP_NAME, work_group_id=p._id)
+        sg.save()
+        self.assertRaises(WorkGroupNotEmpty, p.destroy)
+        sg.destroy()
+        p.destroy()
+
     def test_owner(self):
         p = WorkGroup(name="TEST_WG_NAME", owner_id="arbitrary")
         self.assertRaises(InvalidOwner, p.save)
+
