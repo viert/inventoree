@@ -1,7 +1,7 @@
 from flask import request
 from bson.objectid import ObjectId
 from app.controllers.auth_controller import AuthController
-from library.engine.errors import GroupNotFound, Forbidden, ApiError, WorkGroupNotFound, NotFound
+from library.engine.errors import GroupNotFound, Forbidden, ApiError, WorkGroupNotFound, NotFound, IntegrityError
 from library.engine.utils import resolve_id, json_response, paginated_data, diff, get_request_fields
 from library.engine.action_log import logged_action
 
@@ -144,10 +144,10 @@ def create():
             else:
                 raise WorkGroupNotFound("work_group provided has not been found")
         else:
-            raise ApiError("group has to be in a work_group")
+            raise IntegrityError("group has to be in a work_group")
     else:
         if group_attrs["work_group_id"] is None:
-            raise ApiError("group has to be in a work_group")
+            raise IntegrityError("group has to be in a work_group")
         work_group = WorkGroup.get(group_attrs["work_group_id"], WorkGroupNotFound("work_group provided has not been found"))
         group_attrs["work_group_id"] = work_group._id
 
