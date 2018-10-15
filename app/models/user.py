@@ -37,11 +37,11 @@ class User(StorableModel):
         "first_name": "",
         "last_name": "",
         "avatar_url": "",
-        "supervisor": False,
         "password_hash": "-",
         "email": "",
         "custom_data": {},
         "ext_id": None,
+        "supervisor": False,
         "system": False
     }
 
@@ -69,6 +69,7 @@ class User(StorableModel):
         "ext_id",
         "custom_data",
         "supervisor",
+        "system",
     )
 
     __slots__ = list(FIELDS) + ["_salt"]
@@ -202,6 +203,10 @@ class User(StorableModel):
         if user is None: return False
         if user.supervisor or self._id == user._id: return True
         return False
+
+    @property
+    def system_set_allowed(self):
+        return self.supervisor_set_allowed
 
     @property
     def supervisor_set_allowed(self):

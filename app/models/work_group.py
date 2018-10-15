@@ -131,14 +131,16 @@ class WorkGroup(StorableModel):
         if not self.is_new:
             self.touch()
         if self.owner is None:
-            raise InvalidOwner("Can't save work_group without an owner")
+            raise InvalidOwner("can not save workgroup without an owner")
 
     def touch(self):
         self.updated_at = now()
 
     def _before_delete(self):
-        if self.groups.count() > 0:
-            raise WorkGroupNotEmpty("Can not delete work_group having groups")
+        if self.groups_count > 0:
+            raise WorkGroupNotEmpty("can not delete workgroup having groups")
+        if self.server_groups_count > 0:
+            raise WorkGroupNotEmpty("can not delete workgroup having server groups")
 
     @property
     def groups_count(self):
@@ -147,6 +149,15 @@ class WorkGroup(StorableModel):
     @property
     def groups(self):
         return self.group_class.find({ "work_group_id": self._id })
+
+    @property
+    def server_groups(self):
+        from app.models import ServerGroup
+        return ServerGroup.find({"work_group_id": self._id})
+
+    @property
+    def server_groups_count(self):
+        return self.server_groups.count()
 
     @property
     def hosts(self):

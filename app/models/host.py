@@ -1,12 +1,14 @@
 import re
 from storable_model import StorableModel, now
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
-                                GroupNotFound, InvalidAliases, InvalidFQDN, InvalidIpAddresses
+                                GroupNotFound, InvalidAliases, InvalidFQDN, \
+                                InvalidIpAddresses, ServerGroupNotFound
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
 ANSIBLE_CF_PREFIX = "ansible:"
+
 
 class Host(StorableModel):
 
@@ -24,7 +26,8 @@ class Host(StorableModel):
         "custom_fields",
         "created_at",
         "updated_at",
-        "ip_addrs"
+        "ip_addrs",
+        "server_group_id"
     )
 
     KEY_FIELD = "fqdn"
@@ -51,6 +54,7 @@ class Host(StorableModel):
         [ "fqdn", { "unique": True } ],
         "group_id",
         "datacenter_id",
+        "server_group_id",
         "tags",
         "aliases",
         [ "custom_fields.key", "custom_fields.value" ]
@@ -72,17 +76,19 @@ class Host(StorableModel):
         if not FQDN_EXPR.match(self.fqdn):
             raise InvalidFQDN("FQDN %s is invalid" % self.fqdn)
         if self.group_id is not None and self.group is None:
-            raise GroupNotFound("Can not find group with id %s" % self.group_id)
+            raise GroupNotFound("can not find group with id %s" % self.group_id)
         if self.datacenter_id is not None and self.datacenter is None:
-            raise DatacenterNotFound("Can not find datacenter with id %s" % self.datacenter_id)
+            raise DatacenterNotFound("can not find datacenter with id %s" % self.datacenter_id)
+        if self.server_group_id is not None and self.server_group is None:
+            raise ServerGroupNotFound("can not find server group with id %s" % self.server_group_id)
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
-            raise InvalidTags("Tags must be of array type")
+            raise InvalidTags("tags must be of array type")
         if len(set(self.tags)) != len(self.tags):
-            raise InvalidTags("Tags must be unique")
+            raise InvalidTags("tags must be unique")
         if not hasattr(self.ip_addrs, "__getitem__") or type(self.ip_addrs) is str:
-            raise InvalidIpAddresses("Ip addresses must be of array type")
+            raise InvalidIpAddresses("ip addresses must be of array type")
         if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
-            raise InvalidAliases("Aliases must be of array type")
+            raise InvalidAliases("aliases must be of array type")
 
         # Custom fields validation
         if type(self.custom_fields) is not list:
@@ -110,6 +116,13 @@ class Host(StorableModel):
         if self.group_id is None:
             return None
         return self.group_class.find_one({ "_id": self.group_id })
+
+    @property
+    def server_group(self):
+        from app.models import ServerGroup
+        if self.server_group_id is None:
+            return None
+        return ServerGroup.find_one({"_id": self.server_group_id})
 
     @property
     def group_name(self):
