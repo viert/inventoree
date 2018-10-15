@@ -93,3 +93,8 @@ class HttpApiTestCase(TestCase):
         token = self.get_proper_token(supervisor, system)
         data = json.dumps(data, default=app.flask.json_encoder().default)
         return self.fake_client.put(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": token })
+
+    def get_json_data_should_be_successful(self, url, **kwargs):
+        r = self.get(url, **kwargs)
+        self.assertEqual(200, r.status_code)
+        return json.loads(r.data)
