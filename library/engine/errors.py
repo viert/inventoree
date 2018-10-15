@@ -116,6 +116,14 @@ class WorkGroupNotFound(NotFound):
     pass
 
 
+class ServerGroupNotFound(NotFound):
+    pass
+
+
+class ServerGroupNotEmpty(IntegrityError):
+    pass
+
+
 class WorkGroupNotEmpty(IntegrityError):
     pass
 
