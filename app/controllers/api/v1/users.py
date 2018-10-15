@@ -119,7 +119,7 @@ def set_supervisor(user_id):
 
 @users_ctrl.route("/<user_id>/set_system", methods=["PUT"])
 @logged_action("user_set_system")
-def set_supervisor(user_id):
+def set_system(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.system_set_allowed:
