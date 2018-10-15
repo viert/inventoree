@@ -6,7 +6,7 @@ class Shell(Command):
     DESCRIPTION = 'Run shell (using IPython if available)'
 
     def run(self):
-        from app.models import ApiAction, Datacenter, Group, Host, WorkGroup, Token, User
+        from app.models import ApiAction, Datacenter, Group, Host, WorkGroup, Token, User, ServerGroup
         try:
             # trying IPython if installed...
             from IPython import embed
