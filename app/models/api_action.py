@@ -494,6 +494,24 @@ class ApiAction(StorableModel):
             "owner_username": owner_username
         }
 
+    def _compute_server_group_create(self):
+        server_group_name = ""
+        if "name" in self.params:
+            server_group_name = self.params["name"]
+        self.computed = {
+            "server_group_name": server_group_name
+        }
+
+    def _compute_server_group_delete(self):
+        from app.models import ServerGroup
+        server_group_name = ""
+        server_group = ServerGroup.get(self.kwargs["server_group_id"])
+        if server_group is not None:
+            server_group_name = server_group.name
+        self.computed = {
+            "server_group_name": server_group_name
+        }
+
     def _compute_user_create(self):
         username = ""
         if "username" in self.params:
@@ -516,6 +534,9 @@ class ApiAction(StorableModel):
         self._compute_user_set_password()
 
     def _compute_user_set_supervisor(self):
+        self._compute_user_set_password()
+
+    def _compute_user_set_system(self):
         self._compute_user_set_password()
 
     def _compute_user_update(self):

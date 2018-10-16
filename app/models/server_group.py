@@ -41,6 +41,13 @@ class ServerGroup(StorableModel):
         return WorkGroup.find_one({"_id": self.work_group_id})
 
     @property
+    def work_group_name(self):
+        wg = self.work_group
+        if wg is None:
+            return None
+        return wg.name
+
+    @property
     def modification_allowed(self):
         user = get_user_from_app_context()
         return self._modification_allowed_by(user)
