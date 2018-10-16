@@ -16,8 +16,8 @@ def show(server_group_id=None):
         query = {}
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
-            if len(name_filter) >= 0:
-                query["fqdn"] = { "$regex": "^%s" % name_filter }
+            if len(name_filter) > 0:
+                query["name"] = { "$regex": "^%s" % name_filter }
         if "work_group_id" in request.values:
             work_group_id = resolve_id(request.values["work_group_id"])
             query["work_group_id"] = work_group_id
@@ -74,6 +74,7 @@ def create():
 
 
 @server_groups_ctrl.route("/<server_group_id>", methods=["DELETE"])
+@logged_action("server_group_delete")
 def destroy(server_group_id):
     from app.models import ServerGroup
     user = get_user_from_app_context()
