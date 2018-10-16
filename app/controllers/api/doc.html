@@ -135,6 +135,9 @@
         <a href="#work_groups">WorkGroups</a>
       </li>
       <li>
+        <a href="#server_groups">Server Groups</a>
+      </li>
+      <li>
         <a href="#users">Users</a>
       </li>
     </ul>
@@ -303,8 +306,7 @@
         Provides a paginated list of datacenters. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by datacenter name using
         <code>_filter</code> query parameter. This accepts a string which is used as a prefix of datacenter name.
-        Filters shorter than 2 symbols
-        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -507,7 +509,8 @@
       <h2>Groups API</h2>
       <p>
         Groups API allows user to manipulate groups. Every group must be included into a workgroup. Group without a
-        workgroup is not valid. Group may have a number of parents and a number of children, thus, it's not a tree but a graph or to be
+        workgroup is not valid. Group may have a number of parents and a number of children, thus, it's not a tree but
+        a graph or to be
         more precise a set of graphs as groups in one workgroup can not be connected to groups in other workgroup.
       </p>
       <p>
@@ -544,9 +547,8 @@
       <p>
         Provides a paginated list of groups. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by group name using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of group name. Filters
-        shorter than 2 symbols are
-        ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of group name.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -626,7 +628,8 @@
             <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
           </li>
           <li>
-            <code>work_group_name</code> - a group's workgroup name as a string. This is a shortcut to reduce the response
+            <code>work_group_name</code> - a group's workgroup name as a string. This is a shortcut to reduce the
+            response
             size in case you need only workgroup's
             name not the whole workgroup object, made primarily for the web ui.
             <span class="warning">This is an additional database lookup</span>
@@ -818,12 +821,14 @@
       </code>
       <p>
         Accepts JSON payload like
-        <code>{ "group_ids": [...], "work_group_id": "..." }</code> and moves all listed groups to the new workgroup. Groups
+        <code>{ "group_ids": [...], "work_group_id": "..." }</code> and moves all listed groups to the new workgroup.
+        Groups
         are detached from their parents as parents remain in previous
         workgroup so can't be connected anymore.
       </p>
       <p>
-        Groups are moved if user has a membership in all the workgroups all the groups belong to. User don't have to have
+        Groups are moved if user has a membership in all the workgroups all the groups belong to. User don't have to
+        have
         a membership
         in a target workgroup so one should be aware that in this case user loses control over the groups he's just
         moved.
@@ -893,9 +898,8 @@
       <p>
         Provides a paginated list of hosts. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by host fqdn using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of host fqdn. Filters
-        shorter than 2 symbols are
-        ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of host fqdn.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -921,6 +925,9 @@
             <code>group_id</code> - id of the group the host belongs to. Can be null.
           </li>
           <li>
+            <code>server_group_id</code> - id of the server group the host belongs to. Can be null.
+          </li>
+          <li>
             <code>datacenter_id</code> - id of the datacenter the host belongs to. Can be null.
           </li>
           <li>
@@ -937,6 +944,9 @@
             <code>group_id</code> is null which is allowed,
             <code>group</code> also returns null.
             <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>server_group</code> - host's server group as an object. Requires an additional DB lookup.
           </li>
           <li>
             <code>group_name</code> - host's group name as a string. It's a shortcut for group.name, useful when you
@@ -1315,7 +1325,8 @@
       </p>
       <p>
         Accepts:<br />
-        <code>work_groups</code> query string parameter - a comma-separated list of workgroup names allowing to limit the
+        <code>work_groups</code> query string parameter - a comma-separated list of workgroup names allowing to limit
+        the
         output to the given workgroups. <br />
         <code>vars</code> query parameter which can be set to <code>true</code>, <code>yes</code> or <code>1</code> for
         true value otherwise it's false.
@@ -1354,7 +1365,8 @@
       <a name="work_groups"></a>
       <h2>WorkGroups API</h2>
       <p>
-        WorkGroups API allows user to manipulate workgroups. WorkGroups are high level models connecting users with all the
+        WorkGroups API allows user to manipulate workgroups. WorkGroups are high level models connecting users with all
+        the
         structures Inventoree has.
       </p>
       <code class="handler">GET
@@ -1365,9 +1377,8 @@
       <p>
         Provides a paginated list of workgroups. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by workgroup name using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of workgroup name. Filters
-        shorter than 2 symbols
-        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of workgroup name.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -1459,7 +1470,8 @@
         </a>
       </code>
       <p>
-        Creates a work_group with a given JSON payload. WorkGroup's owner is being set automatically and equals to current
+        Creates a work_group with a given JSON payload. WorkGroup's owner is being set automatically and equals to
+        current
         user.
       </p>
       <hr />
@@ -1547,6 +1559,105 @@
     </section>
     <hr />
     <section>
+      <a name="server_groups"></a>
+      <h2>Server Groups API (Mail.Ru Group specific)</h2>
+      <p>
+        ServerGroups API allows user to manipulate server groups. Server Groups are special tags which may be assigned
+        to a host and are concerned with network and firewall configuration at Mail.Ru. A server group must belong to a
+        WorkGroup so a user can assign his own server groups to his own hosts.
+      </p>
+      <code class="handler">GET
+            <a href="/api/v1/server_groups/" target="_blank">
+              /api/v1/server_groups/
+            </a>
+          </code>
+      <p>
+        Provides a paginated list of server groups. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by workgroup name using
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of workgroup name.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+      </p>
+      <p>
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
+        Accepts comma-separated
+        list of field names. Available host fields are:
+      </p>
+      <ul class="fieldlist">
+        <li>
+          <code>_id</code> - a unique id of the workgroup
+        </li>
+        <li>
+          <code>name</code> - a unique name of the workgroup
+        </li>
+        <li>
+          <code>work_group_id</code> - ID of the work_group the server group belongs to
+        </li>
+        <li>
+          <code>work_group</code> - the work_group as an object the server group belongs to. Requires an additional DB
+          lookup.
+        </li>
+        <li>
+          <code>work_group_name</code> - name of the work_group as an object the server group belongs to. Requires an
+          additional DB lookup.
+        </li>
+        <li>
+          <code>hosts</code> - a list of hosts the server group is assigned to. Requires an additional DB lookup.
+        </li>
+        <li>
+          <code>hosts_count</code> - a number of hosts the server group is assigned to. Requires an additional DB
+          lookup.
+        </li>
+        <li>
+          <code>modification_allowed</code> - a boolean field indicating if current user has permissions to modify the
+          server group. Server groups can be modified only by system users.
+        </li>
+        <li>
+          <code>assigning_allowed</code> - a boolean field indicating if current user has permissions to assign the
+          group_id to a host. User must be in the same work_group to assign the server group.
+        </li>
+      </ul>
+      <hr />
+      <code class="handler">GET
+            <a href="/api/v1/server_groups/:id" target="_blank">
+              /api/v1/server_groups/:id
+            </a>
+          </code>
+      <p>
+        Behaves exactly as the server group list handler but for only one workgroup identified by
+        <code>:id</code> parameter which can be both
+        <code>_id</code> or
+        <code>name</code> as server group name is also unique. Response behaves exactly the same so you get a list of
+        workgroups with only one element.
+        <code>_fields</code> parameter is relevant here as well however
+        <code>_filter</code> is prohibited.
+      </p>
+      <hr />
+      <code class="handler">POST
+            <a href="/api/v1/server_groups/" target="_blank">
+              /api/v1/server_groups/
+            </a>
+          </code>
+      <p>
+        Creates a server group with a given JSON payload. This can be done only by system users and is supposed to be
+        used by an external NOC systems via API.
+      </p>
+      <hr />
+      <code class="handler">DELETE
+        <a href="/api/v1/server_groups/:id" target="_blank">
+          /api/v1/server_groups/:id
+        </a>
+      </code>
+      <p>
+        Deletes a server group with a given id which is supposed to be
+        <code>_id</code> or
+        <code>name</code> of the workgroup.
+      </p>
+      <p>
+        A server group can be deleted only by a system user.
+      </p>
+    </section>
+    <hr />
+    <section>
       <a name="users"></a>
       <h2>Users API</h2>
       <p>
@@ -1563,8 +1674,7 @@
         Provides a paginated list of users. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by user username using
         <code>_filter</code> query parameter. This accepts a string which is used as a prefix of user's username.
-        Filters shorter than 2 symbols
-        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -1592,6 +1702,9 @@
         </li>
         <li>
           <code>supervisor</code> - a boolean field indicating if user has supervisor privileges
+        </li>
+        <li>
+          <code>system</code> - a boolean field indicating if user is a system user
         </li>
         <li>
           <code>ext_id</code> - a string indexed field containing a unique user's id in external auth system. Used in
@@ -1623,6 +1736,10 @@
         <li>
           <code>supervisor_set_allowed</code> - a boolean field indicating if the current user has permissions to grant
           the listed user supervisor privileges.
+        </li>
+        <li>
+          <code>system_set_allowed</code> - a boolean field indicating if the current user has permissions to set
+          the listed user system flag.
         </li>
       </ul>
       <hr />
