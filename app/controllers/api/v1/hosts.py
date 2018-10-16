@@ -88,7 +88,7 @@ def create():
         sg = ServerGroup.get(host_attrs["server_group_id"], ServerGroupNotFound("server group not found"))
         if not sg.assigning_allowed:
             raise Forbidden("you don't have permissions to assign the given server group")
-        sg["server_group_id"] = sg._id
+        host_attrs["server_group_id"] = sg._id
 
     if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
         datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))
@@ -133,7 +133,7 @@ def update(host_id):
         sg = ServerGroup.get(host_attrs["server_group_id"], ServerGroupNotFound("server group not found"))
         if not sg.assigning_allowed:
             raise Forbidden("you don't have permissions to assign the given server group")
-        sg["server_group_id"] = sg._id
+        host_attrs["server_group_id"] = sg._id
 
     if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
         datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))
