@@ -125,6 +125,13 @@ class Host(StorableModel):
         return ServerGroup.find_one({"_id": self.server_group_id})
 
     @property
+    def server_group_name(self):
+        sg = self.server_group
+        if sg is None:
+            return None
+        return sg.name
+
+    @property
     def group_name(self):
         if self.group is None:
             return ""
