@@ -158,6 +158,21 @@ class User(StorableModel):
     def tokens(self):
         return self.token_class.find({ "user_id": self._id })
 
+    @property
+    def avatar(self):
+        if self.avatar_url:
+            return self.avatar_url
+        if not self.email:
+            return ""
+
+        from hashlib import md5
+        from app import app
+        gravatar_path = app.config.app.get("GRAVATAR_PATH")
+        if not gravatar_path:
+            return ""
+        gravatar_hash = md5(self.email.strip()).hexdigest()
+        return "%s/%s.jpg" % (gravatar_path, gravatar_hash)
+
     def get_auth_token(self):
         tokens = self.token_class.find({ "type": "auth", "user_id": self._id })
         for token in tokens:

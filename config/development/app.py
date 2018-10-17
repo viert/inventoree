@@ -11,3 +11,5 @@ ACTION_LOGGING = True
 
 SESSIONS_AUTO_CLEANUP = True
 SESSIONS_AUTO_CLEANUP_RAND_TRIGGER = 0.05
+
+GRAVATAR_PATH = "https://sys.mail.ru/avatar/internal"
