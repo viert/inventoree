@@ -183,7 +183,7 @@ def full_group_structure(work_group_ids=None, group_fields=None, host_fields=Non
     for group in groups.values():
         group["children"] = {}
         for child_id in group["child_ids"]:
-            group["children"][child_id] = groups[child_id]
+            group["children"][str(child_id)] = groups[str(child_id)]
         group["hosts"] = {}
         group["all_hosts"] = {}
 
