@@ -2,7 +2,7 @@ from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
 from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
-    Forbidden, ApiError, NotFound, ServerGroupNotFound
+    Forbidden, ApiError, NotFound, NetworkGroupNotFound
 from library.engine.action_log import logged_action
 from flask import request
 from copy import copy
@@ -24,9 +24,9 @@ def show(host_id=None):
         if "group_id" in request.values:
             group_id = resolve_id(request.values["group_id"])
             query["group_id"] = group_id
-        if "server_group_id" in request.values:
-            sg_id = resolve_id(request.values["server_group_id"])
-            query["server_group_id"] = sg_id
+        if "network_group_id" in request.values:
+            sg_id = resolve_id(request.values["network_group_id"])
+            query["network_group_id"] = sg_id
         if "tags" in request.values:
             tags = request.values["tags"].split(",")
             query["tags"] = {"$in": tags}
@@ -57,7 +57,7 @@ def show(host_id=None):
 @hosts_ctrl.route("/", methods=["POST"])
 @logged_action("host_create")
 def create():
-    from app.models import Host, Group, Datacenter, ServerGroup
+    from app.models import Host, Group, Datacenter, NetworkGroup
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
     aliases_map = defaultdict(list)
 
@@ -84,11 +84,11 @@ def create():
             raise Forbidden("you don't have permissions to create hosts in this group")
         host_attrs["group_id"] = group._id
 
-    if "server_group_id" in host_attrs and host_attrs["server_group_id"] is not None:
-        sg = ServerGroup.get(host_attrs["server_group_id"], ServerGroupNotFound("server group not found"))
+    if "network_group_id" in host_attrs and host_attrs["network_group_id"] is not None:
+        sg = NetworkGroup.get(host_attrs["network_group_id"], NetworkGroupNotFound("server group not found"))
         if not sg.assigning_allowed:
             raise Forbidden("you don't have permissions to assign the given server group")
-        host_attrs["server_group_id"] = sg._id
+        host_attrs["network_group_id"] = sg._id
 
     if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
         datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))
@@ -109,7 +109,7 @@ def create():
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
 @logged_action("host_update")
 def update(host_id):
-    from app.models import Host, Group, Datacenter, ServerGroup
+    from app.models import Host, Group, Datacenter, NetworkGroup
     host = Host.get(host_id, HostNotFound("host not found"))
 
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
@@ -129,11 +129,11 @@ def update(host_id):
             raise Forbidden("You don't have permissions to move hosts to group %s" % group.name)
         host_attrs["group_id"] = group._id
 
-    if "server_group_id" in host_attrs and host_attrs["server_group_id"] is not None:
-        sg = ServerGroup.get(host_attrs["server_group_id"], ServerGroupNotFound("server group not found"))
+    if "network_group_id" in host_attrs and host_attrs["network_group_id"] is not None:
+        sg = NetworkGroup.get(host_attrs["network_group_id"], NetworkGroupNotFound("server group not found"))
         if not sg.assigning_allowed:
             raise Forbidden("you don't have permissions to assign the given server group")
-        host_attrs["server_group_id"] = sg._id
+        host_attrs["network_group_id"] = sg._id
 
     if "datacenter_id" in host_attrs and host_attrs["datacenter_id"] is not None:
         datacenter = Datacenter.get(host_attrs["datacenter_id"], DatacenterNotFound("datacenter not found"))

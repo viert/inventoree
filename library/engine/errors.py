@@ -116,7 +116,7 @@ class WorkGroupNotFound(NotFound):
     pass
 
 
-class ServerGroupNotFound(NotFound):
+class NetworkGroupNotFound(NotFound):
     pass
 
 

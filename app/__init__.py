@@ -30,9 +30,9 @@ class App(BaseApp):
         from app.controllers.api.v1.groups import groups_ctrl
         self.flask.register_blueprint(groups_ctrl, url_prefix="/api/v1/groups")
 
-        self.logger.debug("groups_ctrl at /api/v1/server_groups")
-        from app.controllers.api.v1.server_groups import server_groups_ctrl
-        self.flask.register_blueprint(server_groups_ctrl, url_prefix="/api/v1/server_groups")
+        self.logger.debug("groups_ctrl at /api/v1/network_groups")
+        from app.controllers.api.v1.network_groups import network_groups_ctrl
+        self.flask.register_blueprint(network_groups_ctrl, url_prefix="/api/v1/network_groups")
 
         self.logger.debug("hosts_ctrl at /api/v1/hosts")
         from app.controllers.api.v1.hosts import hosts_ctrl

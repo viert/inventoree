@@ -139,7 +139,7 @@ class WorkGroup(StorableModel):
     def _before_delete(self):
         if self.groups_count > 0:
             raise WorkGroupNotEmpty("can not delete workgroup having groups")
-        if self.server_groups_count > 0:
+        if self.network_groups_count > 0:
             raise WorkGroupNotEmpty("can not delete workgroup having server groups")
 
     @property
@@ -151,13 +151,13 @@ class WorkGroup(StorableModel):
         return self.group_class.find({ "work_group_id": self._id })
 
     @property
-    def server_groups(self):
-        from app.models import ServerGroup
-        return ServerGroup.find({"work_group_id": self._id})
+    def network_groups(self):
+        from app.models import NetworkGroup
+        return NetworkGroup.find({"work_group_id": self._id})
 
     @property
-    def server_groups_count(self):
-        return self.server_groups.count()
+    def network_groups_count(self):
+        return self.network_groups.count()
 
     @property
     def hosts(self):

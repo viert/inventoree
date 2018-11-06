@@ -494,22 +494,22 @@ class ApiAction(StorableModel):
             "owner_username": owner_username
         }
 
-    def _compute_server_group_create(self):
-        server_group_name = ""
+    def _compute_network_group_create(self):
+        network_group_name = ""
         if "name" in self.params:
-            server_group_name = self.params["name"]
+            network_group_name = self.params["name"]
         self.computed = {
-            "server_group_name": server_group_name
+            "network_group_name": network_group_name
         }
 
-    def _compute_server_group_delete(self):
-        from app.models import ServerGroup
-        server_group_name = ""
-        server_group = ServerGroup.get(self.kwargs["server_group_id"])
-        if server_group is not None:
-            server_group_name = server_group.name
+    def _compute_network_group_delete(self):
+        from app.models import NetworkGroup
+        network_group_name = ""
+        network_group = NetworkGroup.get(self.kwargs["network_group_id"])
+        if network_group is not None:
+            network_group_name = network_group.name
         self.computed = {
-            "server_group_name": server_group_name
+            "network_group_name": network_group_name
         }
 
     def _compute_user_create(self):

@@ -135,7 +135,7 @@
         <a href="#work_groups">WorkGroups</a>
       </li>
       <li>
-        <a href="#server_groups">Server Groups</a>
+        <a href="#network_groups">Network Groups</a>
       </li>
       <li>
         <a href="#users">Users</a>
@@ -925,7 +925,7 @@
             <code>group_id</code> - id of the group the host belongs to. Can be null.
           </li>
           <li>
-            <code>server_group_id</code> - id of the server group the host belongs to. Can be null.
+            <code>network_group_id</code> - id of the server group the host belongs to. Can be null.
           </li>
           <li>
             <code>datacenter_id</code> - id of the datacenter the host belongs to. Can be null.
@@ -946,7 +946,7 @@
             <span class="warning">This is an additional database lookup</span>
           </li>
           <li>
-            <code>server_group</code> - host's server group as an object. Requires an additional DB lookup.
+            <code>network_group</code> - host's server group as an object. Requires an additional DB lookup.
           </li>
           <li>
             <code>group_name</code> - host's group name as a string. It's a shortcut for group.name, useful when you
@@ -1559,16 +1559,16 @@
     </section>
     <hr />
     <section>
-      <a name="server_groups"></a>
-      <h2>Server Groups API (Mail.Ru Group specific)</h2>
+      <a name="network_groups"></a>
+      <h2>Network Groups API (Mail.Ru Group specific)</h2>
       <p>
-        ServerGroups API allows user to manipulate server groups. Server Groups are special tags which may be assigned
-        to a host and are concerned with network and firewall configuration at Mail.Ru. A server group must belong to a
+        NetworkGroups API allows user to manipulate server groups. Network Groups are special tags which may be assigned
+        to a host and are concerned with network and firewall configuration. A network group must belong to a
         WorkGroup so a user can assign his own server groups to his own hosts.
       </p>
       <code class="handler">GET
-            <a href="/api/v1/server_groups/" target="_blank">
-              /api/v1/server_groups/
+            <a href="/api/v1/network_groups/" target="_blank">
+              /api/v1/network_groups/
             </a>
           </code>
       <p>
@@ -1584,10 +1584,10 @@
       </p>
       <ul class="fieldlist">
         <li>
-          <code>_id</code> - a unique id of the workgroup
+          <code>_id</code> - a unique id of the network group
         </li>
         <li>
-          <code>name</code> - a unique name of the workgroup
+          <code>name</code> - a unique name of the network group
         </li>
         <li>
           <code>work_group_id</code> - ID of the work_group the server group belongs to
@@ -1601,59 +1601,59 @@
           additional DB lookup.
         </li>
         <li>
-          <code>hosts</code> - a list of hosts the server group is assigned to. Requires an additional DB lookup.
+          <code>hosts</code> - a list of hosts the network group is assigned to. Requires an additional DB lookup.
         </li>
         <li>
-          <code>hosts_count</code> - a number of hosts the server group is assigned to. Requires an additional DB
+          <code>hosts_count</code> - a number of hosts the network group is assigned to. Requires an additional DB
           lookup.
         </li>
         <li>
           <code>modification_allowed</code> - a boolean field indicating if current user has permissions to modify the
-          server group. Server groups can be modified only by system users.
+          network group. Network groups can be modified only by system users.
         </li>
         <li>
           <code>assigning_allowed</code> - a boolean field indicating if current user has permissions to assign the
-          group_id to a host. User must be in the same work_group to assign the server group.
+          network_group_id to a host. User must be in the same work_group to assign the network group.
         </li>
       </ul>
       <hr />
       <code class="handler">GET
-            <a href="/api/v1/server_groups/:id" target="_blank">
-              /api/v1/server_groups/:id
+            <a href="/api/v1/network_groups/:id" target="_blank">
+              /api/v1/network_groups/:id
             </a>
           </code>
       <p>
-        Behaves exactly as the server group list handler but for only one workgroup identified by
+        Behaves exactly as the network group list handler but for only one workgroup identified by
         <code>:id</code> parameter which can be both
         <code>_id</code> or
         <code>name</code> as server group name is also unique. Response behaves exactly the same so you get a list of
-        workgroups with only one element.
+        network groups with only one element.
         <code>_fields</code> parameter is relevant here as well however
         <code>_filter</code> is prohibited.
       </p>
       <hr />
       <code class="handler">POST
-            <a href="/api/v1/server_groups/" target="_blank">
-              /api/v1/server_groups/
+            <a href="/api/v1/network_groups/" target="_blank">
+              /api/v1/network_groups/
             </a>
           </code>
       <p>
-        Creates a server group with a given JSON payload. This can be done only by system users and is supposed to be
-        used by an external NOC systems via API.
+        Creates a network group with a given JSON payload. This can be done only by system users and is supposed to be
+        used by an external systems via API.
       </p>
       <hr />
       <code class="handler">DELETE
-        <a href="/api/v1/server_groups/:id" target="_blank">
-          /api/v1/server_groups/:id
+        <a href="/api/v1/network_groups/:id" target="_blank">
+          /api/v1/network_groups/:id
         </a>
       </code>
       <p>
-        Deletes a server group with a given id which is supposed to be
+        Deletes a network group with a given id which is supposed to be
         <code>_id</code> or
-        <code>name</code> of the workgroup.
+        <code>name</code> of the network group.
       </p>
       <p>
-        A server group can be deleted only by a system user.
+        A network group can be deleted only by a system user.
       </p>
     </section>
     <hr />

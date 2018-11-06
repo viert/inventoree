@@ -2,7 +2,7 @@ import re
 from storable_model import StorableModel, now
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
                                 GroupNotFound, InvalidAliases, InvalidFQDN, \
-                                InvalidIpAddresses, ServerGroupNotFound
+                                InvalidIpAddresses, NetworkGroupNotFound
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 
@@ -27,7 +27,7 @@ class Host(StorableModel):
         "created_at",
         "updated_at",
         "ip_addrs",
-        "server_group_id"
+        "network_group_id"
     )
 
     KEY_FIELD = "fqdn"
@@ -54,7 +54,7 @@ class Host(StorableModel):
         [ "fqdn", { "unique": True } ],
         "group_id",
         "datacenter_id",
-        "server_group_id",
+        "network_group_id",
         "tags",
         "aliases",
         [ "custom_fields.key", "custom_fields.value" ]
@@ -79,8 +79,8 @@ class Host(StorableModel):
             raise GroupNotFound("can not find group with id %s" % self.group_id)
         if self.datacenter_id is not None and self.datacenter is None:
             raise DatacenterNotFound("can not find datacenter with id %s" % self.datacenter_id)
-        if self.server_group_id is not None and self.server_group is None:
-            raise ServerGroupNotFound("can not find server group with id %s" % self.server_group_id)
+        if self.network_group_id is not None and self.network_group is None:
+            raise NetworkGroupNotFound("can not find network group with id %s" % self.network_group_id)
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
             raise InvalidTags("tags must be of array type")
         if len(set(self.tags)) != len(self.tags):
@@ -118,15 +118,15 @@ class Host(StorableModel):
         return self.group_class.find_one({ "_id": self.group_id })
 
     @property
-    def server_group(self):
-        from app.models import ServerGroup
-        if self.server_group_id is None:
+    def network_group(self):
+        from app.models import NetworkGroup
+        if self.network_group_id is None:
             return None
-        return ServerGroup.find_one({"_id": self.server_group_id})
+        return NetworkGroup.find_one({"_id": self.network_group_id})
 
     @property
-    def server_group_name(self):
-        sg = self.server_group
+    def network_group_name(self):
+        sg = self.network_group
         if sg is None:
             return None
         return sg.name

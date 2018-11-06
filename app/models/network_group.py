@@ -3,11 +3,11 @@ from library.engine.utils import get_user_from_app_context
 from library.engine.errors import InvalidWorkGroupId, ServerGroupNotEmpty
 
 
-class ServerGroup(StorableModel):
+class NetworkGroup(StorableModel):
 
     # This model relates to mail.ru-specific terms
 
-    _collection = 'server_groups'
+    _collection = 'network_groups'
 
     FIELDS = (
         "_id",
@@ -59,7 +59,7 @@ class ServerGroup(StorableModel):
     @property
     def hosts(self):
         from app.models import Host
-        return Host.find({"server_group_id": self._id})
+        return Host.find({"network_group_id": self._id})
 
     @property
     def hosts_count(self):
@@ -78,7 +78,7 @@ class ServerGroup(StorableModel):
 
     def clear_hosts(self):
         for host in self.hosts:
-            host.server_group_id = None
+            host.network_group_id = None
             host.save()
 
     @staticmethod

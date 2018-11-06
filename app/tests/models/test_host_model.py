@@ -1,6 +1,6 @@
 from unittest import TestCase
-from app.models import WorkGroup, Group, Host, Datacenter, User, ServerGroup
-from library.engine.errors import GroupNotFound, DatacenterNotFound, InvalidTags, InvalidAliases, ServerGroupNotFound
+from app.models import WorkGroup, Group, Host, Datacenter, User, NetworkGroup
+from library.engine.errors import GroupNotFound, DatacenterNotFound, InvalidTags, InvalidAliases, NetworkGroupNotFound
 from pymongo.errors import DuplicateKeyError
 
 TEST_CUSTOM_FIELDS_G1 = [
@@ -53,8 +53,8 @@ class TestHostModel(TestCase):
         Host.ensure_indexes()
         Group.destroy_all()
         Group.ensure_indexes()
-        ServerGroup.destroy_all()
-        ServerGroup.ensure_indexes()
+        NetworkGroup.destroy_all()
+        NetworkGroup.ensure_indexes()
         WorkGroup.destroy_all()
         WorkGroup.ensure_indexes()
         User.destroy_all()
@@ -70,7 +70,7 @@ class TestHostModel(TestCase):
     @classmethod
     def tearDownClass(cls):
         Host.destroy_all()
-        ServerGroup.destroy_all()
+        NetworkGroup.destroy_all()
         Group.destroy_all()
         WorkGroup.destroy_all()
         User.destroy_all()
@@ -189,5 +189,5 @@ class TestHostModel(TestCase):
     def test_invalid_server_groups(self):
         g1 = Group(name="g1", work_group_id=self.twork_group._id)
         g1.save()
-        h = Host(fqdn="host.example.com", group_id=g1._id, server_group_id="doesntmakeanysense")
-        self.assertRaises(ServerGroupNotFound, h.save)
+        h = Host(fqdn="host.example.com", group_id=g1._id, network_group_id="doesntmakeanysense")
+        self.assertRaises(NetworkGroupNotFound, h.save)

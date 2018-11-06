@@ -287,16 +287,16 @@ class TestHostCtrl(HttpApiTestCase):
         for host in hosts:
             self.assertEqual(host.group_id, None)
 
-    def test_assign_others_server_group(self):
-        from app.models import Group, ServerGroup
+    def test_assign_others_network_group(self):
+        from app.models import Group, NetworkGroup
         g = Group(name="group", work_group_id=self.work_group2._id)
         g.save()
         h1 = Host(fqdn="host1", group_id=g._id)
         h1.save()
         # host now belongs to work_group2
-        sg = ServerGroup(name="sg", work_group_id=self.work_group1._id)
-        sg.save()
+        ng = NetworkGroup(name="ng", work_group_id=self.work_group1._id)
+        ng.save()
         # servergroup belongs to work_group1
-        payload = {"server_group_id": str(sg._id)}
+        payload = {"network_group_id": str(ng._id)}
         r = self.put_json("/api/v1/hosts/%s" % h1.fqdn, payload, supervisor=False)
         self.assertEqual(403, r.status_code)

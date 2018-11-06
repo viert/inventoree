@@ -8,7 +8,7 @@ class Test(Command):
     NO_ARGPARSE = True
 
     def run(self, *args, **kwargs):
-        from app.models import WorkGroup, Group, Host, Datacenter, User, ApiAction, Token, ServerGroup
+        from app.models import WorkGroup, Group, Host, Datacenter, User, ApiAction, Token, NetworkGroup
         from app import app
         from app import tests
         app.logger.level = logging.ERROR
@@ -20,7 +20,7 @@ class Test(Command):
         User._collection = 'test_users'
         ApiAction._collection = 'test_api_actions'
         Token._collection = 'test_tokens'
-        ServerGroup._collection = 'test_server_groups'
+        NetworkGroup._collection = 'test_network_groups'
 
         argv = ['micro.py test'] + self.raw_args
         test_program = main(argv=argv, module=tests, exit=False)
