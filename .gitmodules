@@ -1,3 +1,0 @@
-[submodule "webui"]
-	path = webui
-	url = git+ssh://gitlab.corp.mail.ru/p.vorobyov/inventoree-ui
