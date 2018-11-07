@@ -151,11 +151,20 @@ def create():
         work_group = WorkGroup.get(group_attrs["work_group_id"], WorkGroupNotFound("work_group provided has not been found"))
         group_attrs["work_group_id"] = work_group._id
 
+    if "parent_group_id" in group_attrs:
+        parent = Group.get(group_attrs["parent_group_id"], GroupNotFound("parent group provided has not been found"))
+    else:
+        parent = None
+
     group_attrs = dict([x for x in group_attrs.items() if x[0] in Group.FIELDS])
     if not work_group.modification_allowed:
         raise Forbidden("you don't have permission to create groups in this work_group")
     group = Group(**group_attrs)
     group.save()
+
+    if parent:
+        group.add_parent(parent)
+
     return json_response({ "data": group.to_dict(get_request_fields()) }, 201)
 
 @groups_ctrl.route("/<group_id>", methods=["DELETE"])
