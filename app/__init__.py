@@ -14,9 +14,9 @@ class App(BaseApp):
         from app.controllers.api.doc import doc_ctrl
         self.flask.register_blueprint(doc_ctrl, url_prefix="/api")
 
-        self.logger.debug("projects_ctrl at /api/v1/projects")
-        from app.controllers.api.v1.projects import projects_ctrl
-        self.flask.register_blueprint(projects_ctrl, url_prefix="/api/v1/projects")
+        self.logger.debug("work_groups_ctrl at /api/v1/work_groups")
+        from app.controllers.api.v1.work_groups import work_groups_ctrl
+        self.flask.register_blueprint(work_groups_ctrl, url_prefix="/api/v1/work_groups")
 
         self.logger.debug("account_ctrl at /api/v1/account")
         from app.controllers.api.v1.account import account_ctrl
@@ -29,6 +29,10 @@ class App(BaseApp):
         self.logger.debug("groups_ctrl at /api/v1/groups")
         from app.controllers.api.v1.groups import groups_ctrl
         self.flask.register_blueprint(groups_ctrl, url_prefix="/api/v1/groups")
+
+        self.logger.debug("groups_ctrl at /api/v1/network_groups")
+        from app.controllers.api.v1.network_groups import network_groups_ctrl
+        self.flask.register_blueprint(network_groups_ctrl, url_prefix="/api/v1/network_groups")
 
         self.logger.debug("hosts_ctrl at /api/v1/hosts")
         from app.controllers.api.v1.hosts import hosts_ctrl

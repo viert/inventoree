@@ -15,7 +15,7 @@ def show(user_id=None):
         query = {}
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
-            if len(name_filter) >= 2:
+            if len(name_filter) > 0:
                 query["username"] = { "$regex": "^%s" % name_filter }
         users = User.find(query)
     else:
@@ -113,6 +113,27 @@ def set_supervisor(user_id):
         raise ApiError("invalid superuser field type")
 
     user.supervisor = supervisor
+    user.save()
+    return json_response({"data":user.to_dict(get_request_fields())})
+
+
+@users_ctrl.route("/<user_id>/set_system", methods=["PUT"])
+@logged_action("user_set_system")
+def set_system(user_id):
+    from app.models import User
+    user = User.get(user_id, UserNotFound("user not found"))
+    if not user.system_set_allowed:
+        raise Forbidden("you don't have permissions to set system property for this user")
+
+    try:
+        system = request.json["system"]
+    except KeyError:
+        raise ApiError("no system field provided")
+
+    if type(system) != bool:
+        raise ApiError("invalid system field type")
+
+    user.system = system
     user.save()
     return json_response({"data":user.to_dict(get_request_fields())})
 

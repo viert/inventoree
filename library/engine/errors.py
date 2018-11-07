@@ -83,6 +83,11 @@ class FieldRequired(ApiError):
 class InvalidTags(IntegrityError):
     pass
 
+
+class InvalidIpAddresses(IntegrityError):
+    pass
+
+
 class InvalidFQDN(IntegrityError):
     pass
 
@@ -107,11 +112,19 @@ class HostNotFound(NotFound):
     pass
 
 
-class ProjectNotFound(NotFound):
+class WorkGroupNotFound(NotFound):
     pass
 
 
-class ProjectNotEmpty(IntegrityError):
+class NetworkGroupNotFound(NotFound):
+    pass
+
+
+class ServerGroupNotEmpty(IntegrityError):
+    pass
+
+
+class WorkGroupNotEmpty(IntegrityError):
     pass
 
 
@@ -123,7 +136,7 @@ class UserAlreadyExists(Conflict):
     pass
 
 
-class InvalidProjectId(ApiError):
+class InvalidWorkGroupId(ApiError):
     pass
 
 

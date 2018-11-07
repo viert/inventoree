@@ -2,6 +2,7 @@ from datetime import datetime
 from functools import wraps
 from library.engine.errors import FieldRequired, ObjectSaveRequired
 from library.engine.cache import request_time_cache
+from library.engine.utils import can_assign_system_fields
 
 
 def hungarian(name):
@@ -43,6 +44,7 @@ class StorableModel(object):
     REJECTED_FIELDS = []
     REQUIRED_FIELDS = set()
     RESTRICTED_FIELDS = []
+    SYSTEM_FIELDS = []
     KEY_FIELD = None
     DEFAULTS = {}
     INDEXES = []
@@ -53,6 +55,7 @@ class StorableModel(object):
         "REJECTED_FIELDS",
         "REQUIRED_FIELDS",
         "RESTRICTED_FIELDS",
+        "SYSTEM_FIELDS",
         "KEY_FIELD",
         "DEFAULTS",
         "INDEXES",
@@ -89,6 +92,8 @@ class StorableModel(object):
     def update(self, data, skip_callback=False):
         for field in self.FIELDS:
             if field in data and field not in self.REJECTED_FIELDS and field != "_id":
+                if field in self.SYSTEM_FIELDS and not can_assign_system_fields():
+                    continue
                 self.__setattr__(field, data[field])
         self.save(skip_callback=skip_callback)
 
@@ -219,9 +224,12 @@ class StorableModel(object):
 
     @classmethod
     def destroy_all(cls):
-        # print "destroying all, class %s, collection %s" % (cls.__name__, cls.collection)
+        cls.destroy_many({})
+
+    @classmethod
+    def destroy_many(cls, query):
         from library.db import db
-        db.delete_query(cls.collection, {})
+        db.delete_query(cls.collection, query)
 
     @classmethod
     def ensure_indexes(cls, loud=False, overwrite=False):

@@ -6,5 +6,7 @@ FLASK_APP_SETTINGS = {
 }
 PORT = 3000
 STATIC_FOLDER = "static"
-AUTHORIZER = "LocalAuthorizer"
+AUTHORIZER = "SysAuthorizer"
 ACTION_LOGGING = True
+
+GRAVATAR_PATH = "https://sys.mail.ru/avatar/internal"

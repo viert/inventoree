@@ -7,7 +7,7 @@ from flask import g
 import bcrypt
 
 
-class UserHasProjects(Exception):
+class UserIsInWorkGroups(Exception):
     pass
 
 
@@ -27,6 +27,7 @@ class User(StorableModel):
         "created_at",
         "updated_at",
         "supervisor",
+        "system",
         "custom_data"
     )
 
@@ -36,11 +37,12 @@ class User(StorableModel):
         "first_name": "",
         "last_name": "",
         "avatar_url": "",
-        "supervisor": False,
         "password_hash": "-",
         "email": "",
         "custom_data": {},
-        "ext_id": None
+        "ext_id": None,
+        "supervisor": False,
+        "system": False
     }
 
     RESTRICTED_FIELDS = [
@@ -59,13 +61,15 @@ class User(StorableModel):
         "supervisor",
         "created_at",
         "updated_at",
+        "system",
     )
 
     INDEXES = (
-        ["username",{"unique":True}],
+        ["username",{"unique": True}],
         "ext_id",
         "custom_data",
         "supervisor",
+        "system",
     )
 
     __slots__ = list(FIELDS) + ["_salt"]
@@ -124,10 +128,10 @@ class User(StorableModel):
         self.touch()
 
     def _before_delete(self):
-        if self.projects_owned.count() > 0:
-            raise UserHasProjects("Can't remove user with projects owned by")
-        for project in self.projects_included_into:
-            project.remove_member(self)
+        if self.work_groups_owned.count() > 0:
+            raise UserIsInWorkGroups("Can't remove user with work_groups owned by")
+        for work_group in self.work_groups_included_into:
+            work_group.remove_member(self)
 
     def set_password(self, password_raw):
         from app import app
@@ -154,6 +158,21 @@ class User(StorableModel):
     def tokens(self):
         return self.token_class.find({ "user_id": self._id })
 
+    @property
+    def avatar(self):
+        if self.avatar_url:
+            return self.avatar_url
+        if not self.email:
+            return ""
+
+        from hashlib import md5
+        from app import app
+        gravatar_path = app.config.app.get("GRAVATAR_PATH")
+        if not gravatar_path:
+            return ""
+        gravatar_hash = md5(self.email.strip()).hexdigest()
+        return "%s/%s.jpg" % (gravatar_path, gravatar_hash)
+
     def get_auth_token(self):
         tokens = self.token_class.find({ "type": "auth", "user_id": self._id })
         for token in tokens:
@@ -175,20 +194,20 @@ class User(StorableModel):
 
     @property
     @request_time_cache()
-    def projects_owned(self):
-        from app.models import Project
-        return Project.find({"owner_id": self._id})
+    def work_groups_owned(self):
+        from app.models import WorkGroup
+        return WorkGroup.find({"owner_id": self._id})
 
     @property
     @request_time_cache()
-    def projects_included_into(self):
-        from app.models import Project
-        return Project.find({"member_ids": self._id})
+    def work_groups_included_into(self):
+        from app.models import WorkGroup
+        return WorkGroup.find({"member_ids": self._id})
 
     @property
     def member_of(self):
-        from app.models import Project
-        return Project.find({"$or":[
+        from app.models import WorkGroup
+        return WorkGroup.find({"$or":[
             {"member_ids": self._id},
             {"owner_id": self._id}
         ]})
@@ -201,8 +220,12 @@ class User(StorableModel):
         return False
 
     @property
+    def system_set_allowed(self):
+        return self.supervisor_set_allowed
+
+    @property
     def supervisor_set_allowed(self):
-        user = get_user_from_app_context()
-        return user.supervisor and user._id != self._id
         # user can't revoke his supervisor privileges himself
         # just in case of misclick
+        user = get_user_from_app_context()
+        return user.supervisor and user._id != self._id

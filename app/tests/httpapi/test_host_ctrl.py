@@ -45,7 +45,7 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertItemsEqual(payload["tags"], host.tags)
 
     def test_create_host_insufficient_permissions(self):
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
         payload = deepcopy(TEST_HOST_1)
         payload["group_id"] = g1._id
@@ -79,6 +79,28 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertEqual(host.description, TEST_HOST_2["description"])
         self.assertItemsEqual(host.tags, TEST_HOST_2["tags"])
         self.assertItemsEqual(host.aliases, TEST_HOST_2["aliases"])
+
+    def test_update_host_system_fields(self):
+        g = Group(name="test_group", work_group_id=self.work_group1._id)
+        g.save()
+        host = Host(fqdn="host1.example.com", group_id=g._id)
+        host.save()
+
+        payload = {"description": "description", "ip_addrs": [{"type": "e", "addr": "1.3.5.8"}]}
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=True, system=False)
+        self.assertEqual(200, r.status_code)
+
+        host.reload()
+        self.assertEqual(0, len(host.ip_addrs), "ip addresses should not be assigned by supervisor")
+        self.assertEqual("description", host.description, "host description should have been changed")
+
+        payload = {"description": "description2", "ip_addrs": [{"type": "e", "addr": "1.3.5.8"}]}
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=False, system=True)
+        self.assertEqual(200, r.status_code)
+
+        host.reload()
+        self.assertItemsEqual([{"type": "e", "addr": "1.3.5.8"}], host.ip_addrs)
+        self.assertEqual("description", host.description, "host description should have remained unaffected")
 
     def test_host_set_custom_fields(self):
         self.test_create_host()
@@ -144,9 +166,9 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertItemsEqual(tags, host.tags)
 
     def test_update_host_insufficient_permissions(self):
-        g1 = Group(name="g1", project_id=self.project2._id)
+        g1 = Group(name="g1", work_group_id=self.work_group2._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
         host = Host(**TEST_HOST_1)
         host.group_id = g2._id
@@ -175,7 +197,7 @@ class TestHostCtrl(HttpApiTestCase):
 
     def test_mass_delete(self):
         from app.models import Group
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
         h1 = Host(fqdn="host1", group_id=g1._id)
         h1.save()
@@ -201,9 +223,9 @@ class TestHostCtrl(HttpApiTestCase):
 
     def test_mass_move(self):
         from app.models import Group
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
         h1 = Host(fqdn="host1", group_id=g1._id)
         h1.save()
@@ -234,9 +256,9 @@ class TestHostCtrl(HttpApiTestCase):
 
     def test_mass_detach(self):
         from app.models import Group
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
         h1 = Host(fqdn="host1", group_id=g1._id)
         h1.save()
@@ -265,3 +287,16 @@ class TestHostCtrl(HttpApiTestCase):
         for host in hosts:
             self.assertEqual(host.group_id, None)
 
+    def test_assign_others_network_group(self):
+        from app.models import Group, NetworkGroup
+        g = Group(name="group", work_group_id=self.work_group2._id)
+        g.save()
+        h1 = Host(fqdn="host1", group_id=g._id)
+        h1.save()
+        # host now belongs to work_group2
+        ng = NetworkGroup(name="ng", work_group_id=self.work_group1._id)
+        ng.save()
+        # servergroup belongs to work_group1
+        payload = {"network_group_id": str(ng._id)}
+        r = self.put_json("/api/v1/hosts/%s" % h1.fqdn, payload, supervisor=False)
+        self.assertEqual(403, r.status_code)

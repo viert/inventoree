@@ -132,7 +132,10 @@
         <a href="#open">Open</a>
       </li>
       <li>
-        <a href="#projects">Projects</a>
+        <a href="#work_groups">WorkGroups</a>
+      </li>
+      <li>
+        <a href="#network_groups">Network Groups</a>
       </li>
       <li>
         <a href="#users">Users</a>
@@ -303,8 +306,7 @@
         Provides a paginated list of datacenters. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by datacenter name using
         <code>_filter</code> query parameter. This accepts a string which is used as a prefix of datacenter name.
-        Filters shorter than 2 symbols
-        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -506,11 +508,10 @@
       <a name="groups"></a>
       <h2>Groups API</h2>
       <p>
-        Groups API allows user to manipulate groups. Every group must be included into a project. Group without a
-        project is not
-        valid. Group may have a number of parents and a number of children, thus, it's not a tree but a graph or to be
-        more
-        precise a set of graphs as groups in one project can not be connected to groups in other project.
+        Groups API allows user to manipulate groups. Every group must be included into a workgroup. Group without a
+        workgroup is not valid. Group may have a number of parents and a number of children, thus, it's not a tree but
+        a graph or to be
+        more precise a set of graphs as groups in one workgroup can not be connected to groups in other workgroup.
       </p>
       <p>
         Groups can have tags and custom fields attached to them. Tags are arbitrary string items while custom fields
@@ -546,9 +547,8 @@
       <p>
         Provides a paginated list of groups. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by group name using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of group name. Filters
-        shorter than 2 symbols are
-        ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of group name.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -571,7 +571,7 @@
             <code>updated_at</code> - datetime of the last model update.
           </li>
           <li>
-            <code>project_id</code> - id of the project group belongs to
+            <code>work_group_id</code> - id of the workgroup group belongs to
           </li>
           <li>
             <code>parent_ids</code> - a list of group's parents ids
@@ -607,13 +607,13 @@
             <span class="warning">This is an additional database lookup</span>
           </li>
           <li>
-            <code>project</code> - a project the group belongs to as an object.
+            <code>work_group</code> - a workgroup the group belongs to as an object.
             <span class="warning">This is an additional database lookup</span>
           </li>
           <li>
             <code>modification_allowed</code> - a boolean field indicating if user is allowed to modify this group.
             <span class="warning">This is a couple of additional database lookups as this depends on user relations to
-              the group's project.</span>
+              the group's workgroup.</span>
           </li>
           <li>
             <code>all_tags</code> - a list of all tags attached to the group directly plus all the tags attached to all
@@ -628,9 +628,10 @@
             <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
           </li>
           <li>
-            <code>project_name</code> - a group's project name as a string. This is a shortcut to reduce the response
-            size in case you need only project's
-            name not the whole project object, made primarily for the web ui.
+            <code>work_group_name</code> - a group's workgroup name as a string. This is a shortcut to reduce the
+            response
+            size in case you need only workgroup's
+            name not the whole workgroup object, made primarily for the web ui.
             <span class="warning">This is an additional database lookup</span>
           </li>
         </ul>
@@ -657,12 +658,12 @@
         </a>
       </code>
       <p>
-        Creates a group with a given JSON payload. Group has to belong to a project which can be indicated by
-        <code>project_id</code> field of payload or by
-        <code>project_name</code> field if you find it more convenient. Both methods are equal.
+        Creates a group with a given JSON payload. Group has to belong to a workgroup which can be indicated by
+        <code>work_group_id</code> field of payload or by
+        <code>work_group_name</code> field if you find it more convenient. Both methods are equal.
       </p>
       <p>
-        Group can be created only if user is a member of the project the group is going to belong to.
+        Group can be created only if user is a member of the workgroup the group is going to belong to.
       </p>
       <hr />
       <code class="handler">PUT
@@ -680,7 +681,7 @@
         nodes and may confuse if are not in a separated handler.
       </p>
       <p>
-        Group can be modified only if user is a member of the project the group belongs to.
+        Group can be modified only if user is a member of the workgroup the group belongs to.
       </p>
       <hr />
       <code class="handler">DELETE
@@ -696,7 +697,7 @@
         hosts so you have to drop those connections first.
       </p>
       <p>
-        Group can be deleted only if user is a member of the project the group belongs to.
+        Group can be deleted only if user is a member of the workgroup the group belongs to.
       </p>
       <hr />
       <code class="handler">PUT
@@ -709,7 +710,7 @@
         <code>child_ids</code> field of JSON payload as a list of IDs.
       </p>
       <p>
-        Modifies group's children only if user is a member of the project the group belongs to.
+        Modifies group's children only if user is a member of the workgroup the group belongs to.
       </p>
       <hr />
       <code class="handler">PUT
@@ -724,7 +725,7 @@
         means that hosts listed in your request lose membership in groups they belonged to before.
       </p>
       <p>
-        Modifies group's hosts only if user is a member of the project the group belongs to.
+        Modifies group's hosts only if user is a member of the workgroup the group belongs to.
       </p>
       <hr />
 
@@ -748,7 +749,7 @@
         New keys are added to custom fields list in the usual way.
       </p>
       <p>
-        Modifies the group only if user is a member of the project the group belongs to.
+        Modifies the group only if user is a member of the workgroup the group belongs to.
       </p>
       <hr />
 
@@ -769,7 +770,7 @@
         If the group doesn't have a custom field with a specified key, the key will be ignored.
       </p>
       <p>
-        Modifies the group only if user is a member of the project the group belongs to.
+        Modifies the group only if user is a member of the workgroup the group belongs to.
       </p>
       <hr />
 
@@ -789,7 +790,7 @@
         If the group already has a tag provided, the tag will be ignored as the list of tags must be unique.
       </p>
       <p>
-        Modifies the group only if user is a member of the project the group belongs to.
+        Modifies the group only if user is a member of the workgroup the group belongs to.
       </p>
       <hr />
 
@@ -809,7 +810,7 @@
         If the group doesn't have a tag provided for deletion, the tag will be ignored.
       </p>
       <p>
-        Modifies the group only if user is a member of the project the group belongs to.
+        Modifies the group only if user is a member of the workgroup the group belongs to.
       </p>
       <hr />
 
@@ -820,16 +821,18 @@
       </code>
       <p>
         Accepts JSON payload like
-        <code>{ "group_ids": [...], "project_id": "..." }</code> and moves all listed groups to the new project. Groups
+        <code>{ "group_ids": [...], "work_group_id": "..." }</code> and moves all listed groups to the new workgroup.
+        Groups
         are detached from their parents as parents remain in previous
-        project so can't be connected anymore.
+        workgroup so can't be connected anymore.
       </p>
       <p>
-        Groups are moved if user has a membership in all the projects all the groups belong to. User don't have to have
+        Groups are moved if user has a membership in all the workgroups all the groups belong to. User don't have to
+        have
         a membership
-        in a target project so one should be aware that in this case user loses control over the groups he's just
+        in a target workgroup so one should be aware that in this case user loses control over the groups he's just
         moved.
-        This works like giving away without any way to get groups back without help of target project members.
+        This works like giving away without any way to get groups back without help of target workgroup members.
       </p>
       <hr />
       <code class="handler">POST
@@ -843,7 +846,7 @@
         detached from the groups being deleted.
       </p>
       <p>
-        Groups are deleted if user has a membership in all the projects all the groups belong to.
+        Groups are deleted if user has a membership in all the workgroups all the groups belong to.
       </p>
       <hr />
       <code class="handler">GET
@@ -895,9 +898,8 @@
       <p>
         Provides a paginated list of hosts. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by host fqdn using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of host fqdn. Filters
-        shorter than 2 symbols are
-        ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of host fqdn.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -923,6 +925,9 @@
             <code>group_id</code> - id of the group the host belongs to. Can be null.
           </li>
           <li>
+            <code>network_group_id</code> - id of the server group the host belongs to. Can be null.
+          </li>
+          <li>
             <code>datacenter_id</code> - id of the datacenter the host belongs to. Can be null.
           </li>
           <li>
@@ -939,6 +944,9 @@
             <code>group_id</code> is null which is allowed,
             <code>group</code> also returns null.
             <span class="warning">This is an additional database lookup</span>
+          </li>
+          <li>
+            <code>network_group</code> - host's server group as an object. Requires an additional DB lookup.
           </li>
           <li>
             <code>group_name</code> - host's group name as a string. It's a shortcut for group.name, useful when you
@@ -1287,7 +1295,7 @@
         </a>
       </code>
       <p>
-        Returns a structure containing groups, hosts, projects and datacenters in format compatible with
+        Returns a structure containing groups, hosts, workgroups and datacenters in format compatible with
         <a href="https://github.com/viert/xcute" target="_blank">XCute</a> CLI (and is commonly used exactly by xcute
         in fact)
       </p>
@@ -1295,7 +1303,7 @@
         Accepts a number of query string parameters:
       </p>
       <p>
-        <code>projects</code> - comma-separated list of project names to limit the output to.
+        <code>work_groups</code> - comma-separated list of workgroup names to limit the output to.
       </p>
       <p>
         <code>recursive</code> - a boolean field indicating that
@@ -1317,8 +1325,9 @@
       </p>
       <p>
         Accepts:<br />
-        <code>projects</code> query string parameter - a comma-separated list of project names allowing to limit the
-        output to the given projects. <br />
+        <code>work_groups</code> query string parameter - a comma-separated list of workgroup names allowing to limit
+        the
+        output to the given workgroups. <br />
         <code>vars</code> query parameter which can be set to <code>true</code>, <code>yes</code> or <code>1</code> for
         true value otherwise it's false.
         This indicates if the output should contain host variables for ansible inventory.<br />
@@ -1353,24 +1362,23 @@
     </section>
     <hr />
     <section>
-      <a name="projects"></a>
-      <h2>Projects API</h2>
+      <a name="work_groups"></a>
+      <h2>WorkGroups API</h2>
       <p>
-        Projects API allows user to manipulate projects. Projects are high level models connecting users with all the
-        structures
-        Inventoree has.
+        WorkGroups API allows user to manipulate workgroups. WorkGroups are high level models connecting users with all
+        the
+        structures Inventoree has.
       </p>
       <code class="handler">GET
-        <a href="/api/v1/projects/" target="_blank">
-          /api/v1/projects/
+        <a href="/api/v1/work_groups/" target="_blank">
+          /api/v1/work_groups/
         </a>
       </code>
       <p>
-        Provides a paginated list of projects. Read more about pagination in
-        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by project name using
-        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of project name. Filters
-        shorter than 2 symbols
-        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        Provides a paginated list of workgroups. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by workgroup name using
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of workgroup name.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -1379,27 +1387,27 @@
       </p>
       <ul class="fieldlist">
         <li>
-          <code>_id</code> - a unique id of the project
+          <code>_id</code> - a unique id of the workgroup
         </li>
         <li>
-          <code>name</code> - a unique name of the project
+          <code>name</code> - a unique name of the workgroup
         </li>
         <li>
-          <code>description</code> - a description of the project. Can be null
+          <code>description</code> - a description of the workgroup. Can be null
         </li>
         <li>
-          <code>email</code> - a email associated with the project. Can be null
+          <code>email</code> - a email associated with the workgroup. Can be null
         </li>
         <li>
           <code>root_email</code> - in first versions of conductor this field used to keep the address for root email
-          for servers in the project.
+          for servers in the workgroup.
           Can be null.
         </li>
         <li>
-          <code>owner_id</code> - this is an ID of the project's owner (user)
+          <code>owner_id</code> - this is an ID of the workgroup's owner (user)
         </li>
         <li>
-          <code>members_id</code> - this is a list of IDs of project's members (users as well)
+          <code>members_id</code> - this is a list of IDs of workgroup's members (users as well)
         </li>
         <li>
           <code>created_at</code> - datetime of the model creation.
@@ -1408,7 +1416,7 @@
           <code>updated_at</code> - datetime of the last model update.
         </li>
         <li>
-          <code>owner</code> - project's owner as an object.
+          <code>owner</code> - workgroup's owner as an object.
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
@@ -1416,136 +1424,236 @@
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
-          <code>members</code> - a list of project's members as objects.
+          <code>members</code> - a list of workgroup's members as objects.
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
-          <code>member_usernames</code> - a list of project's member names.
+          <code>member_usernames</code> - a list of workgroup's member names.
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
           <code>modification_allowed</code> - a boolean field indicating if current user has permissions to modify the
-          project
+          workgroup
         </li>
         <li>
           <code>member_list_modification_allowed</code> - a boolean field indicating if current user has permissions to
-          modify the project's member list
+          modify the workgroup's member list
         </li>
         <li>
-          <code>groups_count</code> - a number of groups in the project
+          <code>groups_count</code> - a number of groups in the workgroup
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
-          <code>groups</code> - a list of groups included in the project as objects
+          <code>groups</code> - a list of groups included in the workgroup as objects
           <span class="warning">This is an additional database lookup</span>
         </li>
       </ul>
       <hr />
       <code class="handler">GET
-        <a href="/api/v1/projects/:id" target="_blank">
-          /api/v1/projects/:id
+        <a href="/api/v1/work_groups/:id" target="_blank">
+          /api/v1/work_groups/:id
         </a>
       </code>
       <p>
-        Behaves exactly as the project list handler but for only one project identified by
+        Behaves exactly as the workgroup list handler but for only one workgroup identified by
         <code>:id</code> parameter which can be both
         <code>_id</code> or
-        <code>name</code> as project name is also unique. Response behaves exactly the same so you get a list of
-        projects with only one element.
+        <code>name</code> as workgroup name is also unique. Response behaves exactly the same so you get a list of
+        workgroups with only one element.
         <code>_fields</code> parameter is relevant here as well however
         <code>_filter</code> is prohibited.
       </p>
       <hr />
       <code class="handler">POST
-        <a href="/api/v1/projects/" target="_blank">
-          /api/v1/projects/
+        <a href="/api/v1/work_groups/" target="_blank">
+          /api/v1/work_groups/
         </a>
       </code>
       <p>
-        Creates a project with a given JSON payload. Project's owner is being set automatically and equals to current
+        Creates a work_group with a given JSON payload. WorkGroup's owner is being set automatically and equals to
+        current
         user.
       </p>
       <hr />
       <code class="handler">PUT
-        <a href="/api/v1/projects/:id" target="_blank">
-          /api/v1/projects/:id
+        <a href="/api/v1/work_groups/:id" target="_blank">
+          /api/v1/work_groups/:id
         </a>
       </code>
       <p>
-        Updates a project with a given id which is supposed to be
+        Updates a workgroup with a given id which is supposed to be
         <code>_id</code> or
-        <code>name</code> of the project being updated with JSON payload. Note that
+        <code>name</code> of the workgroup being updated with JSON payload. Note that
         <code>member_ids</code> and
         <code>owner_id</code> can not be modified this way.
       </p>
       <p>
-        A project can be modified only if user is a project's member or has supervisor privileges.
+        A workgroup can be modified only if user is a workgroup's member or has supervisor privileges.
       </p>
       <hr />
       <code class="handler">DELETE
-        <a href="/api/v1/projects/:id" target="_blank">
-          /api/v1/projects/:id
+        <a href="/api/v1/work_groups/:id" target="_blank">
+          /api/v1/work_groups/:id
         </a>
       </code>
       <p>
-        Deletes a project with a given id which is supposed to be
+        Deletes a workgroup with a given id which is supposed to be
         <code>_id</code> or
-        <code>name</code> of the project.
+        <code>name</code> of the workgroup.
       </p>
       <p>
-        A project can be deleted only if user is a project's owner or has supervisor privileges.
+        A workgroup can be deleted only if user is a workgroup's owner or has supervisor privileges.
       </p>
       <hr />
       <code class="handler">POST
-        <a href="/api/v1/projects/:id/add_member" target="_blank">
-          /api/v1/projects/:id/add_member
+        <a href="/api/v1/work_groups/:id/add_member" target="_blank">
+          /api/v1/work_groups/:id/add_member
         </a>
       </code>
       <p>
-        Adds a project's member according to JSON payload
+        Adds a workgroup's member according to JSON payload
         <code>{ "user_id": "..." }</code>
       </p>
       <p>
-        Member lists can only be modified by project's owner or a user with supervisor privileges.
+        Member lists can only be modified by workgroup's owner or a user with supervisor privileges.
       </p>
       <hr />
       <code class="handler">POST
-        <a href="/api/v1/projects/:id/remove_member" target="_blank">
-          /api/v1/projects/:id/remove_member
+        <a href="/api/v1/work_groups/:id/remove_member" target="_blank">
+          /api/v1/work_groups/:id/remove_member
         </a>
       </code>
       <p>
-        Removes a project's member according to JSON payload
+        Removes a workgroup's member according to JSON payload
         <code>{ "user_id": "..." }</code>
       </p>
       <p>
-        Member lists can only be modified by project's owner or a user with supervisor privileges.
+        Member lists can only be modified by workgroup's owner or a user with supervisor privileges.
       </p>
       <hr />
       <code class="handler">POST
-        <a href="/api/v1/projects/:id/set_members" target="_blank">
-          /api/v1/projects/:id/set_members
+        <a href="/api/v1/work_groups/:id/set_members" target="_blank">
+          /api/v1/work_groups/:id/set_members
         </a>
       </code>
       <p>
-        Re-sets project's members according to JSON payload
+        Re-sets workgroup's members according to JSON payload
         <code>{ "member_ids": [...] }</code>. Note that the handler completely replaces the current member list.
       </p>
       <p>
-        Member lists can only be modified by project's owner or a user with supervisor privileges.
+        Member lists can only be modified by workgroup's owner or a user with supervisor privileges.
       </p>
       <hr />
       <code class="handler">POST
-        <a href="/api/v1/projects/:id/switch_owner" target="_blank">
-          /api/v1/projects/:id/switch_owner
+        <a href="/api/v1/work_groups/:id/switch_owner" target="_blank">
+          /api/v1/work_groups/:id/switch_owner
         </a>
       </code>
       <p>
-        Changes the project owner to a given user according to JSON payload
+        Changes the workgroup owner to a given user according to JSON payload
         <code>{ "owner_id": "..." }</code>.
       </p>
       <p>
         Owner can be changed either by the current owner or by a user with supervisor privileges.
+      </p>
+    </section>
+    <hr />
+    <section>
+      <a name="network_groups"></a>
+      <h2>Network Groups API (Mail.Ru Group specific)</h2>
+      <p>
+        NetworkGroups API allows user to manipulate server groups. Network Groups are special tags which may be assigned
+        to a host and are concerned with network and firewall configuration. A network group must belong to a
+        WorkGroup so a user can assign his own server groups to his own hosts.
+      </p>
+      <code class="handler">GET
+            <a href="/api/v1/network_groups/" target="_blank">
+              /api/v1/network_groups/
+            </a>
+          </code>
+      <p>
+        Provides a paginated list of server groups. Read more about pagination in
+        <a href="#pagination">Pagination</a> section of this doc. List may be filtered by workgroup name using
+        <code>_filter</code> query parameter. This accepts a string which is used as a prefix of workgroup name.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+      </p>
+      <p>
+        <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
+        Accepts comma-separated
+        list of field names. Available host fields are:
+      </p>
+      <ul class="fieldlist">
+        <li>
+          <code>_id</code> - a unique id of the network group
+        </li>
+        <li>
+          <code>name</code> - a unique name of the network group
+        </li>
+        <li>
+          <code>work_group_id</code> - ID of the work_group the server group belongs to
+        </li>
+        <li>
+          <code>work_group</code> - the work_group as an object the server group belongs to. Requires an additional DB
+          lookup.
+        </li>
+        <li>
+          <code>work_group_name</code> - name of the work_group as an object the server group belongs to. Requires an
+          additional DB lookup.
+        </li>
+        <li>
+          <code>hosts</code> - a list of hosts the network group is assigned to. Requires an additional DB lookup.
+        </li>
+        <li>
+          <code>hosts_count</code> - a number of hosts the network group is assigned to. Requires an additional DB
+          lookup.
+        </li>
+        <li>
+          <code>modification_allowed</code> - a boolean field indicating if current user has permissions to modify the
+          network group. Network groups can be modified only by system users.
+        </li>
+        <li>
+          <code>assigning_allowed</code> - a boolean field indicating if current user has permissions to assign the
+          network_group_id to a host. User must be in the same work_group to assign the network group.
+        </li>
+      </ul>
+      <hr />
+      <code class="handler">GET
+            <a href="/api/v1/network_groups/:id" target="_blank">
+              /api/v1/network_groups/:id
+            </a>
+          </code>
+      <p>
+        Behaves exactly as the network group list handler but for only one workgroup identified by
+        <code>:id</code> parameter which can be both
+        <code>_id</code> or
+        <code>name</code> as server group name is also unique. Response behaves exactly the same so you get a list of
+        network groups with only one element.
+        <code>_fields</code> parameter is relevant here as well however
+        <code>_filter</code> is prohibited.
+      </p>
+      <hr />
+      <code class="handler">POST
+            <a href="/api/v1/network_groups/" target="_blank">
+              /api/v1/network_groups/
+            </a>
+          </code>
+      <p>
+        Creates a network group with a given JSON payload. This can be done only by system users and is supposed to be
+        used by an external systems via API.
+      </p>
+      <hr />
+      <code class="handler">DELETE
+        <a href="/api/v1/network_groups/:id" target="_blank">
+          /api/v1/network_groups/:id
+        </a>
+      </code>
+      <p>
+        Deletes a network group with a given id which is supposed to be
+        <code>_id</code> or
+        <code>name</code> of the network group.
+      </p>
+      <p>
+        A network group can be deleted only by a system user.
       </p>
     </section>
     <hr />
@@ -1566,8 +1674,7 @@
         Provides a paginated list of users. Read more about pagination in
         <a href="#pagination">Pagination</a> section of this doc. List may be filtered by user username using
         <code>_filter</code> query parameter. This accepts a string which is used as a prefix of user's username.
-        Filters shorter than 2 symbols
-        are ignored. Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
+        Filters may be a quite heavy feature as they use regexp full scan on a MongoDB collection.
       </p>
       <p>
         <code>_fields</code> field helps to reduce size of the response allowing you to choose which fields to show.
@@ -1597,6 +1704,9 @@
           <code>supervisor</code> - a boolean field indicating if user has supervisor privileges
         </li>
         <li>
+          <code>system</code> - a boolean field indicating if user is a system user
+        </li>
+        <li>
           <code>ext_id</code> - a string indexed field containing a unique user's id in external auth system. Used in
           external auth plugins.
         </li>
@@ -1612,11 +1722,11 @@
           <code>updated_at</code> - datetime of the last model update.
         </li>
         <li>
-          <code>projects_owned</code> - a list of projects owned by user as objects.
+          <code>work_groups_owned</code> - a list of workgroups owned by user as objects.
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
-          <code>projects_included_into</code> - a list of projects user is a member of.
+          <code>work_groups_included_into</code> - a list of workgroups user is a member of.
           <span class="warning">This is an additional database lookup</span>
         </li>
         <li>
@@ -1626,6 +1736,10 @@
         <li>
           <code>supervisor_set_allowed</code> - a boolean field indicating if the current user has permissions to grant
           the listed user supervisor privileges.
+        </li>
+        <li>
+          <code>system_set_allowed</code> - a boolean field indicating if the current user has permissions to set
+          the listed user system flag.
         </li>
       </ul>
       <hr />

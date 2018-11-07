@@ -12,7 +12,7 @@ class TestGroupCtrl(HttpApiTestCase):
     def test_show_group(self):
         payload = {
             "name": "group1",
-            "project_id": self.project1._id,
+            "work_group_id": self.work_group1._id,
             "tags": [ "meaw", "gang", "boo" ]
         }
         g = Group(**payload)
@@ -27,12 +27,12 @@ class TestGroupCtrl(HttpApiTestCase):
         group_attrs = data[0]
         self.assertEqual(group_attrs["name"], g.name)
         self.assertItemsEqual(group_attrs["tags"], g.tags)
-        self.assertEqual(group_attrs["project_id"], str(g.project_id))
+        self.assertEqual(group_attrs["work_group_id"], str(g.work_group_id))
 
     def test_create_group(self):
         payload = {
             "name": "group1",
-            "project_id": self.project1._id,
+            "work_group_id": self.work_group1._id,
             "tags": [ "meaw", "gang", "boo" ]
         }
         r = self.post_json("/api/v1/groups/", payload)
@@ -41,13 +41,13 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertIn("data", data)
         group = data["data"]
         self.assertEqual(group["name"], payload["name"])
-        self.assertEqual(group["project_id"], str(payload["project_id"]))
+        self.assertEqual(group["work_group_id"], str(payload["work_group_id"]))
         self.assertItemsEqual(group["tags"], payload["tags"])
 
-    def test_create_group_with_project_name(self):
+    def test_create_group_with_work_group_name(self):
         payload = {
             "name": "group1",
-            "project_name": self.project1.name,
+            "work_group_name": self.work_group1.name,
             "tags": [ "meaw", "gang", "boo" ]
         }
         r = self.post_json("/api/v1/groups/", payload)
@@ -56,7 +56,7 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertIn("data", data)
         group = data["data"]
         self.assertEqual(group["name"], payload["name"])
-        self.assertEqual(group["project_id"], str(self.project1._id))
+        self.assertEqual(group["work_group_id"], str(self.work_group1._id))
         self.assertItemsEqual(group["tags"], payload["tags"])
 
     def test_update_group(self):
@@ -95,7 +95,7 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertItemsEqual(["meaw", "gang"], group.tags)
 
     def test_group_set_custom_fields(self):
-        attrs = {"name": "group1", "project_id": self.project1._id, "custom_fields": [{"key": "key1", "value": "value1"}]}
+        attrs = {"name": "group1", "work_group_id": self.work_group1._id, "custom_fields": [{"key": "key1", "value": "value1"}]}
         group = Group(**attrs)
         group.save()
 
@@ -114,7 +114,7 @@ class TestGroupCtrl(HttpApiTestCase):
                                {"key": "key3", "value": "value3"}], group.custom_fields)
 
     def test_group_remove_custom_fields(self):
-        attrs = {"name": "group1", "project_id": self.project1._id, "custom_fields": [
+        attrs = {"name": "group1", "work_group_id": self.work_group1._id, "custom_fields": [
             {"key": "key1", "value": "value1"},
             {"key": "key2", "value": "value2"},
         ]}
@@ -146,13 +146,13 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertIsNone(group)
 
     def test_mass_delete(self):
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
-        g3 = Group(name="g3", project_id=self.project1._id)
+        g3 = Group(name="g3", work_group_id=self.work_group1._id)
         g3.save()
-        g4 = Group(name="g4", project_id=self.project1._id)
+        g4 = Group(name="g4", work_group_id=self.work_group1._id)
         g4.save()
         g1.add_child(g2)
         g2.add_child(g3)
@@ -174,13 +174,13 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertEqual(0, len(g4.parent_ids))
 
     def test_set_children(self):
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
-        g3 = Group(name="g3", project_id=self.project1._id)
+        g3 = Group(name="g3", work_group_id=self.work_group1._id)
         g3.save()
-        g4 = Group(name="g4", project_id=self.project1._id)
+        g4 = Group(name="g4", work_group_id=self.work_group1._id)
         g4.save()
 
         child_ids = [str(x._id) for x in (g2, g3, g4)]
@@ -199,13 +199,13 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertItemsEqual([str(x) for x in g1.child_ids], child_ids)
 
     def test_mass_move(self):
-        g1 = Group(name="g1", project_id=self.project1._id)
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
         g1.save()
-        g2 = Group(name="g2", project_id=self.project1._id)
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
         g2.save()
-        g3 = Group(name="g3", project_id=self.project1._id)
+        g3 = Group(name="g3", work_group_id=self.work_group1._id)
         g3.save()
-        g4 = Group(name="g4", project_id=self.project1._id)
+        g4 = Group(name="g4", work_group_id=self.work_group1._id)
         g4.save()
 
         g1.add_child(g2)
@@ -213,29 +213,29 @@ class TestGroupCtrl(HttpApiTestCase):
         g3.add_child(g4)
 
         # 400, no group_ids given
-        r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(self.project2._id) })
+        r = self.post_json("/api/v1/groups/mass_move", { "work_group_id": str(self.work_group2._id) })
         self.assertEqual(r.status_code, 400)
 
-        # 400, no project_id given
+        # 400, no work_group_id given
         r = self.post_json("/api/v1/groups/mass_move", { "group_ids": [str(g2._id)] })
         self.assertEqual(r.status_code, 400)
 
         # 400, invalid group_ids type
-        r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(self.project2._id), "group_ids": str(g2._id) })
+        r = self.post_json("/api/v1/groups/mass_move", { "work_group_id": str(self.work_group2._id), "group_ids": str(g2._id) })
         self.assertEqual(r.status_code, 400)
 
-        # group is already in the project - 404, no group suitable for moving found
-        r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(self.project1._id), "group_ids": [str(g2._id)] })
+        # group is already in the work_group - 404, no group suitable for moving found
+        r = self.post_json("/api/v1/groups/mass_move", { "work_group_id": str(self.work_group1._id), "group_ids": [str(g2._id)] })
         self.assertEqual(r.status_code, 404)
 
-        # no project found
-        r = self.post_json("/api/v1/groups/mass_move", { "project_id": str(ObjectId()), "group_ids": [str(g2._id)] })
+        # no work_group found
+        r = self.post_json("/api/v1/groups/mass_move", { "work_group_id": str(ObjectId()), "group_ids": [str(g2._id)] })
         self.assertEqual(r.status_code, 404)
 
         # insufficient permissions
         payload = {
             "group_ids": [str(g2._id)],
-            "project_id": str(self.project2._id)
+            "work_group_id": str(self.work_group2._id)
         }
         r = self.post_json("/api/v1/groups/mass_move", payload, supervisor=False)
         self.assertEqual(r.status_code, 403)
@@ -250,13 +250,13 @@ class TestGroupCtrl(HttpApiTestCase):
         g3 = Group.find_one({ "_id": g3._id })
         g4 = Group.find_one({ "_id": g4._id })
 
-        # group 1 should have remained in project1
-        self.assertEqual(g1.project_id, self.project1._id)
+        # group 1 should have remained in work_group1
+        self.assertEqual(g1.work_group_id, self.work_group1._id)
 
-        # groups 2, 3, 4 should have been moved to project2
-        self.assertEqual(g2.project_id, self.project2._id)
-        self.assertEqual(g3.project_id, self.project2._id)
-        self.assertEqual(g4.project_id, self.project2._id)
+        # groups 2, 3, 4 should have been moved to work_group2
+        self.assertEqual(g2.work_group_id, self.work_group2._id)
+        self.assertEqual(g3.work_group_id, self.work_group2._id)
+        self.assertEqual(g4.work_group_id, self.work_group2._id)
 
         # group 2 should have been detached from g1
         self.assertItemsEqual([], g2.parent_ids)

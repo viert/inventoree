@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.models import User, Project, Group, Host
+from app.models import User, WorkGroup, Group, Host
 from app import app
 from flask import json
 
@@ -13,6 +13,11 @@ class HttpApiTestCase(TestCase):
     GENERAL_USER = {
         "username": "user",
         "password": "userpassword"
+    }
+
+    SYSTEM_USER = {
+        "username": "sys",
+        "password": "syspassword"
     }
 
     @classmethod
@@ -29,8 +34,15 @@ class HttpApiTestCase(TestCase):
                     password_raw=HttpApiTestCase.GENERAL_USER["password"])
         user.save()
 
+        system = User(username=HttpApiTestCase.SYSTEM_USER["username"],
+                      supervisor=False,
+                      system=True,
+                      password_raw=HttpApiTestCase.SYSTEM_USER["password"])
+        system.save()
+
         supertoken = supervisor.get_auth_token()
         usertoken = user.get_auth_token()
+        systemtoken = system.get_auth_token()
 
         cls.supervisor = supervisor
         cls.supertoken = supertoken.token
@@ -38,15 +50,18 @@ class HttpApiTestCase(TestCase):
         cls.user = user
         cls.usertoken = usertoken.token
 
-        cls.project1 = Project(name="Test Project 1", owner_id=supervisor._id)
-        cls.project1.save()
-        cls.project2 = Project(name="Test Project 2", owner_id=user._id)
-        cls.project2.save()
+        cls.systemuser = system
+        cls.systemtoken = systemtoken.token
+
+        cls.work_group1 = WorkGroup(name="Test WorkGroup 1", owner_id=supervisor._id)
+        cls.work_group1.save()
+        cls.work_group2 = WorkGroup(name="Test WorkGroup 2", owner_id=user._id)
+        cls.work_group2.save()
 
     @classmethod
     def tearDownClass(cls):
         User.destroy_all()
-        Project.destroy_all()
+        WorkGroup.destroy_all()
         Group.destroy_all()
         Host.destroy_all()
 
@@ -54,20 +69,32 @@ class HttpApiTestCase(TestCase):
     def fake_client(self):
         return app.flask.test_client()
 
-    def get(self, url, supervisor=True):
-        token = self.supertoken if supervisor else self.usertoken
+    def get_proper_token(self, supervisor, system):
+        if supervisor:
+            return self.supertoken
+        elif system:
+            return self.systemtoken
+        return self.usertoken
+
+    def get(self, url, supervisor=True, system=False):
+        token = self.get_proper_token(supervisor, system)
         return self.fake_client.get(url, headers={ "X-Api-Auth-Token": token })
 
-    def delete(self, url, supervisor=True):
-        token = self.supertoken if supervisor else self.usertoken
+    def delete(self, url, supervisor=True, system=False):
+        token = self.get_proper_token(supervisor, system)
         return self.fake_client.delete(url, headers={ "X-Api-Auth-Token": token })
 
-    def post_json(self, url, data, supervisor=True):
-        token = self.supertoken if supervisor else self.usertoken
+    def post_json(self, url, data, supervisor=True, system=False):
+        token = self.get_proper_token(supervisor, system)
         data = json.dumps(data, default=app.flask.json_encoder().default)
         return self.fake_client.post(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": token })
 
-    def put_json(self, url, data, supervisor=True):
-        token = self.supertoken if supervisor else self.usertoken
+    def put_json(self, url, data, supervisor=True, system=False):
+        token = self.get_proper_token(supervisor, system)
         data = json.dumps(data, default=app.flask.json_encoder().default)
         return self.fake_client.put(url, data=data, headers={ "Content-Type": "application/json", "X-Api-Auth-Token": token })
+
+    def get_json_data_should_be_successful(self, url, **kwargs):
+        r = self.get(url, **kwargs)
+        self.assertEqual(200, r.status_code)
+        return json.loads(r.data)

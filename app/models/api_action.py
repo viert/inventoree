@@ -255,19 +255,19 @@ class ApiAction(StorableModel):
         }
 
     def _compute_group_create(self):
-        from app.models import Project
+        from app.models import WorkGroup
         group_name = ""
-        project_name = ""
+        work_group_name = ""
         if "name" in self.params:
             group_name = self.params["name"]
-        if "project_id" in self.params:
-            project = Project.get(self.params["project_id"])
-            if project is not None:
-                project_name = project.name
+        if "work_group_id" in self.params:
+            work_group = WorkGroup.get(self.params["work_group_id"])
+            if work_group is not None:
+                work_group_name = work_group.name
 
         self.computed = {
             "group_name": group_name,
-            "project_name": project_name
+            "work_group_name": work_group_name
         }
 
     def _compute_group_delete(self):
@@ -289,17 +289,17 @@ class ApiAction(StorableModel):
         }
 
     def _compute_group_mass_move(self):
-        from app.models import Group, Project
+        from app.models import Group, WorkGroup
         groups = Group.find({"_id": {"$in": [resolve_id(x) for x in self.params.get("group_ids", [])]}})
         group_names = [x.name for x in groups]
-        project_name = ""
-        if "project_id" in self.params:
-            project = Project.get(self.params["project_id"])
-            if project is not None:
-                project_name = project.name
+        work_group_name = ""
+        if "work_group_id" in self.params:
+            work_group = WorkGroup.get(self.params["work_group_id"])
+            if work_group is not None:
+                work_group_name = work_group.name
         self.computed = {
             "group_names": group_names,
-            "project_name": project_name
+            "work_group_name": work_group_name
         }
 
     def _compute_group_set_children(self):
@@ -329,7 +329,7 @@ class ApiAction(StorableModel):
         }
 
     def _compute_group_update(self):
-        from app.models import Group, Project
+        from app.models import Group, WorkGroup
         group_name = ""
         group_data = {}
         group = Group.get(self.kwargs["group_id"])
@@ -340,12 +340,12 @@ class ApiAction(StorableModel):
                     old_value = getattr(group, k)
                     if v != old_value and unicode(v) != unicode(old_value):
                         group_data[k] = v
-            if "project_id" in group_data:
-                project_name = ""
-                project = Project.get(group_data["project_id"])
-                if project is not None:
-                    project_name = project.name
-                group_data["project_name"] = project_name
+            if "work_group_id" in group_data:
+                work_group_name = ""
+                work_group = WorkGroup.get(group_data["work_group_id"])
+                if work_group is not None:
+                    work_group_name = work_group.name
+                group_data["work_group_name"] = work_group_name
         self.computed = {
             "group_name": group_name,
             "group_data": group_data
@@ -411,87 +411,105 @@ class ApiAction(StorableModel):
             "parent_name": parent_name
         }
 
-    def _compute_project_create(self):
-        project_name = ""
+    def _compute_work_group_create(self):
+        work_group_name = ""
         if "name" in self.params:
-            project_name = self.params["name"]
+            work_group_name = self.params["name"]
         self.computed = {
-            "project_name": project_name
+            "work_group_name": work_group_name
         }
 
-    def _compute_project_delete(self):
-        from app.models import Project
-        project_name = ""
-        project = Project.get(self.kwargs["project_id"])
-        if project is not None:
-            project_name = project.name
+    def _compute_work_group_delete(self):
+        from app.models import WorkGroup
+        work_group_name = ""
+        work_group = WorkGroup.get(self.kwargs["work_group_id"])
+        if work_group is not None:
+            work_group_name = work_group.name
         self.computed = {
-            "project_name": project_name
+            "work_group_name": work_group_name
         }
 
-    def _compute_project_add_member(self):
-        from app.models import Project, User
-        project_name = ""
+    def _compute_work_group_add_member(self):
+        from app.models import WorkGroup, User
+        work_group_name = ""
         user_name = ""
-        project = Project.get(self.kwargs["project_id"])
-        if project is not None:
-            project_name = project.name
+        work_group = WorkGroup.get(self.kwargs["work_group_id"])
+        if work_group is not None:
+            work_group_name = work_group.name
         if "user_id" in self.params:
             user = User.get(self.params["user_id"])
             if user is not None:
                 user_name = user.name
         self.computed = {
-            "project_name": project_name,
+            "work_group_name": work_group_name,
             "user_name": user_name
         }
 
-    def _compute_project_remove_member(self):
-        self._compute_project_add_member()
+    def _compute_work_group_remove_member(self):
+        self._compute_work_group_add_member()
 
-    def _compute_project_set_members(self):
-        from app.models import Project, User
-        project_name = ""
+    def _compute_work_group_set_members(self):
+        from app.models import WorkGroup, User
+        work_group_name = ""
         members = User.find({"_id": {"$in": [resolve_id(x) for x in self.params.get("member_ids", [])]}})
         user_names = [x.username for x in members]
-        project = Project.get(self.kwargs["project_id"])
-        if project is not None:
-            project_name = project.name
+        work_group = WorkGroup.get(self.kwargs["work_group_id"])
+        if work_group is not None:
+            work_group_name = work_group.name
         self.computed = {
-            "project_name": project_name,
+            "work_group_name": work_group_name,
             "user_names": user_names
         }
 
-    def _compute_project_update(self):
-        from app.models import Project
-        project_name = ""
-        project_data = {}
-        project = Project.get(self.kwargs["project_id"])
-        if project is not None:
-            project_name = project.name
+    def _compute_work_group_update(self):
+        from app.models import WorkGroup
+        work_group_name = ""
+        work_group_data = {}
+        work_group = WorkGroup.get(self.kwargs["work_group_id"])
+        if work_group is not None:
+            work_group_name = work_group.name
             for k, v in self.params.iteritems():
-                if k in Project.FIELDS:
-                    old_value = getattr(project, k)
+                if k in WorkGroup.FIELDS:
+                    old_value = getattr(work_group, k)
                     if v != old_value and unicode(v) != unicode(old_value):
-                        project_data[k] = v
+                        work_group_data[k] = v
         self.computed = {
-            "project_name": project_name,
-            "project_data": project_data
+            "work_group_name": work_group_name,
+            "work_group_data": work_group_data
         }
 
-    def _compute_project_switch_owner(self):
-        from app.models import Project, User
-        project_name = ""
+    def _compute_work_group_switch_owner(self):
+        from app.models import WorkGroup, User
+        work_group_name = ""
         owner_username = ""
-        project = Project.get(self.kwargs["project_id"])
-        if project is not None:
-            project_name = project.name
+        work_group = WorkGroup.get(self.kwargs["work_group_id"])
+        if work_group is not None:
+            work_group_name = work_group.name
         if "owner_id" in self.params:
             owner = User.get(self.params["owner_id"])
             if owner is not None:
                 owner_username = owner.username
         self.computed = {
-            "project_name": project_name,
+            "work_group_name": work_group_name,
             "owner_username": owner_username
+        }
+
+    def _compute_network_group_create(self):
+        network_group_name = ""
+        if "name" in self.params:
+            network_group_name = self.params["name"]
+        self.computed = {
+            "network_group_name": network_group_name
+        }
+
+    def _compute_network_group_delete(self):
+        from app.models import NetworkGroup
+        network_group_name = ""
+        network_group = NetworkGroup.get(self.kwargs["network_group_id"])
+        if network_group is not None:
+            network_group_name = network_group.name
+        self.computed = {
+            "network_group_name": network_group_name
         }
 
     def _compute_user_create(self):
@@ -516,6 +534,9 @@ class ApiAction(StorableModel):
         self._compute_user_set_password()
 
     def _compute_user_set_supervisor(self):
+        self._compute_user_set_password()
+
+    def _compute_user_set_system(self):
         self._compute_user_set_password()
 
     def _compute_user_update(self):

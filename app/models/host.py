@@ -1,12 +1,14 @@
 import re
 from storable_model import StorableModel, now
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
-                                GroupNotFound, InvalidAliases, InvalidFQDN
+                                GroupNotFound, InvalidAliases, InvalidFQDN, \
+                                InvalidIpAddresses, NetworkGroupNotFound
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
 ANSIBLE_CF_PREFIX = "ansible:"
+
 
 class Host(StorableModel):
 
@@ -24,6 +26,8 @@ class Host(StorableModel):
         "custom_fields",
         "created_at",
         "updated_at",
+        "ip_addrs",
+        "network_group_id"
     )
 
     KEY_FIELD = "fqdn"
@@ -42,16 +46,22 @@ class Host(StorableModel):
         "updated_at": now,
         "tags": [],
         "custom_fields": [],
-        "aliases": []
+        "aliases": [],
+        "ip_addrs": []
     }
 
     INDEXES = (
         [ "fqdn", { "unique": True } ],
         "group_id",
         "datacenter_id",
+        "network_group_id",
         "tags",
         "aliases",
         [ "custom_fields.key", "custom_fields.value" ]
+    )
+
+    SYSTEM_FIELDS = (
+        "ip_addrs",
     )
 
     __slots__ = FIELDS
@@ -66,15 +76,19 @@ class Host(StorableModel):
         if not FQDN_EXPR.match(self.fqdn):
             raise InvalidFQDN("FQDN %s is invalid" % self.fqdn)
         if self.group_id is not None and self.group is None:
-            raise GroupNotFound("Can not find group with id %s" % self.group_id)
+            raise GroupNotFound("can not find group with id %s" % self.group_id)
         if self.datacenter_id is not None and self.datacenter is None:
-            raise DatacenterNotFound("Can not find datacenter with id %s" % self.datacenter_id)
+            raise DatacenterNotFound("can not find datacenter with id %s" % self.datacenter_id)
+        if self.network_group_id is not None and self.network_group is None:
+            raise NetworkGroupNotFound("can not find network group with id %s" % self.network_group_id)
         if not hasattr(self.tags, "__getitem__") or type(self.tags) is str:
-            raise InvalidTags("Tags must be of array type")
+            raise InvalidTags("tags must be of array type")
         if len(set(self.tags)) != len(self.tags):
-            raise InvalidTags("Tags must be unique")
+            raise InvalidTags("tags must be unique")
+        if not hasattr(self.ip_addrs, "__getitem__") or type(self.ip_addrs) is str:
+            raise InvalidIpAddresses("ip addresses must be of array type")
         if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
-            raise InvalidAliases("Aliases must be of array type")
+            raise InvalidAliases("aliases must be of array type")
 
         # Custom fields validation
         if type(self.custom_fields) is not list:
@@ -104,6 +118,20 @@ class Host(StorableModel):
         return self.group_class.find_one({ "_id": self.group_id })
 
     @property
+    def network_group(self):
+        from app.models import NetworkGroup
+        if self.network_group_id is None:
+            return None
+        return NetworkGroup.find_one({"_id": self.network_group_id})
+
+    @property
+    def network_group_name(self):
+        sg = self.network_group
+        if sg is None:
+            return None
+        return sg.name
+
+    @property
     def group_name(self):
         if self.group is None:
             return ""
@@ -111,24 +139,24 @@ class Host(StorableModel):
 
     @property
     @request_time_cache()
-    def project(self):
+    def work_group(self):
         if self.group is None:
             return None
-        return self.group.project
+        return self.group.work_group
 
     @property
-    def project_name(self):
-        project = self.project
-        if project is None:
+    def work_group_name(self):
+        work_group = self.work_group
+        if work_group is None:
             return None
-        return project.name
+        return work_group.name
 
     @property
     def responsibles(self):
-        project = self.project
-        if project is None:
+        work_group = self.work_group
+        if work_group is None:
             return None
-        return project.participants
+        return work_group.participants
 
     @property
     def datacenter(self):
@@ -195,6 +223,11 @@ class Host(StorableModel):
             from app.models import Datacenter
             self.__class__._datacenter_class = Datacenter
         return self._datacenter_class
+
+    @property
+    def system_modification_allowed(self):
+        from library.engine.utils import can_assign_system_fields
+        return can_assign_system_fields()
 
     @property
     def modification_allowed(self):
