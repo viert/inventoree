@@ -1,6 +1,6 @@
 from library.engine.utils import resolve_id, paginated_data, json_response, \
     get_request_fields, get_user_from_app_context
-from library.engine.errors import NetworkGroupNotFound, WorkGroupNotFound, IntegrityError, Forbidden
+from library.engine.errors import NetworkGroupNotFound, WorkGroupNotFound, IntegrityError, Forbidden, InputDataError
 from app.controllers.auth_controller import AuthController
 from library.engine.action_log import logged_action
 from flask import request
@@ -49,6 +49,9 @@ def create():
     user = get_user_from_app_context()
     if user is None or not user.system:
         raise Forbidden("only system users are allowed to create server groups")
+
+    if request.json is None:
+        raise InputDataError("json data is missing")
 
     sgroup_attrs = request.json.copy()
     if "work_group_id" not in sgroup_attrs:

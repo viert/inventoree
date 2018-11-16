@@ -1,7 +1,7 @@
 from app.controllers.auth_controller import AuthController
 from flask import request, g
 from library.engine.utils import json_response, resolve_id, paginated_data, get_request_fields
-from library.engine.errors import UserNotFound, Forbidden, ApiError, UserAlreadyExists
+from library.engine.errors import UserNotFound, Forbidden, ApiError, UserAlreadyExists, InputDataError
 from library.engine.action_log import logged_action
 
 users_ctrl = AuthController("users", __name__, require_auth=True)
@@ -39,6 +39,8 @@ def create():
         raise Forbidden("you don't have permission to create new users")
 
     from app.models import User
+    if request.json is None:
+        raise InputDataError("json data is missing")
     user_attrs = dict([(k, v) for k, v in request.json.items() if k in User.FIELDS])
     if "password_hash" in user_attrs:
         del(user_attrs["password_hash"])
@@ -69,7 +71,8 @@ def update(user_id):
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.modification_allowed:
         raise Forbidden("you don't have permissions to modify this user")
-
+    if request.json is None:
+        raise InputDataError("json data is missing")
     user_attrs = dict([(k, v) for k, v in request.json.items() if k in User.FIELDS])
     user.update(user_attrs)
     return json_response({"data":user.to_dict(get_request_fields())})
@@ -82,6 +85,8 @@ def set_password(user_id):
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.modification_allowed:
         raise Forbidden("you don't have permissions to modify this user")
+    if request.json is None:
+        raise InputDataError("json data is missing")
 
     try:
         passwd = request.json["password_raw"]
@@ -103,6 +108,8 @@ def set_supervisor(user_id):
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.supervisor_set_allowed:
         raise Forbidden("you don't have permissions to set supervisor property for this user")
+    if request.json is None:
+        raise InputDataError("json data is missing")
 
     try:
         supervisor = request.json["supervisor"]
@@ -124,7 +131,8 @@ def set_system(user_id):
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.system_set_allowed:
         raise Forbidden("you don't have permissions to set system property for this user")
-
+    if request.json is None:
+        raise InputDataError("json data is missing")
     try:
         system = request.json["system"]
     except KeyError:

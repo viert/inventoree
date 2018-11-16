@@ -1,6 +1,6 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
-from library.engine.errors import DatacenterNotFound
+from library.engine.errors import DatacenterNotFound, InputDataError
 from library.engine.action_log import logged_action
 from flask import request
 
@@ -35,6 +35,10 @@ def show(datacenter_id=None):
 @logged_action("datacenter_create")
 def create():
     from app.models import Datacenter
+
+    if request.json is None:
+        raise InputDataError("json data is missing")
+
     dc_attrs = dict([x for x in request.json.items() if x[0] in Datacenter.FIELDS])
     dc = Datacenter(**dc_attrs)
     # TODO: check permissions!
@@ -49,6 +53,10 @@ def create():
 def update(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
+
+    if request.json is None:
+        raise InputDataError("json data is missing")
+
     # TODO: check permissions!
     dc.update(request.json)
     if "parent_id" in request.json:
@@ -73,6 +81,10 @@ def delete(dc_id):
 def set_parent(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
+
+    if request.json is None:
+        raise InputDataError("json data is missing")
+
     # TODO: check permissions!
     parent_id = request.json.get("parent_id")
     if dc.parent:

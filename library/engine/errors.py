@@ -31,6 +31,8 @@ class ApiError(Exception):
     def __str__(self):
         return "%s, status_code=%s" % (", ".join(self.errors), self.status_code)
 
+class InputDataError(ApiError):
+    pass
 
 class NotFound(ApiError):
     status_code = 404

@@ -2,7 +2,7 @@ from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
 from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
-    Forbidden, ApiError, NotFound, NetworkGroupNotFound
+    Forbidden, ApiError, NotFound, NetworkGroupNotFound, InputDataError
 from library.engine.action_log import logged_action
 from flask import request
 from copy import copy
@@ -60,7 +60,8 @@ def create():
     from app.models import Host, Group, Datacenter, NetworkGroup
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
     aliases_map = defaultdict(list)
-
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if "fqdn_pattern" in request.json:
         if "fqdn" in host_attrs:
             raise Conflict("fqdn field is not allowed due to fqdn_pattern param presence")
@@ -111,7 +112,8 @@ def create():
 def update(host_id):
     from app.models import Host, Group, Datacenter, NetworkGroup
     host = Host.get(host_id, HostNotFound("host not found"))
-
+    if request.json is None:
+        raise InputDataError("json data is missing")
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
     if not host.modification_allowed:
@@ -160,6 +162,8 @@ def delete(host_id):
 @hosts_ctrl.route("/mass_move", methods=["POST"])
 @logged_action("host_mass_move")
 def mass_move():
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
     if type(request.json["host_ids"]) != list:
@@ -208,6 +212,8 @@ def mass_move():
 @hosts_ctrl.route("/mass_set_datacenter", methods=["POST"])
 @logged_action("host_mass_set_datacenter")
 def mass_set_datacenter():
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
     if type(request.json["host_ids"]) != list:
@@ -252,6 +258,8 @@ def mass_set_datacenter():
 @hosts_ctrl.route("/mass_detach", methods=["POST"])
 @logged_action("host_mass_detach")
 def mass_detach():
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
     if type(request.json["host_ids"]) != list:
@@ -292,6 +300,8 @@ def mass_detach():
 @hosts_ctrl.route("/mass_delete", methods=["POST"])
 @logged_action("host_mass_delete")
 def mass_delete():
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
     if type(request.json["host_ids"]) != list:
@@ -335,7 +345,8 @@ def set_custom_fields(host_id):
 
     if not host.modification_allowed:
         raise Forbidden("You don't have permissions to modify this host")
-
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if not "custom_fields" in request.json:
         raise ApiError("no custom_fields provided")
 
@@ -360,7 +371,8 @@ def remove_custom_fields(host_id):
 
     if not host.modification_allowed:
         raise Forbidden("You don't have permissions to modify this host")
-
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if not "custom_fields" in request.json:
         raise ApiError("no custom_fields provided")
 
@@ -385,7 +397,8 @@ def add_tags(host_id):
 
     if not host.modification_allowed:
         raise Forbidden("You don't have permissions to modify this host")
-
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if not "tags" in request.json:
         raise ApiError("no tags provided")
 
@@ -410,7 +423,8 @@ def remove_tags(host_id):
 
     if not host.modification_allowed:
         raise Forbidden("You don't have permissions to modify this host")
-
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if not "tags" in request.json:
         raise ApiError("no tags provided")
 

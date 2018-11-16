@@ -2,7 +2,7 @@ from flask import request, g
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
     json_response, clear_aux_fields, get_request_fields
-from library.engine.errors import WorkGroupNotFound, Forbidden, ApiError, UserNotFound, Conflict
+from library.engine.errors import WorkGroupNotFound, Forbidden, ApiError, UserNotFound, Conflict, InputDataError
 from library.engine.action_log import logged_action
 work_groups_ctrl = AuthController("work_groups", __name__, require_auth=True)
 
@@ -33,6 +33,8 @@ def show(work_group_id=None):
 @logged_action("work_group_create")
 def create():
     from app.models import WorkGroup
+    if request.json is None:
+        raise InputDataError("json data is missing")
     data = clear_aux_fields(request.json)
     data["owner_id"] = g.user._id
     work_group = WorkGroup(**data)
@@ -44,6 +46,8 @@ def create():
 @logged_action("work_group_update")
 def update(work_group_id):
     from app.models import WorkGroup
+    if request.json is None:
+        raise InputDataError("json data is missing")
     data = clear_aux_fields(request.json)
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.modification_allowed:
@@ -56,7 +60,6 @@ def update(work_group_id):
 @logged_action("work_group_delete")
 def delete(work_group_id):
     from app.models import WorkGroup
-
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
@@ -72,6 +75,8 @@ def add_member(work_group_id):
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if not "user_id" in request.json:
         raise ApiError("no user_id given in request payload")
 
@@ -88,6 +93,8 @@ def remove_member(work_group_id):
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if not "user_id" in request.json:
         raise ApiError("no user_id given in request payload")
 
@@ -104,6 +111,8 @@ def switch_owner(work_group_id):
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify the work_group's owner")
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if not "owner_id" in request.json:
         raise ApiError("you should provide owner_id field")
 
@@ -125,6 +134,8 @@ def set_members(work_group_id):
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify the work_group's members")
+    if request.json is None:
+        raise InputDataError("json data is missing")
     if not "member_ids" in request.json:
         raise ApiError("you should provide member_ids field")
     if type(request.json["member_ids"]) != list:
