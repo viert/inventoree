@@ -15,3 +15,4 @@ from app.tests.httpapi.test_network_group_ctrl import TestNetworkGroupCtrl
 from app.tests.utils.test_pbkdf2 import TestPBKDF2
 from app.tests.utils.test_diff import TestDiff
 from app.tests.utils.test_permutation import TestPermutation
+from app.tests.utils.ownership import TestOwnership
