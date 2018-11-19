@@ -3,7 +3,8 @@ from bson.objectid import ObjectId
 from app.controllers.auth_controller import AuthController
 from library.engine.errors import GroupNotFound, Forbidden, ApiError, WorkGroupNotFound, \
     NotFound, IntegrityError, InputDataError
-from library.engine.utils import resolve_id, json_response, paginated_data, diff, get_request_fields
+from library.engine.utils import resolve_id, json_response, paginated_data, diff,\
+    get_request_fields, json_body_required
 from library.engine.action_log import logged_action
 
 groups_ctrl = AuthController("groups", __name__, require_auth=True)
@@ -58,13 +59,12 @@ def structure(group_id):
 
 @groups_ctrl.route("/<group_id>", methods=["PUT"])
 @logged_action("group_update")
+@json_body_required
 def update(group_id):
     from app.models import WorkGroup, Group
     group = Group.get(group_id, GroupNotFound("group not found"))
     if not group.modification_allowed:
         raise Forbidden("you don't have permission to modify this group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     group_attrs = request.json.copy()
     if "work_group_id" in group_attrs and group_attrs["work_group_id"] is not None:
         work_group = WorkGroup.get(group_attrs["work_group_id"], WorkGroupNotFound("work_group provided has not been found"))
@@ -75,13 +75,12 @@ def update(group_id):
 
 @groups_ctrl.route("/<group_id>/set_children", methods=["PUT"])
 @logged_action("group_set_children")
+@json_body_required
 def set_children(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
     if not group.modification_allowed:
         raise Forbidden("you don't have permission to modify this group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     orig = group.child_ids
     upd = request.json["child_ids"]
     upd = [ObjectId(x) for x in upd if x is not None]
@@ -104,13 +103,12 @@ def set_children(group_id):
 
 @groups_ctrl.route("/<group_id>/set_hosts", methods=["PUT"])
 @logged_action("group_set_hosts")
+@json_body_required
 def set_hosts(group_id):
     from app.models import Host, Group
     group = Group.get(group_id, GroupNotFound("group not found"))
     if not group.modification_allowed:
         raise Forbidden("you don't have permission to modify this group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     orig = group.host_ids
     upd = request.json["host_ids"]
     upd = [ObjectId(x) for x in upd if x is not None]
@@ -139,10 +137,9 @@ def set_hosts(group_id):
 
 @groups_ctrl.route("/", methods=["POST"])
 @logged_action("group_create")
+@json_body_required
 def create():
     from app.models import Group, WorkGroup
-    if request.json is None:
-        raise InputDataError("json data is missing")
     group_attrs = request.json.copy()
     if "work_group_id" not in group_attrs:
         if "work_group_name" in group_attrs:
@@ -190,12 +187,11 @@ def delete(group_id):
 
 @groups_ctrl.route("/mass_move", methods=["POST"])
 @logged_action("group_mass_move")
+@json_body_required
 def mass_move():
     # every group requested will move to the indicated work_group with all its' children
     # group will be detached from all its' parents due to not being able to have
     # relations between different work_groups
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if "group_ids" not in request.json or request.json["group_ids"] is None:
         raise ApiError("no group ids provided")
     if type(request.json["group_ids"]) != list:
@@ -253,9 +249,8 @@ def mass_move():
 
 @groups_ctrl.route("/mass_delete", methods=["POST"])
 @logged_action("group_mass_delete")
+@json_body_required
 def mass_delete():
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if "group_ids" not in request.json or request.json["group_ids"] is None:
         raise InputDataError("no group ids provided")
     if type(request.json["group_ids"]) != list:
@@ -301,14 +296,13 @@ def mass_delete():
 
 @groups_ctrl.route("/<group_id>/set_custom_fields", methods=["POST"])
 @logged_action("group_set_custom_fields")
+@json_body_required
 def set_custom_fields(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
 
     if not group.modification_allowed:
         raise Forbidden("You don't have permissions to modify this group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if not "custom_fields" in request.json:
         raise InputDataError("no custom_fields provided")
 
@@ -327,14 +321,13 @@ def set_custom_fields(group_id):
 
 @groups_ctrl.route("/<group_id>/remove_custom_fields", methods=["POST", "DELETE"])
 @logged_action("group_remove_custom_fields")
+@json_body_required
 def remove_custom_fields(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
 
     if not group.modification_allowed:
         raise Forbidden("You don't have permissions to modify this group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if not "custom_fields" in request.json:
         raise InputDataError("no custom_fields provided")
 
@@ -353,15 +346,13 @@ def remove_custom_fields(group_id):
 
 @groups_ctrl.route("/<group_id>/add_tags", methods=["POST"])
 @logged_action("group_add_tags")
+@json_body_required
 def add_tags(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
 
     if not group.modification_allowed:
         raise Forbidden("You don't have permissions to modify this group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
-
     if not "tags" in request.json:
         raise ApiError("no tags provided")
 
@@ -380,14 +371,13 @@ def add_tags(group_id):
 
 @groups_ctrl.route("/<group_id>/remove_tags", methods=["POST", "DELETE"])
 @logged_action("group_remove_tags")
+@json_body_required
 def remove_tags(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
 
     if not group.modification_allowed:
         raise Forbidden("You don't have permissions to modify this group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if not "tags" in request.json:
         raise ApiError("no tags provided")
 

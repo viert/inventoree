@@ -1,6 +1,6 @@
 from app.controllers.auth_controller import AuthController
 from flask import request, g
-from library.engine.utils import json_response, resolve_id, paginated_data, get_request_fields
+from library.engine.utils import json_response, resolve_id, paginated_data, get_request_fields, json_body_required
 from library.engine.errors import UserNotFound, Forbidden, ApiError, UserAlreadyExists, InputDataError
 from library.engine.action_log import logged_action
 
@@ -34,13 +34,12 @@ def show(user_id=None):
 
 @users_ctrl.route("/", methods=["POST"])
 @logged_action("user_create")
+@json_body_required
 def create():
     if not g.user.supervisor:
         raise Forbidden("you don't have permission to create new users")
 
     from app.models import User
-    if request.json is None:
-        raise InputDataError("json data is missing")
     user_attrs = dict([(k, v) for k, v in request.json.items() if k in User.FIELDS])
     if "password_hash" in user_attrs:
         del(user_attrs["password_hash"])
@@ -66,13 +65,12 @@ def create():
 
 @users_ctrl.route("/<user_id>", methods=["PUT"])
 @logged_action("user_update")
+@json_body_required
 def update(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.modification_allowed:
         raise Forbidden("you don't have permissions to modify this user")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     user_attrs = dict([(k, v) for k, v in request.json.items() if k in User.FIELDS])
     user.update(user_attrs)
     return json_response({"data":user.to_dict(get_request_fields())})
@@ -80,14 +78,12 @@ def update(user_id):
 
 @users_ctrl.route("/<user_id>/set_password", methods=["PUT"])
 @logged_action("user_set_password")
+@json_body_required
 def set_password(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.modification_allowed:
         raise Forbidden("you don't have permissions to modify this user")
-    if request.json is None:
-        raise InputDataError("json data is missing")
-
     try:
         passwd = request.json["password_raw"]
         passwd_confirm = request.json["password_raw_confirm"]
@@ -103,13 +99,12 @@ def set_password(user_id):
 
 @users_ctrl.route("/<user_id>/set_supervisor", methods=["PUT"])
 @logged_action("user_set_supervisor")
+@json_body_required
 def set_supervisor(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.supervisor_set_allowed:
         raise Forbidden("you don't have permissions to set supervisor property for this user")
-    if request.json is None:
-        raise InputDataError("json data is missing")
 
     try:
         supervisor = request.json["supervisor"]
@@ -126,13 +121,12 @@ def set_supervisor(user_id):
 
 @users_ctrl.route("/<user_id>/set_system", methods=["PUT"])
 @logged_action("user_set_system")
+@json_body_required
 def set_system(user_id):
     from app.models import User
     user = User.get(user_id, UserNotFound("user not found"))
     if not user.system_set_allowed:
         raise Forbidden("you don't have permissions to set system property for this user")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     try:
         system = request.json["system"]
     except KeyError:

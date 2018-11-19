@@ -1,7 +1,7 @@
 from flask import request, g
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
-    json_response, clear_aux_fields, get_request_fields
+    json_response, clear_aux_fields, get_request_fields, json_body_required
 from library.engine.errors import WorkGroupNotFound, Forbidden, ApiError, UserNotFound, Conflict, InputDataError
 from library.engine.action_log import logged_action
 work_groups_ctrl = AuthController("work_groups", __name__, require_auth=True)
@@ -31,10 +31,9 @@ def show(work_group_id=None):
 
 @work_groups_ctrl.route("/", methods=["POST"])
 @logged_action("work_group_create")
+@json_body_required
 def create():
     from app.models import WorkGroup
-    if request.json is None:
-        raise InputDataError("json data is missing")
     data = clear_aux_fields(request.json)
     data["owner_id"] = g.user._id
     work_group = WorkGroup(**data)
@@ -44,10 +43,9 @@ def create():
 
 @work_groups_ctrl.route("/<work_group_id>", methods=["PUT"])
 @logged_action("work_group_update")
+@json_body_required
 def update(work_group_id):
     from app.models import WorkGroup
-    if request.json is None:
-        raise InputDataError("json data is missing")
     data = clear_aux_fields(request.json)
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.modification_allowed:
@@ -69,14 +67,13 @@ def delete(work_group_id):
 
 @work_groups_ctrl.route("/<work_group_id>/add_member", methods=["POST"])
 @logged_action("work_group_add_member")
+@json_body_required
 def add_member(work_group_id):
     from app.models import WorkGroup, User
 
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if not "user_id" in request.json:
         raise ApiError("no user_id given in request payload")
 
@@ -87,14 +84,13 @@ def add_member(work_group_id):
 
 @work_groups_ctrl.route("/<work_group_id>/remove_member", methods=["POST"])
 @logged_action("work_group_remove_member")
+@json_body_required
 def remove_member(work_group_id):
     from app.models import WorkGroup, User
 
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify this work_group")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if not "user_id" in request.json:
         raise ApiError("no user_id given in request payload")
 
@@ -105,14 +101,13 @@ def remove_member(work_group_id):
 
 @work_groups_ctrl.route("/<work_group_id>/switch_owner", methods=["POST"])
 @logged_action("work_group_switch_owner")
+@json_body_required
 def switch_owner(work_group_id):
     from app.models import WorkGroup, User
 
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify the work_group's owner")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if not "owner_id" in request.json:
         raise ApiError("you should provide owner_id field")
 
@@ -127,6 +122,7 @@ def switch_owner(work_group_id):
 
 @work_groups_ctrl.route("/<work_group_id>/set_members", methods=["POST"])
 @logged_action("work_group_set_members")
+@json_body_required
 def set_members(work_group_id):
     from app.models import WorkGroup, User
     from bson.objectid import ObjectId
@@ -134,8 +130,6 @@ def set_members(work_group_id):
     work_group = WorkGroup.get(work_group_id, WorkGroupNotFound("work_group not found"))
     if not work_group.member_list_modification_allowed:
         raise Forbidden("you don't have permission to modify the work_group's members")
-    if request.json is None:
-        raise InputDataError("json data is missing")
     if not "member_ids" in request.json:
         raise ApiError("you should provide member_ids field")
     if type(request.json["member_ids"]) != list:
