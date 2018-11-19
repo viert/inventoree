@@ -1,8 +1,8 @@
 from flask import request, g
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
-    json_response, clear_aux_fields, get_request_fields, json_body_required
-from library.engine.errors import WorkGroupNotFound, Forbidden, ApiError, UserNotFound, Conflict, InputDataError
+    json_response, clear_aux_fields, get_request_fields, json_body_required, filter_query
+from library.engine.errors import WorkGroupNotFound, Forbidden, ApiError, UserNotFound, Conflict
 from library.engine.action_log import logged_action
 work_groups_ctrl = AuthController("work_groups", __name__, require_auth=True)
 
@@ -16,7 +16,7 @@ def show(work_group_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["name"] = { "$regex": "^%s" % name_filter }
+                query["name"] = filter_query(name_filter)
         work_groups = WorkGroup.find(query)
     else:
         work_group_id = resolve_id(work_group_id)

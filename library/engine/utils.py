@@ -256,3 +256,13 @@ def json_body_required(func):
             raise InputDataError("json data is missing")
         return func(*args, **kwargs)
     return wrapper
+
+
+def filter_query(flt):
+    from app import app
+    try:
+        if app.config.app.get("FILTER_MATCH_FROM_START") and not flt.startswith("^"):
+            flt = "^" + flt
+        return {"$regex": flt}
+    except:
+        return {}

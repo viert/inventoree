@@ -1,6 +1,7 @@
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields, json_body_required
-from library.engine.errors import DatacenterNotFound, InputDataError
+from library.engine.utils import resolve_id, json_response, paginated_data, \
+    get_request_fields, json_body_required, filter_query
+from library.engine.errors import DatacenterNotFound
 from library.engine.action_log import logged_action
 from flask import request
 
@@ -17,7 +18,7 @@ def show(datacenter_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["name"] = { "$regex": "^%s" % name_filter }
+                query["name"] = filter_query(name_filter)
         datacenters = Datacenter.find(query)
     else:
         datacenter_id = resolve_id(datacenter_id)

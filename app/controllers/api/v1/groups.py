@@ -4,7 +4,7 @@ from app.controllers.auth_controller import AuthController
 from library.engine.errors import GroupNotFound, Forbidden, ApiError, WorkGroupNotFound, \
     NotFound, IntegrityError, InputDataError
 from library.engine.utils import resolve_id, json_response, paginated_data, diff,\
-    get_request_fields, json_body_required
+    get_request_fields, json_body_required, filter_query
 from library.engine.action_log import logged_action
 
 groups_ctrl = AuthController("groups", __name__, require_auth=True)
@@ -19,7 +19,7 @@ def show(group_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["name"] = { "$regex": "^%s" % name_filter }
+                query["name"] = filter_query(name_filter)
         if "work_group_id" in request.values:
             work_group_id = resolve_id(request.values["work_group_id"])
             query["work_group_id"] = work_group_id

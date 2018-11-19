@@ -1,7 +1,8 @@
 from app.controllers.auth_controller import AuthController
 from flask import request, g
-from library.engine.utils import json_response, resolve_id, paginated_data, get_request_fields, json_body_required
-from library.engine.errors import UserNotFound, Forbidden, ApiError, UserAlreadyExists, InputDataError
+from library.engine.utils import json_response, resolve_id, paginated_data, \
+    get_request_fields, json_body_required, filter_query
+from library.engine.errors import UserNotFound, Forbidden, ApiError, UserAlreadyExists
 from library.engine.action_log import logged_action
 
 users_ctrl = AuthController("users", __name__, require_auth=True)
@@ -16,7 +17,7 @@ def show(user_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["username"] = { "$regex": "^%s" % name_filter }
+                query["username"] = filter_query(name_filter)
         users = User.find(query)
     else:
         user_id = resolve_id(user_id)

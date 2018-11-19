@@ -1,8 +1,9 @@
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields, json_body_required
+from library.engine.utils import resolve_id, json_response, paginated_data, \
+    get_request_fields, json_body_required, filter_query
 from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
-    Forbidden, ApiError, NotFound, NetworkGroupNotFound, InputDataError
+    Forbidden, ApiError, NotFound, NetworkGroupNotFound
 from library.engine.action_log import logged_action
 from flask import request
 from copy import copy
@@ -20,7 +21,7 @@ def show(host_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["fqdn"] = { "$regex": "^%s" % name_filter }
+                query["fqdn"] = filter_query(name_filter)
         if "group_id" in request.values:
             group_id = resolve_id(request.values["group_id"])
             query["group_id"] = group_id
