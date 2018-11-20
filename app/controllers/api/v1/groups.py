@@ -25,7 +25,7 @@ def show(group_id=None):
             query["work_group_id"] = work_group_id
         if "tags" in request.values:
             tags = request.values["tags"].split(",")
-            query["tags"] = { "$in": tags }
+            query["tags"] = {"$in": tags}
         elif "all_tags" in request.values:
             tags = request.values["all_tags"].split(",")
             query = Group.query_by_tags_recursive(tags, query)
