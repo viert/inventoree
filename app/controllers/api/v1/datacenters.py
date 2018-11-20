@@ -1,5 +1,6 @@
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
+from library.engine.utils import resolve_id, json_response, paginated_data, \
+    get_request_fields, json_body_required, filter_query
 from library.engine.errors import DatacenterNotFound
 from library.engine.action_log import logged_action
 from flask import request
@@ -17,7 +18,7 @@ def show(datacenter_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["name"] = { "$regex": "^%s" % name_filter }
+                query["name"] = filter_query(name_filter)
         datacenters = Datacenter.find(query)
     else:
         datacenter_id = resolve_id(datacenter_id)
@@ -33,8 +34,10 @@ def show(datacenter_id=None):
 
 @datacenters_ctrl.route("/", methods=["POST"])
 @logged_action("datacenter_create")
+@json_body_required
 def create():
     from app.models import Datacenter
+
     dc_attrs = dict([x for x in request.json.items() if x[0] in Datacenter.FIELDS])
     dc = Datacenter(**dc_attrs)
     # TODO: check permissions!
@@ -46,9 +49,11 @@ def create():
 
 @datacenters_ctrl.route("/<dc_id>", methods=["PUT"])
 @logged_action("datacenter_update")
+@json_body_required
 def update(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
+
     # TODO: check permissions!
     dc.update(request.json)
     if "parent_id" in request.json:
@@ -70,9 +75,11 @@ def delete(dc_id):
 
 @datacenters_ctrl.route("/<dc_id>/set_parent", methods=["PUT"])
 @logged_action("datacenter_set_parent")
+@json_body_required
 def set_parent(dc_id):
     from app.models import Datacenter
     dc = Datacenter.get(dc_id, DatacenterNotFound("datacenter not found"))
+
     # TODO: check permissions!
     parent_id = request.json.get("parent_id")
     if dc.parent:

@@ -59,6 +59,41 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertEqual(group["work_group_id"], str(self.work_group1._id))
         self.assertItemsEqual(group["tags"], payload["tags"])
 
+    def test_create_group_with_parent(self):
+        self.test_create_group()
+        parent = Group.find_one({"name": "group1"})
+
+        payload = {
+            "name": "group2",
+            "work_group_id": self.work_group1._id,
+            "parent_group_id": str(parent._id)
+        }
+        r = self.post_json("/api/v1/groups/", payload)
+        self.assertEqual(r.status_code, 201)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        group = data["data"]
+        self.assertEqual(group["name"], payload["name"])
+        self.assertEqual(group["work_group_id"], str(self.work_group1._id))
+        self.assertIn(str(parent._id), group["parent_ids"])
+
+    def test_create_group_with_parent_diff_workgroup(self):
+        self.test_create_group()
+        parent = Group.find_one({"name": "group1"})
+
+        payload = {
+            "name": "group2",
+            "work_group_id": self.work_group2._id,
+            "parent_group_id": str(parent._id)
+        }
+        r = self.post_json("/api/v1/groups/", payload)
+        self.assertEqual(r.status_code, 400)
+        data = json.loads(r.data)
+        self.assertIn("errors", data)
+        errors = data["errors"]
+        self.assertEqual(1, len(errors))
+
+
     def test_update_group(self):
         self.test_create_group()
         group = Group.find_one({"name": "group1"})

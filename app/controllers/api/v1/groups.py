@@ -1,8 +1,10 @@
 from flask import request
 from bson.objectid import ObjectId
 from app.controllers.auth_controller import AuthController
-from library.engine.errors import GroupNotFound, Forbidden, ApiError, WorkGroupNotFound, NotFound, IntegrityError
-from library.engine.utils import resolve_id, json_response, paginated_data, diff, get_request_fields
+from library.engine.errors import GroupNotFound, Forbidden, ApiError, WorkGroupNotFound, \
+    NotFound, IntegrityError, InputDataError
+from library.engine.utils import resolve_id, json_response, paginated_data, diff,\
+    get_request_fields, json_body_required, filter_query
 from library.engine.action_log import logged_action
 
 groups_ctrl = AuthController("groups", __name__, require_auth=True)
@@ -17,13 +19,13 @@ def show(group_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["name"] = { "$regex": "^%s" % name_filter }
+                query["name"] = filter_query(name_filter)
         if "work_group_id" in request.values:
             work_group_id = resolve_id(request.values["work_group_id"])
             query["work_group_id"] = work_group_id
         if "tags" in request.values:
             tags = request.values["tags"].split(",")
-            query["tags"] = { "$in": tags }
+            query["tags"] = {"$in": tags}
         elif "all_tags" in request.values:
             tags = request.values["all_tags"].split(",")
             query = Group.query_by_tags_recursive(tags, query)
@@ -41,7 +43,7 @@ def show(group_id=None):
     return json_response(data)
 
 
-@groups_ctrl.route("/<group_id>/structure")
+@groups_ctrl.route("/<group_id>/structure", methods=["GET"])
 def structure(group_id):
     from app.models import Group
     from library.engine.graph import group_structure
@@ -57,6 +59,7 @@ def structure(group_id):
 
 @groups_ctrl.route("/<group_id>", methods=["PUT"])
 @logged_action("group_update")
+@json_body_required
 def update(group_id):
     from app.models import WorkGroup, Group
     group = Group.get(group_id, GroupNotFound("group not found"))
@@ -72,6 +75,7 @@ def update(group_id):
 
 @groups_ctrl.route("/<group_id>/set_children", methods=["PUT"])
 @logged_action("group_set_children")
+@json_body_required
 def set_children(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
@@ -99,6 +103,7 @@ def set_children(group_id):
 
 @groups_ctrl.route("/<group_id>/set_hosts", methods=["PUT"])
 @logged_action("group_set_hosts")
+@json_body_required
 def set_hosts(group_id):
     from app.models import Host, Group
     group = Group.get(group_id, GroupNotFound("group not found"))
@@ -107,7 +112,7 @@ def set_hosts(group_id):
     orig = group.host_ids
     upd = request.json["host_ids"]
     upd = [ObjectId(x) for x in upd if x is not None]
-    d =  diff(orig, upd)
+    d = diff(orig, upd)
     exs = []
     for item in d.remove:
         try:
@@ -132,6 +137,7 @@ def set_hosts(group_id):
 
 @groups_ctrl.route("/", methods=["POST"])
 @logged_action("group_create")
+@json_body_required
 def create():
     from app.models import Group, WorkGroup
     group_attrs = request.json.copy()
@@ -151,12 +157,22 @@ def create():
         work_group = WorkGroup.get(group_attrs["work_group_id"], WorkGroupNotFound("work_group provided has not been found"))
         group_attrs["work_group_id"] = work_group._id
 
+    if "parent_group_id" in group_attrs:
+        parent = Group.get(group_attrs["parent_group_id"], GroupNotFound("parent group provided has not been found"))
+    else:
+        parent = None
+
     group_attrs = dict([x for x in group_attrs.items() if x[0] in Group.FIELDS])
     if not work_group.modification_allowed:
         raise Forbidden("you don't have permission to create groups in this work_group")
     group = Group(**group_attrs)
     group.save()
+
+    if parent:
+        group.add_parent(parent)
+
     return json_response({ "data": group.to_dict(get_request_fields()) }, 201)
+
 
 @groups_ctrl.route("/<group_id>", methods=["DELETE"])
 @logged_action("group_delete")
@@ -171,11 +187,11 @@ def delete(group_id):
 
 @groups_ctrl.route("/mass_move", methods=["POST"])
 @logged_action("group_mass_move")
+@json_body_required
 def mass_move():
     # every group requested will move to the indicated work_group with all its' children
     # group will be detached from all its' parents due to not being able to have
     # relations between different work_groups
-
     if "group_ids" not in request.json or request.json["group_ids"] is None:
         raise ApiError("no group ids provided")
     if type(request.json["group_ids"]) != list:
@@ -233,11 +249,12 @@ def mass_move():
 
 @groups_ctrl.route("/mass_delete", methods=["POST"])
 @logged_action("group_mass_delete")
+@json_body_required
 def mass_delete():
     if "group_ids" not in request.json or request.json["group_ids"] is None:
-        raise ApiError("no group ids provided")
+        raise InputDataError("no group ids provided")
     if type(request.json["group_ids"]) != list:
-        raise ApiError("group_ids must be an array type")
+        raise InputDataError("group_ids must be an array type")
 
     from app.models import Group
 
@@ -279,15 +296,15 @@ def mass_delete():
 
 @groups_ctrl.route("/<group_id>/set_custom_fields", methods=["POST"])
 @logged_action("group_set_custom_fields")
+@json_body_required
 def set_custom_fields(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
 
     if not group.modification_allowed:
         raise Forbidden("You don't have permissions to modify this group")
-
     if not "custom_fields" in request.json:
-        raise ApiError("no custom_fields provided")
+        raise InputDataError("no custom_fields provided")
 
     cfs = request.json["custom_fields"]
     if type(cfs) == dict:
@@ -304,15 +321,15 @@ def set_custom_fields(group_id):
 
 @groups_ctrl.route("/<group_id>/remove_custom_fields", methods=["POST", "DELETE"])
 @logged_action("group_remove_custom_fields")
+@json_body_required
 def remove_custom_fields(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
 
     if not group.modification_allowed:
         raise Forbidden("You don't have permissions to modify this group")
-
     if not "custom_fields" in request.json:
-        raise ApiError("no custom_fields provided")
+        raise InputDataError("no custom_fields provided")
 
     cfs = request.json["custom_fields"]
     if type(cfs) == dict:
@@ -329,13 +346,13 @@ def remove_custom_fields(group_id):
 
 @groups_ctrl.route("/<group_id>/add_tags", methods=["POST"])
 @logged_action("group_add_tags")
+@json_body_required
 def add_tags(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
 
     if not group.modification_allowed:
         raise Forbidden("You don't have permissions to modify this group")
-
     if not "tags" in request.json:
         raise ApiError("no tags provided")
 
@@ -354,13 +371,13 @@ def add_tags(group_id):
 
 @groups_ctrl.route("/<group_id>/remove_tags", methods=["POST", "DELETE"])
 @logged_action("group_remove_tags")
+@json_body_required
 def remove_tags(group_id):
     from app.models import Group
     group = Group.get(group_id, GroupNotFound("group not found"))
 
     if not group.modification_allowed:
         raise Forbidden("You don't have permissions to modify this group")
-
     if not "tags" in request.json:
         raise ApiError("no tags provided")
 

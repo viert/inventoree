@@ -5,6 +5,7 @@ from uuid import uuid4
 import flask.json as json
 import os
 import math
+import functools
 
 DEFAULT_DOCUMENTS_PER_PAGE = 20
 
@@ -244,3 +245,24 @@ def get_app_version():
             return vf.read().strip()
     except (OSError, IOError):
         return "unknown"
+
+
+def json_body_required(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        from flask import request
+        from library.engine.errors import InputDataError
+        if request.json is None:
+            raise InputDataError("json data is missing")
+        return func(*args, **kwargs)
+    return wrapper
+
+
+def filter_query(flt):
+    from app import app
+    try:
+        if app.config.app.get("FILTER_MATCH_FROM_START") and not flt.startswith("^"):
+            flt = "^" + flt
+        return {"$regex": flt}
+    except:
+        return {}

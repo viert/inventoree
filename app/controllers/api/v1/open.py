@@ -120,7 +120,7 @@ def ansible():
         raise ApiError("Invalid format. Valid formats are either \"plain\" or \"json\". (Defaults to \"plain\"")
 
 
-@open_ctrl.route("/app")
+@open_ctrl.route("/app", methods=["GET", "POST"])
 def info():
     from app import app
 

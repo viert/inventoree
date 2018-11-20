@@ -1,6 +1,6 @@
 from library.engine.utils import resolve_id, paginated_data, json_response, \
-    get_request_fields, get_user_from_app_context
-from library.engine.errors import NetworkGroupNotFound, WorkGroupNotFound, IntegrityError, Forbidden
+    get_request_fields, get_user_from_app_context, json_body_required
+from library.engine.errors import NetworkGroupNotFound, WorkGroupNotFound, IntegrityError, Forbidden, InputDataError
 from app.controllers.auth_controller import AuthController
 from library.engine.action_log import logged_action
 from flask import request
@@ -43,6 +43,7 @@ def show(network_group_id=None):
 
 @network_groups_ctrl.route("/", methods=["POST"])
 @logged_action("network_group_create")
+@json_body_required
 def create():
     from app.models import NetworkGroup, WorkGroup
 

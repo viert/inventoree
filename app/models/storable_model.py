@@ -88,6 +88,7 @@ class StorableModel(object):
         if not skip_callback:
             self._before_save()
         db.save_obj(self)
+        return self
 
     def update(self, data, skip_callback=False):
         for field in self.FIELDS:
@@ -96,6 +97,7 @@ class StorableModel(object):
                     continue
                 self.__setattr__(field, data[field])
         self.save(skip_callback=skip_callback)
+        return self
 
     def destroy(self, skip_callback=False):
         from library.db import db
@@ -105,6 +107,7 @@ class StorableModel(object):
             self._before_delete()
         db.delete_obj(self)
         self._id = None
+        return self
 
     def _before_save(self):
         pass
@@ -165,6 +168,7 @@ class StorableModel(object):
                 continue
             value = getattr(tmp, field)
             setattr(self, field, value)
+        return self
 
     @property
     def collection(self):

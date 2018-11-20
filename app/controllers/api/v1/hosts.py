@@ -1,5 +1,6 @@
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import resolve_id, json_response, paginated_data, get_request_fields
+from library.engine.utils import resolve_id, json_response, paginated_data, \
+    get_request_fields, json_body_required, filter_query
 from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound, NetworkGroupNotFound
@@ -20,7 +21,7 @@ def show(host_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["fqdn"] = { "$regex": "^%s" % name_filter }
+                query["fqdn"] = filter_query(name_filter)
         if "group_id" in request.values:
             group_id = resolve_id(request.values["group_id"])
             query["group_id"] = group_id
@@ -56,11 +57,11 @@ def show(host_id=None):
 
 @hosts_ctrl.route("/", methods=["POST"])
 @logged_action("host_create")
+@json_body_required
 def create():
     from app.models import Host, Group, Datacenter, NetworkGroup
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
     aliases_map = defaultdict(list)
-
     if "fqdn_pattern" in request.json:
         if "fqdn" in host_attrs:
             raise Conflict("fqdn field is not allowed due to fqdn_pattern param presence")
@@ -108,10 +109,10 @@ def create():
 
 @hosts_ctrl.route("/<host_id>", methods=["PUT"])
 @logged_action("host_update")
+@json_body_required
 def update(host_id):
     from app.models import Host, Group, Datacenter, NetworkGroup
     host = Host.get(host_id, HostNotFound("host not found"))
-
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
     if not host.modification_allowed:
@@ -159,6 +160,7 @@ def delete(host_id):
 
 @hosts_ctrl.route("/mass_move", methods=["POST"])
 @logged_action("host_mass_move")
+@json_body_required
 def mass_move():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
@@ -207,6 +209,7 @@ def mass_move():
 
 @hosts_ctrl.route("/mass_set_datacenter", methods=["POST"])
 @logged_action("host_mass_set_datacenter")
+@json_body_required
 def mass_set_datacenter():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
@@ -251,6 +254,7 @@ def mass_set_datacenter():
 
 @hosts_ctrl.route("/mass_detach", methods=["POST"])
 @logged_action("host_mass_detach")
+@json_body_required
 def mass_detach():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
@@ -291,6 +295,7 @@ def mass_detach():
 
 @hosts_ctrl.route("/mass_delete", methods=["POST"])
 @logged_action("host_mass_delete")
+@json_body_required
 def mass_delete():
     if "host_ids" not in request.json or request.json["host_ids"] is None:
         raise ApiError("no host_ids provided")
@@ -329,13 +334,13 @@ def mass_delete():
 
 @hosts_ctrl.route("/<host_id>/set_custom_fields", methods=["POST"])
 @logged_action("host_set_custom_fields")
+@json_body_required
 def set_custom_fields(host_id):
     from app.models import Host
     host = Host.get(host_id, HostNotFound("host not found"))
 
     if not host.modification_allowed:
         raise Forbidden("You don't have permissions to modify this host")
-
     if not "custom_fields" in request.json:
         raise ApiError("no custom_fields provided")
 
@@ -354,13 +359,13 @@ def set_custom_fields(host_id):
 
 @hosts_ctrl.route("/<host_id>/remove_custom_fields", methods=["POST", "DELETE"])
 @logged_action("host_remove_custom_fields")
+@json_body_required
 def remove_custom_fields(host_id):
     from app.models import Host
     host = Host.get(host_id, HostNotFound("host not found"))
 
     if not host.modification_allowed:
         raise Forbidden("You don't have permissions to modify this host")
-
     if not "custom_fields" in request.json:
         raise ApiError("no custom_fields provided")
 
@@ -379,13 +384,13 @@ def remove_custom_fields(host_id):
 
 @hosts_ctrl.route("/<host_id>/add_tags", methods=["POST"])
 @logged_action("host_add_tags")
+@json_body_required
 def add_tags(host_id):
     from app.models import Host
     host = Host.get(host_id, HostNotFound("host not found"))
 
     if not host.modification_allowed:
         raise Forbidden("You don't have permissions to modify this host")
-
     if not "tags" in request.json:
         raise ApiError("no tags provided")
 
@@ -404,13 +409,13 @@ def add_tags(host_id):
 
 @hosts_ctrl.route("/<host_id>/remove_tags", methods=["POST", "DELETE"])
 @logged_action("host_remove_tags")
+@json_body_required
 def remove_tags(host_id):
     from app.models import Host
     host = Host.get(host_id, HostNotFound("host not found"))
 
     if not host.modification_allowed:
         raise Forbidden("You don't have permissions to modify this host")
-
     if not "tags" in request.json:
         raise ApiError("no tags provided")
 
