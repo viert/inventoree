@@ -1,6 +1,6 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, \
-    get_request_fields, json_body_required, filter_query
+    get_request_fields, json_body_required, filter_query, can_assign_system_fields
 from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound, NetworkGroupNotFound
@@ -141,7 +141,42 @@ def update(host_id):
         host_attrs["datacenter_id"] = datacenter._id
 
     host.update(host_attrs)
-    data = { "data": host.to_dict(get_request_fields()) }
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@hosts_ctrl.route("/discover", methods=["POST"])
+@logged_action("host_discover")
+@json_body_required
+def discover():
+    from app.models import Host
+
+    if not can_assign_system_fields():
+        raise Forbidden("discover handler is accessible only by system users")
+
+    if "fqdn" not in request.json:
+        raise ApiError("fqdn field is missing")
+    fqdn = request.json["fqdn"]
+
+    attrs = {}
+    has_attrs = False
+    for k, v in request.json.iteritems():
+        if k not in Host.SYSTEM_FIELDS:
+            continue
+        attrs[k] = v
+        has_attrs = True
+
+    h = Host.find_one({"fqdn": fqdn})
+
+    if h is None:
+        attrs["fqdn"] = fqdn
+        h = Host(**attrs)
+        h.save()
+    else:
+        if has_attrs:
+            h.update(**attrs)
+
+    data = {"data": h.to_dict(get_request_fields())}
     return json_response(data)
 
 
