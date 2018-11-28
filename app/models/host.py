@@ -27,6 +27,7 @@ class Host(StorableModel):
         "created_at",
         "updated_at",
         "ip_addrs",
+        "hw_addrs",
         "network_group_id"
     )
 
@@ -47,21 +48,23 @@ class Host(StorableModel):
         "tags": [],
         "custom_fields": [],
         "aliases": [],
-        "ip_addrs": []
+        "ip_addrs": [],
+        "hw_addrs": []
     }
 
     INDEXES = (
-        [ "fqdn", { "unique": True } ],
+        ["fqdn", {"unique": True}],
         "group_id",
         "datacenter_id",
         "network_group_id",
         "tags",
         "aliases",
-        [ "custom_fields.key", "custom_fields.value" ]
+        ["custom_fields.key", "custom_fields.value"]
     )
 
     SYSTEM_FIELDS = (
         "ip_addrs",
+        "hw_addrs"
     )
 
     __slots__ = FIELDS
