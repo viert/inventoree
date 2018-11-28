@@ -149,10 +149,26 @@ def update(host_id):
 @logged_action("host_discover")
 @json_body_required
 def discover():
+    """
+    Creates or updates host with a given fqdn, tags, custom_fields and system fields.
+    Must be used by automation scripts and CMSes.
+    """
     from app.models import Host
 
     if not can_assign_system_fields():
         raise Forbidden("discover handler is accessible only by system users")
+
+    tags = []
+    if "tags" in request.json:
+        tags = request.json["tags"]
+        if type(tags) != list:
+            raise ApiError("tags must be an array")
+
+    custom_fields = []
+    if "custom_fields" in request.json:
+        custom_fields = request.json["custom_fields"]
+        if type(custom_fields) != list:
+            raise ApiError("custom_fields must be an array")
 
     if "fqdn" not in request.json:
         raise ApiError("fqdn field is missing")
@@ -170,11 +186,17 @@ def discover():
 
     if h is None:
         attrs["fqdn"] = fqdn
+        attrs["tags"] = tags
+        attrs["custom_fields"] = custom_fields
         h = Host(**attrs)
         h.save()
     else:
-        if has_attrs:
-            h.update(**attrs)
+        if has_attrs or len(tags) + len(custom_fields) > 0:
+            for tag in tags:
+                h.add_tag(tag)
+            for cf in custom_fields:
+                h.set_custom_field(cf["key"], cf["value"])
+            h.update(attrs)
 
     data = {"data": h.to_dict(get_request_fields())}
     return json_response(data)

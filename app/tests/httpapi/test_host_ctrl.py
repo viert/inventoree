@@ -8,7 +8,8 @@ TEST_HOST_1 = {
     "fqdn": "host1.example.com",
     "description": "test host 1",
     "tags": ["boo", "meow", "roar"],
-    "aliases": ["host1", "host1.example"]
+    "aliases": ["host1", "host1.example"],
+    "custom_fields": [{"key": "blah", "value": "error"}]
 }
 
 TEST_HOST_2 = {
@@ -16,6 +17,18 @@ TEST_HOST_2 = {
     "description": "test host 2",
     "tags": ["smm", "pm", "dev"],
     "aliases": ["host2", "host2.example"]
+}
+
+DISCOVERED_HOST = {
+    "fqdn": "discovered.example.com",
+    "description": "should be skipped",
+    "tags": ["jabber", "im", "icq"],
+    "custom_fields": [{"key": "blah", "value": "minor"}]
+}
+
+SYSTEM_FIELDS = {
+    "ip_addrs": ["127.0.0.1"],
+    "hw_addrs": ["ab:cd:ef:01:23:45"]
 }
 
 
@@ -300,3 +313,44 @@ class TestHostCtrl(HttpApiTestCase):
         payload = {"network_group_id": str(ng._id)}
         r = self.put_json("/api/v1/hosts/%s" % h1.fqdn, payload, supervisor=False)
         self.assertEqual(403, r.status_code)
+
+    def test_discover_non_system(self):
+        payload = deepcopy(DISCOVERED_HOST)
+        r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=False)
+        self.assertEqual(403, r.status_code)
+
+    def test_discover_create(self):
+        payload = deepcopy(DISCOVERED_HOST)
+        r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
+        self.assertEqual(200, r.status_code)
+        host = Host.get(payload["fqdn"])
+        self.assertIsNotNone(host)
+        self.assertIsNone(host.description)
+        self.assertEqual(host.fqdn, payload["fqdn"])
+        self.assertItemsEqual(host.tags, payload["tags"])
+        self.assertItemsEqual(host.custom_fields, payload["custom_fields"])
+
+    def test_discover_update(self):
+        attrs = deepcopy(TEST_HOST_1)
+        attrs["fqdn"] = DISCOVERED_HOST["fqdn"]
+        host = Host(**attrs)
+        host.save()
+        payload = deepcopy(DISCOVERED_HOST)
+        r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
+        self.assertEqual(200, r.status_code)
+        host.reload()
+        self.assertIsNotNone(host)
+        self.assertEqual(host.description, TEST_HOST_1["description"])
+        self.assertItemsEqual(TEST_HOST_1["tags"] + DISCOVERED_HOST["tags"], host.tags)
+        self.assertItemsEqual(DISCOVERED_HOST["custom_fields"], host.custom_fields)
+
+    def test_discover_system_fields(self):
+        host = Host(**TEST_HOST_1)
+        host.save()
+        payload = deepcopy(SYSTEM_FIELDS)
+        payload["fqdn"] = host.fqdn
+        r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
+        self.assertEqual(200, r.status_code)
+        host.reload()
+        self.assertItemsEqual(host.ip_addrs, SYSTEM_FIELDS["ip_addrs"])
+        self.assertItemsEqual(host.hw_addrs, SYSTEM_FIELDS["hw_addrs"])
