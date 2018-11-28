@@ -36,6 +36,13 @@ def resolve_id(id):
     if id is None:
         return None
 
+    # Sometimes ObjectId can be generated from 12-chars unicode string
+    # In this case, expressions like u'mail_unknown' are treated as
+    # a valid ObjectId :-\
+    if type(id) == str:
+        if len(id) != 24:
+            # Only 24-char string can represent a valid hex ObjectId
+            return id
     try:
         id = ObjectId(id)
     except InvalidId:
