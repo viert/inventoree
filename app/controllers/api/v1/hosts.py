@@ -1,6 +1,6 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, \
-    get_request_fields, json_body_required, filter_query
+    get_request_fields, json_body_required, filter_query, can_assign_system_fields
 from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound, NetworkGroupNotFound
@@ -141,7 +141,64 @@ def update(host_id):
         host_attrs["datacenter_id"] = datacenter._id
 
     host.update(host_attrs)
-    data = { "data": host.to_dict(get_request_fields()) }
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@hosts_ctrl.route("/discover", methods=["POST"])
+@logged_action("host_discover")
+@json_body_required
+def discover():
+    """
+    Creates or updates host with a given fqdn, tags, custom_fields and system fields.
+    Must be used by automation scripts and CMSes.
+    """
+    from app.models import Host
+
+    if not can_assign_system_fields():
+        raise Forbidden("discover handler is accessible only by system users")
+
+    tags = []
+    if "tags" in request.json:
+        tags = request.json["tags"]
+        if type(tags) != list:
+            raise ApiError("tags must be an array")
+
+    custom_fields = []
+    if "custom_fields" in request.json:
+        custom_fields = request.json["custom_fields"]
+        if type(custom_fields) != list:
+            raise ApiError("custom_fields must be an array")
+
+    if "fqdn" not in request.json:
+        raise ApiError("fqdn field is missing")
+    fqdn = request.json["fqdn"]
+
+    attrs = {}
+    has_attrs = False
+    for k, v in request.json.iteritems():
+        if k not in Host.SYSTEM_FIELDS:
+            continue
+        attrs[k] = v
+        has_attrs = True
+
+    h = Host.find_one({"fqdn": fqdn})
+
+    if h is None:
+        attrs["fqdn"] = fqdn
+        attrs["tags"] = tags
+        attrs["custom_fields"] = custom_fields
+        h = Host(**attrs)
+        h.save()
+    else:
+        if has_attrs or len(tags) + len(custom_fields) > 0:
+            for tag in tags:
+                h.add_tag(tag)
+            for cf in custom_fields:
+                h.set_custom_field(cf["key"], cf["value"])
+            h.update(attrs)
+
+    data = {"data": h.to_dict(get_request_fields())}
     return json_response(data)
 
 

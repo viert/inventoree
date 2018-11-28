@@ -93,6 +93,7 @@ class StorableModel(object):
     def update(self, data, skip_callback=False):
         for field in self.FIELDS:
             if field in data and field not in self.REJECTED_FIELDS and field != "_id":
+                # system fields are silently excluded if the current user is not a system user
                 if field in self.SYSTEM_FIELDS and not can_assign_system_fields():
                     continue
                 self.__setattr__(field, data[field])
