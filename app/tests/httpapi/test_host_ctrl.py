@@ -360,8 +360,14 @@ class TestHostCtrl(HttpApiTestCase):
         payload = deepcopy(DISCOVERED_HOST)
         payload["workgroup_name"] = self.work_group1.name
         r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
-        self.assertEqual(201, r.status_code, r.data)
+        self.assertEqual(201, r.status_code)
         h = Host.get(payload["fqdn"])
         self.assertIsNotNone(h)
         self.assertIsNotNone(h.group)
         self.assertEqual(h.group.name, self.work_group1.name + app.config.app.get("DEFAULT_GROUP_POSTFIX", "_unknown"))
+
+    def test_discover_autoassign_bad_wg(self):
+        payload = deepcopy(DISCOVERED_HOST)
+        payload["workgroup_name"] = self.work_group1.name + ".xxx"
+        r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
+        self.assertEqual(404, r.status_code)
