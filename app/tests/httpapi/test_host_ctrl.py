@@ -322,7 +322,7 @@ class TestHostCtrl(HttpApiTestCase):
     def test_discover_create(self):
         payload = deepcopy(DISCOVERED_HOST)
         r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
-        self.assertEqual(200, r.status_code)
+        self.assertEqual(201, r.status_code)
         host = Host.get(payload["fqdn"])
         self.assertIsNotNone(host)
         self.assertIsNone(host.description)
@@ -354,3 +354,14 @@ class TestHostCtrl(HttpApiTestCase):
         host.reload()
         self.assertItemsEqual(host.ip_addrs, SYSTEM_FIELDS["ip_addrs"])
         self.assertItemsEqual(host.hw_addrs, SYSTEM_FIELDS["hw_addrs"])
+
+    def test_discover_autoassign_group(self):
+        from app import app
+        payload = deepcopy(DISCOVERED_HOST)
+        payload["workgroup_name"] = self.work_group1.name
+        r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
+        self.assertEqual(201, r.status_code, r.data)
+        h = Host.get(payload["fqdn"])
+        self.assertIsNotNone(h)
+        self.assertIsNotNone(h.group)
+        self.assertEqual(h.group.name, self.work_group1.name + app.config.app.get("DEFAULT_GROUP_POSTFIX", "_unknown"))
