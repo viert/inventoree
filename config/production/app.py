@@ -10,3 +10,4 @@ AUTHORIZER = "SysAuthorizer"
 ACTION_LOGGING = True
 
 GRAVATAR_PATH = "https://sys.mail.ru/avatar/internal"
+DEFAULT_GROUP_POSTFIX = "_unknown"

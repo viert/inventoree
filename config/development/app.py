@@ -13,3 +13,5 @@ SESSIONS_AUTO_CLEANUP = True
 SESSIONS_AUTO_CLEANUP_RAND_TRIGGER = 0.05
 
 GRAVATAR_PATH = "https://sys.mail.ru/avatar/internal"
+
+DEFAULT_GROUP_POSTFIX = "_unknown"

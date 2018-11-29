@@ -153,7 +153,8 @@ def discover():
     Creates or updates host with a given fqdn, tags, custom_fields and system fields.
     Must be used by automation scripts and CMSes.
     """
-    from app.models import Host
+    from app import app
+    from app.models import Host, Group, WorkGroup
 
     if not can_assign_system_fields():
         raise Forbidden("discover handler is accessible only by system users")
@@ -183,13 +184,25 @@ def discover():
         has_attrs = True
 
     h = Host.find_one({"fqdn": fqdn})
+    status_code = 200
 
     if h is None:
+        # check for workgroup settings
+        if "workgroup_name" in request.json:
+            wg = WorkGroup.get(request.json["workgroup_name"], NotFound("Workgroup %s not found" % request.json["workgroup_name"]))
+            default_group_postfix = app.config.app.get("DEFAULT_GROUP_POSTFIX", "_unknown")
+            group_name = wg.name + default_group_postfix
+            group = Group.get(group_name)
+            if group is None:
+                group = Group(name=group_name, work_group_id=wg._id, description="default group in %s" % wg.name)
+                group.save()
+            attrs["group_id"] = group._id
         attrs["fqdn"] = fqdn
         attrs["tags"] = tags
         attrs["custom_fields"] = custom_fields
         h = Host(**attrs)
         h.save()
+        status_code = 201
     else:
         if has_attrs or len(tags) + len(custom_fields) > 0:
             for tag in tags:
@@ -199,7 +212,7 @@ def discover():
             h.update(attrs)
 
     data = {"data": h.to_dict(get_request_fields())}
-    return json_response(data)
+    return json_response(data, status_code)
 
 
 @hosts_ctrl.route("/<host_id>", methods=["DELETE"])
