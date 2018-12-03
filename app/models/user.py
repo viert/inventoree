@@ -2,6 +2,7 @@ from storable_model import StorableModel, now
 from library.engine.pbkdf2 import pbkdf2_hex
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
+from library.engine.errors import InvalidPassword
 from time import mktime
 from flask import g
 import bcrypt
@@ -134,6 +135,8 @@ class User(StorableModel):
             work_group.remove_member(self)
 
     def set_password(self, password_raw):
+        if password_raw == "":
+            raise InvalidPassword("Password can not be empty")
         from app import app
         if app.config.app.get("LEGACY_PASSWORDS", False):
             self.__set_legacy_password_hash(password_raw)

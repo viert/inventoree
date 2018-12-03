@@ -150,6 +150,9 @@ class Forbidden(ApiError):
     status_code = 403
 
 
+class InvalidPassword(ApiError):
+    pass
+
 def handle_api_error(error):
     return json_response(error.to_dict(), error.status_code)
 
