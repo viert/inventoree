@@ -182,6 +182,7 @@ def full_group_structure(work_group_ids=None, group_fields=None, host_fields=Non
         work_group_ids = [resolve_id(x) for x in work_group_ids]
         query["work_group_id"] = { "$in": work_group_ids }
 
+
     from app.models import Group, Host
     groups = Group.find(query)
     groups = dict([(str(group._id), group.to_dict(fields=group_fields)) for group in groups])
@@ -196,7 +197,7 @@ def full_group_structure(work_group_ids=None, group_fields=None, host_fields=Non
         group["all_hosts"] = {}
 
     for host_id, host in hosts.items():
-        if host["group_id"] is not None:
+        if str(host["group_id"]) in groups:
             groups[str(host["group_id"])]["hosts"][host_id] = host
 
     def get_all_hosts(group):

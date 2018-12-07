@@ -78,7 +78,7 @@ def ansible():
     if "work_groups" in request.values:
         work_group_names = [x for x in request.values["work_groups"].split(",") if x != ""]
         if len(work_group_names) > 0:
-            query["name"] = { "$in": work_group_names }
+            query["name"] = {"$in": work_group_names}
     work_group_ids = [x._id for x in WorkGroup.find(query).all()]
 
     include_vars = request.values.get("vars") in ("yes", "true", "1")
