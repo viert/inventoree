@@ -90,6 +90,10 @@ class InvalidIpAddresses(IntegrityError):
     pass
 
 
+class InvalidHardwareAddresses(IntegrityError):
+    pass
+
+
 class InvalidFQDN(IntegrityError):
     pass
 
@@ -152,6 +156,7 @@ class Forbidden(ApiError):
 
 class InvalidPassword(ApiError):
     pass
+
 
 def handle_api_error(error):
     return json_response(error.to_dict(), error.status_code)

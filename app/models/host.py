@@ -2,7 +2,7 @@ import re
 from storable_model import StorableModel, now
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
                                 GroupNotFound, InvalidAliases, InvalidFQDN, \
-                                InvalidIpAddresses, NetworkGroupNotFound
+                                InvalidIpAddresses, NetworkGroupNotFound, InvalidHardwareAddresses
 from library.engine.utils import get_user_from_app_context
 from library.engine.cache import request_time_cache
 
@@ -76,6 +76,7 @@ class Host(StorableModel):
         return hash(self.fqdn + "." + str(self._id))
 
     def _before_save(self):
+        # sanity checks
         if not FQDN_EXPR.match(self.fqdn):
             raise InvalidFQDN("FQDN %s is invalid" % self.fqdn)
         if self.group_id is not None and self.group is None:
@@ -90,6 +91,8 @@ class Host(StorableModel):
             raise InvalidTags("tags must be unique")
         if not hasattr(self.ip_addrs, "__getitem__") or type(self.ip_addrs) is str:
             raise InvalidIpAddresses("ip addresses must be of array type")
+        if not hasattr(self.hw_addrs, "__getitem__") or type(self.hw_addrs) is str:
+            raise InvalidHardwareAddresses("hardware addresses must be of array type")
         if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
             raise InvalidAliases("aliases must be of array type")
 
