@@ -270,8 +270,6 @@ class Group(StorableModel):
             else:
                 if cf["key"].strip() == "":
                     raise InvalidCustomFields("Custom field key can't be empty")
-                if cf["value"].strip() == "":
-                    raise InvalidCustomFields("Custom field value can't be empty")
                 if cf["key"] in custom_keys:
                     raise InvalidCustomFields("Key '%s' is provided more than once" % cf["key"])
                 else:
