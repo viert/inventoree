@@ -2,6 +2,7 @@ from flask import make_response, request
 from bson.objectid import ObjectId, InvalidId
 from collections import namedtuple
 from uuid import uuid4
+from copy import deepcopy
 import flask.json as json
 import os
 import math
@@ -274,3 +275,67 @@ def filter_query(flt):
         return {"$regex": flt}
     except:
         return {}
+
+
+def merge(dict1, dict2):
+    """
+    merge deeply merges dict1 and dict2, overriding data in dict1 with the data of dict2 in case of conflicts
+    """
+    dict1 = deepcopy(dict1)
+    for k in dict2:
+        if k not in dict1:
+            dict1[k] = dict2[k]
+        else:
+            if type(dict2[k]) != type(dict1[k]) or type(dict2[k]) is not dict:
+                dict1[k] = dict2[k]
+            else:
+                dict1[k] = merge(dict1[k], dict2[k])
+    return dict1
+
+
+def check_dicts_are_equal(dict1, dict2):
+    print "checking dicts %s, %s" % (dict1, dict2)
+    if dict1 == dict2:
+        # the same object
+        return True
+
+    if len(dict1) != len(dict2):
+        return False
+
+    for k, v in dict1.iteritems():
+        if k not in dict2:
+            return False
+        if v == dict2[k]:
+            continue
+        if type(v) != type(dict2[k]):
+            return False
+        if type(v) is dict and check_dicts_are_equal(v, dict2[k]):
+            continue
+        if type(v) is list and check_lists_are_equal(v, dict2[k]):
+            continue
+        return False
+
+    return True
+
+
+def check_lists_are_equal(list1, list2):
+    print "checking lists %s, %s" % (list1, list2)
+    if list1 == list2:
+        # the same object
+        return True
+
+    if len(list1) != len(list2):
+        return False
+
+    for i, e in enumerate(list1):
+        if e == list2[i]:
+            continue
+        if type(e) != type(list2[i]):
+            return False
+        if type(e) is dict and check_dicts_are_equal(e, list2[i]):
+            continue
+        if type(e) is list and check_lists_are_equal(e, list2[i]):
+            continue
+        return False
+
+    return True

@@ -1,7 +1,8 @@
 from library.engine.errors import ParentDoesNotExist, ParentAlreadyExists, ParentCycle, InvalidCustomFields
 from library.engine.errors import InvalidTags, ChildDoesNotExist, ChildAlreadyExists, GroupNotEmpty, GroupNotFound
-from library.engine.errors import InvalidWorkGroupId
-from library.engine.cache import request_time_cache
+from library.engine.errors import InvalidWorkGroupId, InvalidCustomData
+from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
+from library.engine.utils import merge, check_dicts_are_equal, check_lists_are_equal
 from app.models.storable_model import StorableModel, now, save_required
 from bson.objectid import ObjectId, InvalidId
 
@@ -23,6 +24,7 @@ class Group(StorableModel):
         "child_ids",
         "tags",
         "custom_fields",
+        "local_custom_data",
     )
 
     KEY_FIELD = "name"
@@ -33,7 +35,8 @@ class Group(StorableModel):
         "parent_ids": [],
         "child_ids": [],
         "tags": [],
-        "custom_fields": []
+        "custom_fields": [],
+        "local_custom_data": {}
     }
 
     REQUIRED_FIELDS = (
@@ -238,6 +241,18 @@ class Group(StorableModel):
             parents += parent.get_all_parents()
         return parents
 
+    @property
+    @cache_custom_data
+    def custom_data(self):
+        if len(self.parent_ids) == 0:
+            return self.local_custom_data
+
+        parent_data = self.parents[0].custom_data
+        for other_parent in self.parents[1:]:
+            parent_data = merge(parent_data, other_parent.custom_data)
+
+        return merge(parent_data, self.local_custom_data)
+
     def touch(self):
         self.updated_at = now()
 
@@ -275,10 +290,21 @@ class Group(StorableModel):
                 else:
                     custom_keys.add(cf["key"])
 
+    def _check_custom_data(self):
+        # Custom data validation
+        if type(self.local_custom_data) is not dict:
+            raise InvalidCustomData("Custom data must be a dict")
+        # Custom data invalidation
+        if not check_lists_are_equal(self.parent_ids, self._initial_state["parent_ids"]):
+            invalidate_custom_data(self)
+        elif not check_dicts_are_equal(self.local_custom_data, self._initial_state["local_custom_data"]):
+            invalidate_custom_data(self)
+
     def _before_save(self):
         self._check_work_group_ids()
         self._check_tags()
         self._check_custom_fields()
+        self._check_custom_data()
         if not self.is_new:
             self.touch()
 
