@@ -294,7 +294,6 @@ def merge(dict1, dict2):
 
 
 def check_dicts_are_equal(dict1, dict2):
-    print "checking dicts %s, %s" % (dict1, dict2)
     if dict1 == dict2:
         # the same object
         return True
@@ -319,7 +318,6 @@ def check_dicts_are_equal(dict1, dict2):
 
 
 def check_lists_are_equal(list1, list2):
-    print "checking lists %s, %s" % (list1, list2)
     if list1 == list2:
         # the same object
         return True
