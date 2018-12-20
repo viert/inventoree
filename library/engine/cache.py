@@ -141,5 +141,3 @@ def invalidate_custom_data(obj):
     if app.cache.has(cache_key):
         app.cache.delete(cache_key)
         app.logger.debug("%s DELETE cache" % cache_key)
-    else:
-        app.logger.debug("%s MIGHT DELETE cache" % cache_key)

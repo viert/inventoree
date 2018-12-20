@@ -290,15 +290,22 @@ class Group(StorableModel):
                 else:
                     custom_keys.add(cf["key"])
 
+    def _invalidate_custom_data(self):
+        invalidate_custom_data(self)
+        for group in self.children:
+            invalidate_custom_data(group)
+        for host in self.hosts:
+            invalidate_custom_data(host)
+
     def _check_custom_data(self):
         # Custom data validation
         if type(self.local_custom_data) is not dict:
             raise InvalidCustomData("Custom data must be a dict")
         # Custom data invalidation
         if not check_lists_are_equal(self.parent_ids, self._initial_state["parent_ids"]):
-            invalidate_custom_data(self)
+            self._invalidate_custom_data()
         elif not check_dicts_are_equal(self.local_custom_data, self._initial_state["local_custom_data"]):
-            invalidate_custom_data(self)
+            self._invalidate_custom_data()
 
     def _before_save(self):
         self._check_work_group_ids()
