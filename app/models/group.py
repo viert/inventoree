@@ -293,7 +293,7 @@ class Group(StorableModel):
     def _invalidate_custom_data(self):
         invalidate_custom_data(self)
         for group in self.children:
-            invalidate_custom_data(group)
+            group._invalidate_custom_data()
         for host in self.hosts:
             invalidate_custom_data(host)
 

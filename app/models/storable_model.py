@@ -292,6 +292,10 @@ class StorableModel(object):
                     else:
                         app.logger.error("Index %s conflicts with exising one, use overwrite param to fix it" % keys)
 
+    @property
+    def __dict__(self):
+        return dict([x for x in self.to_dict(self.FIELDS).iteritems() if x[1] is not None])
+
 
 def save_required(func):
     @wraps(func)
