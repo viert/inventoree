@@ -96,3 +96,48 @@ def request_time_cache(cache_key_prefix=DEFAULT_CACHE_PREFIX):
             return value
         return wrapper
     return cache_decorator
+
+
+def _get_custom_data_cache_key(obj):
+    from app import app
+    try:
+        model = type(obj).__name__
+        model_id = obj._id
+        return "%s.%s.custom_data" % (model, model_id)
+    except Exception as e:
+        app.logger.error("error generating custom_data cache key: %s" % e)
+        return None
+
+
+def cache_custom_data(func):
+    """
+    cache_custom_data decorator is used to cache merged custom_data _forever_.
+    invalidating custom data cache should be done using recursive calls to invalidate_custom_data(obj)
+    """
+    from app import app
+
+    @functools.wraps(func)
+    def wrapper(self):
+        cache_key = _get_custom_data_cache_key(self)
+        if cache_key is None:
+            return func(self)
+
+        t1 = datetime.now()
+        if app.cache.has(cache_key):
+            value = app.cache.get(cache_key)
+            app.logger.debug("%s HIT (%.3f seconds)" % (cache_key, (datetime.now() - t1).total_seconds()))
+        else:
+            value = func(self)
+            app.cache.set(cache_key, value)
+            app.logger.debug("%s MISS (%.3f seconds)" % (cache_key, (datetime.now() - t1).total_seconds()))
+        return value
+
+    return wrapper
+
+
+def invalidate_custom_data(obj):
+    from app import app
+    cache_key = _get_custom_data_cache_key(obj)
+    if app.cache.has(cache_key):
+        app.cache.delete(cache_key)
+        app.logger.debug("%s DELETE cache" % cache_key)

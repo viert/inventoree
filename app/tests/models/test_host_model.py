@@ -191,3 +191,64 @@ class TestHostModel(TestCase):
         g1.save()
         h = Host(fqdn="host.example.com", group_id=g1._id, network_group_id="doesntmakeanysense")
         self.assertRaises(NetworkGroupNotFound, h.save)
+
+    def test_custom_data(self):
+        g1 = Group(name="g1", work_group_id=self.twork_group._id,
+                   local_custom_data={
+                       "group1data": "group1",
+                       "common": {
+                           "group1": 1,
+                           "all": 2,
+                       }
+                   })
+        g1.save()
+        g2 = Group(name="g2", work_group_id=self.twork_group._id,
+                   local_custom_data={
+                       "group2data": "group2",
+                       "common": {
+                           "group2": 2,
+                           "all": 3
+                       }
+                   })
+        g2.save()
+        g1.add_child(g2)
+
+        h = Host(fqdn="host.example.com", group_id=g2._id, local_custom_data={
+            "hostdata": "host1",
+            "common": {
+                "domain": "example.com"
+            }
+        })
+        h.save()
+
+        self.assertDictEqual(
+            h.custom_data,
+            {
+                "group1data": "group1",
+                "group2data": "group2",
+                "hostdata": "host1",
+                "common": {
+                    "group1": 1,
+                    "group2": 2,
+                    "all": 3,
+                    "domain": "example.com"
+                }
+            }
+        )
+
+        del(g1.local_custom_data["group1data"])
+        del(g1.local_custom_data["common"]["all"])
+        g1.save()
+        self.assertDictEqual(
+            h.custom_data,
+            {
+                "group2data": "group2",
+                "hostdata": "host1",
+                "common": {
+                    "group1": 1,
+                    "group2": 2,
+                    "all": 3,
+                    "domain": "example.com"
+                }
+            }
+        )

@@ -102,6 +102,10 @@ class InvalidCustomFields(IntegrityError):
     pass
 
 
+class InvalidCustomData(IntegrityError):
+    pass
+
+
 class InvalidAliases(IntegrityError):
     pass
 
