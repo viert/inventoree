@@ -256,3 +256,50 @@ class TestGroupModel(TestCase):
         g1 = Group.find_one({ "_id": g1._id })
         self.assertEqual(len(g1.child_ids), 0)
 
+    def test_custom_data_break_tree(self):
+        g1 = Group(name="g1", work_group_id=self.twork_group._id,
+                   local_custom_data={
+                       "group1data": "group1",
+                       "common": {
+                           "group1": 1,
+                           "all": 2,
+                       }
+                   })
+        g1.save()
+        g2 = Group(name="g2", work_group_id=self.twork_group._id,
+                   local_custom_data={
+                       "group2data": "group2",
+                       "common": {
+                           "group2": 2,
+                           "all": 3
+                       }
+                   })
+        g2.save()
+        g1.add_child(g2)
+
+        self.assertDictEqual(
+            g2.custom_data,
+            {
+                "group1data": "group1",
+                "group2data": "group2",
+                "common": {
+                    "group1": 1,
+                    "group2": 2,
+                    "all": 3,
+                }
+            }
+        )
+
+        g1.remove_child(g2)
+        g1.save()
+
+        self.assertDictEqual(
+            g2.custom_data,
+            {
+                "group2data": "group2",
+                "common": {
+                    "group2": 2,
+                    "all": 3,
+                }
+            }
+        )
