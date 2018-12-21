@@ -3,6 +3,7 @@ from functools import wraps
 from library.engine.errors import FieldRequired, ObjectSaveRequired
 from library.engine.cache import request_time_cache
 from library.engine.utils import can_assign_system_fields
+from copy import deepcopy
 
 
 def hungarian(name):
@@ -62,7 +63,6 @@ class StorableModel(object):
     )
 
     __hash__ = None
-    __slots__ = FIELDS
 
     def __init__(self, **kwargs):
         if "_id" not in kwargs:
@@ -70,6 +70,7 @@ class StorableModel(object):
         for field, value in kwargs.iteritems():
             if field in self.FIELDS:
                 setattr(self, field, value)
+        self.__slots__ = []
         for field in self.FIELDS:
             if field not in kwargs:
                 value = self.DEFAULTS.get(field)
@@ -80,6 +81,7 @@ class StorableModel(object):
                 elif hasattr(value, "__getitem__"):
                     value = value[:]
                 setattr(self, field, value)
+        setattr(self, '_initial_state', deepcopy(self.to_dict(self.FIELDS)))
 
     def save(self, skip_callback=False):
         from library.db import db
@@ -88,6 +90,7 @@ class StorableModel(object):
         if not skip_callback:
             self._before_save()
         db.save_obj(self)
+        setattr(self, '_initial_state', deepcopy(self.to_dict(self.FIELDS)))
         return self
 
     def update(self, data, skip_callback=False):
@@ -288,6 +291,10 @@ class StorableModel(object):
                         db.conn[cls.collection].create_index(keys, **options)
                     else:
                         app.logger.error("Index %s conflicts with exising one, use overwrite param to fix it" % keys)
+
+    @property
+    def __dict__(self):
+        return dict([x for x in self.to_dict(self.FIELDS).iteritems() if x[1] is not None])
 
 
 def save_required(func):

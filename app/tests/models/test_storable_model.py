@@ -38,8 +38,6 @@ class TestModel(StorableModel):
         "field1"
     )
 
-    __slots__ = FIELDS
-
 
 class TestStorableModel(TestCase):
 
@@ -51,7 +49,6 @@ class TestStorableModel(TestCase):
 
     def test_init(self):
         model = TestModel(field1='value')
-        self.assertFalse(hasattr(model, '__dict__'), msg='StorableModel is not a slots class')
         self.assertEqual(model.field1, 'value')
         model._before_delete()
         model._before_save()

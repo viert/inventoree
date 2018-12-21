@@ -23,12 +23,16 @@ def show(group_id=None):
         if "work_group_id" in request.values:
             work_group_id = resolve_id(request.values["work_group_id"])
             query["work_group_id"] = work_group_id
+        if "parent_id" in request.values:
+            parent_id = resolve_id(request.values["parent_id"])
+            query["parent_ids"] = parent_id
         if "tags" in request.values:
             tags = request.values["tags"].split(",")
             query["tags"] = {"$in": tags}
         elif "all_tags" in request.values:
             tags = request.values["all_tags"].split(",")
             query = Group.query_by_tags_recursive(tags, query)
+        print query
         groups = Group.find(query)
     else:
         group_id = resolve_id(group_id)

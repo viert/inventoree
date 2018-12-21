@@ -2,9 +2,10 @@ import re
 from storable_model import StorableModel, now
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
                                 GroupNotFound, InvalidAliases, InvalidFQDN, \
-                                InvalidIpAddresses, NetworkGroupNotFound
-from library.engine.utils import get_user_from_app_context
-from library.engine.cache import request_time_cache
+                                InvalidIpAddresses, NetworkGroupNotFound, InvalidHardwareAddresses, \
+                                InvalidCustomData
+from library.engine.utils import get_user_from_app_context, merge, check_dicts_are_equal
+from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
 ANSIBLE_CF_PREFIX = "ansible:"
@@ -24,6 +25,7 @@ class Host(StorableModel):
         "aliases",
         "tags",
         "custom_fields",
+        "local_custom_data",
         "created_at",
         "updated_at",
         "ip_addrs",
@@ -47,6 +49,7 @@ class Host(StorableModel):
         "updated_at": now,
         "tags": [],
         "custom_fields": [],
+        "local_custom_data": {},
         "aliases": [],
         "ip_addrs": [],
         "hw_addrs": []
@@ -76,6 +79,7 @@ class Host(StorableModel):
         return hash(self.fqdn + "." + str(self._id))
 
     def _before_save(self):
+        # sanity checks
         if not FQDN_EXPR.match(self.fqdn):
             raise InvalidFQDN("FQDN %s is invalid" % self.fqdn)
         if self.group_id is not None and self.group is None:
@@ -90,6 +94,8 @@ class Host(StorableModel):
             raise InvalidTags("tags must be unique")
         if not hasattr(self.ip_addrs, "__getitem__") or type(self.ip_addrs) is str:
             raise InvalidIpAddresses("ip addresses must be of array type")
+        if not hasattr(self.hw_addrs, "__getitem__") or type(self.hw_addrs) is str:
+            raise InvalidHardwareAddresses("hardware addresses must be of array type")
         if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
             raise InvalidAliases("aliases must be of array type")
 
@@ -109,6 +115,20 @@ class Host(StorableModel):
                     raise InvalidCustomFields("Key '%s' is provided more than once" % cf["key"])
                 else:
                     custom_keys.add(cf["key"])
+
+        # Custom data validation
+        if type(self.local_custom_data) is not dict:
+            raise InvalidCustomData("Custom data must be a dict")
+
+        # Custom data cache invalidation
+
+        # if group has changed
+        if self.group_id != self._initial_state["group_id"]:
+            invalidate_custom_data(self)
+
+        # if local custom data has changed
+        elif not check_dicts_are_equal(self.local_custom_data, self._initial_state["local_custom_data"]):
+            invalidate_custom_data(self)
 
         self.touch()
 
@@ -268,9 +288,16 @@ class Host(StorableModel):
             cf_dict[cf["key"]] = cf["value"]
         custom_fields = []
         for k,v in cf_dict.items():
-            custom_fields.append({ "key": k, "value": v })
+            custom_fields.append({"key": k, "value": v})
 
         return custom_fields
+
+    @property
+    @cache_custom_data
+    def custom_data(self):
+        if self.group_id is None:
+            return self.local_custom_data
+        return merge(self.group.custom_data, self.local_custom_data)
 
     @property
     def ansible_vars(self):
@@ -301,7 +328,6 @@ class Host(StorableModel):
                 break
         if i < 0:
             return
-
         self.custom_fields = self.custom_fields[:i] + self.custom_fields[i+1:]
 
     @classmethod
