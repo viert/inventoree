@@ -1,10 +1,10 @@
-from flask import request
+from flask import request, g
 from bson.objectid import ObjectId
 from app.controllers.auth_controller import AuthController
 from library.engine.errors import GroupNotFound, Forbidden, ApiError, WorkGroupNotFound, \
     NotFound, IntegrityError, InputDataError
 from library.engine.utils import resolve_id, json_response, paginated_data, diff,\
-    get_request_fields, json_body_required, filter_query
+    get_request_fields, json_body_required, filter_query, get_boolean_request_param
 from library.engine.action_log import logged_action
 
 groups_ctrl = AuthController("groups", __name__, require_auth=True)
@@ -29,10 +29,11 @@ def show(group_id=None):
         if "tags" in request.values:
             tags = request.values["tags"].split(",")
             query["tags"] = {"$in": tags}
+        if get_boolean_request_param("mine"):
+            query["responsibles_usernames_cache"] = g.user.username
         elif "all_tags" in request.values:
             tags = request.values["all_tags"].split(",")
             query = Group.query_by_tags_recursive(tags, query)
-        print query
         groups = Group.find(query)
     else:
         group_id = resolve_id(group_id)

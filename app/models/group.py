@@ -25,6 +25,7 @@ class Group(StorableModel):
         "tags",
         "custom_fields",
         "local_custom_data",
+        "responsibles_usernames_cache"
     )
 
     KEY_FIELD = "name"
@@ -36,7 +37,8 @@ class Group(StorableModel):
         "child_ids": [],
         "tags": [],
         "custom_fields": [],
-        "local_custom_data": {}
+        "local_custom_data": {},
+        "responsibles_usernames_cache": []
     }
 
     REQUIRED_FIELDS = (
@@ -51,6 +53,7 @@ class Group(StorableModel):
         "child_ids",
         "created_at",
         "updated_at",
+        "responsibles_usernames_cache",
     )
 
     INDEXES = (
@@ -58,7 +61,8 @@ class Group(StorableModel):
         "child_ids",
         ["name", { "unique": True }],
         "tags",
-        ["custom_fields.key", "custom_fields.value"]
+        ["custom_fields.key", "custom_fields.value"],
+        "responsibles_usernames_cache"
     )
 
     __slots__ = FIELDS
@@ -314,6 +318,8 @@ class Group(StorableModel):
         self._check_custom_data()
         if not self.is_new:
             self.touch()
+        if self.is_new or self.work_group_id != self._initial_state.get("work_group_id"):
+            self.reset_responsibles_cache()
 
     def _before_delete(self):
         if len(self.child_ids) > 0:
@@ -418,3 +424,9 @@ class Group(StorableModel):
         if tag not in self.tags:
             return
         self.tags.remove(tag)
+
+    def reset_responsibles_cache(self):
+        if self.work_group_id is None:
+            self.responsibles_usernames_cache = []
+        else:
+            self.responsibles_usernames_cache = [x.username for x in self.work_group.participants]
