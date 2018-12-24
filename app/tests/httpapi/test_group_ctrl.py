@@ -300,3 +300,41 @@ class TestGroupCtrl(HttpApiTestCase):
         # groups 3, 4 should have kept its' parents
         self.assertItemsEqual([g2._id], g3.parent_ids)
         self.assertItemsEqual([g3._id], g4.parent_ids)
+
+    def test_custom_data_change_parent(self):
+        g1 = Group(name="g1", work_group_id=self.work_group1._id,
+                   local_custom_data={
+                       "group1data": "group1",
+                       "common": {
+                           "group1": 1,
+                           "all": 2,
+                       }
+                   })
+        g1.save()
+        g2 = Group(name="g2", work_group_id=self.work_group1._id,
+                   local_custom_data={
+                       "group2data": "group2",
+                       "common": {
+                           "group2": 2,
+                           "all": 3
+                       }
+                   })
+        g2.save()
+
+        r = self.put_json("/api/v1/groups/%s/set_children" % g1.name, {"child_ids": [str(g2._id)]})
+        self.assertEqual(200, r.status_code)
+
+        g2.reload()
+        self.assertDictEqual(
+            g2.custom_data,
+            {
+                "group1data": "group1",
+                "group2data": "group2",
+                "common": {
+                    "group1": 1,
+                    "group2": 2,
+                    "all": 3,
+                }
+            }
+        )
+

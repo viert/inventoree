@@ -303,3 +303,4 @@ class TestGroupModel(TestCase):
                 }
             }
         )
+
