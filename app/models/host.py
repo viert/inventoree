@@ -127,15 +127,15 @@ class Host(StorableModel):
         # Custom data cache invalidation
 
         # if group has changed
-        if self.group_id != self._initial_state["group_id"]:
+        if self.group_id != self._initial_state.get("group_id"):
             invalidate_custom_data(self)
 
         # if group has changed or the host has been just created
-        if self.is_new or self.group_id != self._initial_state["group_id"]:
+        if self.is_new or self.group_id != self._initial_state.get("group_id"):
             self.reset_responsibles_cache()
 
         # if local custom data has changed
-        elif not check_dicts_are_equal(self.local_custom_data, self._initial_state["local_custom_data"]):
+        elif not check_dicts_are_equal(self.local_custom_data, self._initial_state.get("local_custom_data")):
             invalidate_custom_data(self)
 
         self.touch()

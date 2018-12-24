@@ -352,3 +352,27 @@ class TestGroupCtrl(HttpApiTestCase):
             }
         )
 
+    def test_mine_list(self):
+        g1 = Group(name="mine", work_group_id=self.work_group1._id)
+        g1.save()
+        g2 = Group(name="notmine", work_group_id=self.work_group2._id)
+        g2.save()
+
+        r = self.get("/api/v1/groups/", supervisor=True)
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        data = data["data"]
+        self.assertIs(type(data), list)
+        names = [x["name"] for x in data]
+        self.assertIn("mine", names)
+        self.assertIn("notmine", names)
+
+        r = self.get("/api/v1/groups/?mine=true", supervisor=True)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        data = data["data"]
+        self.assertIs(type(data), list)
+        names = [x["name"] for x in data]
+        self.assertIn("mine", names)
+        self.assertNotIn("notmine", names)

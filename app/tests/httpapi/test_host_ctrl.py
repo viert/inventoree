@@ -371,3 +371,32 @@ class TestHostCtrl(HttpApiTestCase):
         payload["workgroup_name"] = self.work_group1.name + ".xxx"
         r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
         self.assertEqual(404, r.status_code)
+
+    def test_mine_list(self):
+        g = Group(name="g1", work_group_id=self.work_group1._id)
+        g.save()
+        h1 = Host(fqdn="mine.example.com", group_id=g._id)
+        h1.save()
+        h2 = Host(fqdn="notmine.example.com")
+        h2.save()
+
+        r = self.get("/api/v1/hosts/")
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        data = data["data"]
+        self.assertIs(type(data), list)
+        fqdns = [x["fqdn"] for x in data]
+        self.assertIn("mine.example.com", fqdns)
+        self.assertIn("notmine.example.com", fqdns)
+
+        r = self.get("/api/v1/hosts/?mine=true")
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("data", data)
+        data = data["data"]
+        self.assertIs(type(data), list)
+
+        fqdns = [x["fqdn"] for x in data]
+        self.assertIn("mine.example.com", fqdns)
+        self.assertNotIn("notmine.example.com", fqdns)

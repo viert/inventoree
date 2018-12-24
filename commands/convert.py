@@ -21,7 +21,7 @@ class Convert(Command):
     NAME = "convert"
 
     def init_argument_parser(self, parser):
-        parser.add_argument('action', type=str, choices=['custom', 'host-responsibles'])
+        parser.add_argument('action', type=str, choices=['custom', 'responsibles'])
 
     @staticmethod
     def convert_custom():
@@ -49,17 +49,23 @@ class Convert(Command):
                 app.logger.info("%d custom fields converted in host %s" % (cnt, host.fqdn))
 
     @staticmethod
-    def convert_host_responsibles():
+    def convert_responsibles():
         from app import app
-        from app.models import Host
+        from app.models import Host, Group
 
         for h in Host.find():
             app.logger.debug("Setting host responsibles for host %s" % h.fqdn)
             h.reset_responsibles_cache()
             h.save(skip_callback=True)
 
+        for g in Group.find():
+            app.logger.debug("Setting group responsibles for group %s" % g.name)
+            g.reset_responsibles_cache()
+            g.save(skip_callback=True)
+
+
     def run(self):
         if self.args.action == 'custom':
             return self.convert_custom()
-        elif self.args.action == 'host-responsibles':
-            return self.convert_host_responsibles()
+        elif self.args.action == 'responsibles':
+            return self.convert_responsibles()
