@@ -519,6 +519,7 @@
         in particular format:
         <code>{ "key": ..., "value": ... }</code>
       </p>
+
       <p>
         Here's a couple of example use-cases of tags and custom fields: let's say you have a group of servers with
         different OSes
@@ -539,6 +540,28 @@
         out: just attach a tag
         <code>ssd</code> to hosts or a group of hosts having SSDs.
       </p>
+
+      <h4>Custom Data</h4>
+      <p>
+        Since version 6.16 custom fields are deprecated and replaced with <code>local_custom_data</code> field. This field
+        must be a dict however the values can hold arbitrary data. Custom data is inherited along the group tree and every
+        value may be overriden. All nested dicts are merged down the group tree. To access a read-only resulting custom
+        data with all the fields inherited, read a special <code>custom_data</code> field.
+      </p>
+      <p>
+        Also inventoree is shipped with a new command <code>convert-custom</code> which converts all the custom fields
+        to a local custom data. If a key of a custom field contains colons or dots, those are treated like separators
+        so the key is converted to a nested structure. For example, a custom field <code>puppet:site.role = web</code>
+        will be converted to a dict
+        <code><pre>{
+  "puppet": {
+    "site": {
+      "role": "web"
+    }
+  }
+}</pre></code>
+      </p>
+
       <code class="handler">GET
         <a href="/api/v1/groups/" target="_blank">
           /api/v1/groups/
@@ -586,6 +609,10 @@
             <code>custom_fields</code> - a list of custom fields attached to the group directly.
           </li>
           <li>
+            <code>local_custom_data</code> - a dict with an arbitrary data (see the description above)
+            attached to the group directly.
+          </li>
+          <li>
             <code>hosts</code> - a list of hosts attached to the group directly.
             <span class="warning">This is an additional database lookup</span>
           </li>
@@ -626,6 +653,12 @@
             custom fields attached to all parent
             groups (inherited custom fields).
             <span class="warning">This is a potentially heavy request as it makes recursive group lookups.</span>
+          </li>
+          <li>
+            <code>custom_data</code> - a dict with the custom data including inherited from parent groups.
+            <span class="warning">This is a potentially heavy request as it makes recursive lookups, however the data
+            is cached carefully and invalidated once the data is changed along the tree or in case when the inheritance
+            tree itself has changed</span>
           </li>
           <li>
             <code>work_group_name</code> - a group's workgroup name as a string. This is a shortcut to reduce the
