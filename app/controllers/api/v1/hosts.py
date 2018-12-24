@@ -31,7 +31,7 @@ def show(host_id=None):
         if "tags" in request.values:
             tags = request.values["tags"].split(",")
             query["tags"] = {"$in": tags}
-        if get_boolean_request_param("mine"):
+        if get_boolean_request_param("_mine"):
             query["responsibles_usernames_cache"] = g.user.username
 
         elif "all_tags" in request.values:
