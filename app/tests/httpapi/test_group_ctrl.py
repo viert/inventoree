@@ -338,3 +338,17 @@ class TestGroupCtrl(HttpApiTestCase):
             }
         )
 
+        r = self.put_json("/api/v1/groups/%s/set_children" % g1.name, {"child_ids": []})
+        self.assertEqual(200, r.status_code)
+        g2.reload()
+        self.assertDictEqual(
+            g2.custom_data,
+            {
+                "group2data": "group2",
+                "common": {
+                    "group2": 2,
+                    "all": 3
+                }
+            }
+        )
+
