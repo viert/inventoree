@@ -1,11 +1,11 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, \
-    get_request_fields, json_body_required, filter_query, can_assign_system_fields
+    get_request_fields, json_body_required, filter_query, can_assign_system_fields, get_boolean_request_param
 from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound, NetworkGroupNotFound
 from library.engine.action_log import logged_action
-from flask import request
+from flask import request, g
 from copy import copy
 from collections import defaultdict
 
@@ -31,6 +31,9 @@ def show(host_id=None):
         if "tags" in request.values:
             tags = request.values["tags"].split(",")
             query["tags"] = {"$in": tags}
+        if get_boolean_request_param("mine"):
+            query["responsibles_usernames_cache"] = g.user.username
+
         elif "all_tags" in request.values:
             tags = request.values["all_tags"].split(",")
             from app.models import Group

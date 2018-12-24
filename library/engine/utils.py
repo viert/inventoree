@@ -91,6 +91,14 @@ def get_request_fields():
         return None
 
 
+def boolean(value):
+    return str(value).lower() in ("yes", "true", "1")
+
+
+def get_boolean_request_param(param_name):
+    return boolean(request.values.get(param_name))
+
+
 def paginated_data(data, page=None, limit=None, fields=None, extra=None):
     from app.models.storable_model import StorableModel
     if "_nopaging" in request.values and request.values["_nopaging"] == "true":
