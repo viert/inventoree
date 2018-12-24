@@ -16,11 +16,15 @@ def convert_cf(cf, obj):
     node[token] = cf["value"]
 
 
-class ConvertCustom(Command):
+class Convert(Command):
 
-    NAME = "convert-custom"
+    NAME = "convert"
 
-    def run(self):
+    def init_argument_parser(self, parser):
+        parser.add_argument('action', type=str, choices=['custom', 'host-responsibles'])
+
+    @staticmethod
+    def convert_custom():
         from app.models import Group, Host
         from app import app
 
@@ -43,3 +47,19 @@ class ConvertCustom(Command):
             host.save()
             if cnt > 0:
                 app.logger.info("%d custom fields converted in host %s" % (cnt, host.fqdn))
+
+    @staticmethod
+    def convert_host_responsibles():
+        from app import app
+        from app.models import Host
+
+        for h in Host.find():
+            app.logger.debug("Setting host responsibles for host %s" % h.fqdn)
+            h.reset_responsibles_cache()
+            h.save(skip_callback=True)
+
+    def run(self):
+        if self.args.action == 'custom':
+            return self.convert_custom()
+        elif self.args.action == 'host-responsibles':
+            return self.convert_host_responsibles()

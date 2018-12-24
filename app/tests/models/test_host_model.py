@@ -252,3 +252,15 @@ class TestHostModel(TestCase):
                 }
             }
         )
+
+    def test_responsibles_cache(self):
+        h = Host(fqdn="host.example.com")
+        h.save()
+        self.assertItemsEqual(h.responsibles_usernames_cache, [])
+
+        g = Group(name="g1", work_group_id=self.twork_group._id)
+        g.save()
+
+        h.group_id = g._id
+        h.save()
+        self.assertItemsEqual(h.responsibles_usernames_cache, ['viert', 'member'])

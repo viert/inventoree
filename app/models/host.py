@@ -30,7 +30,8 @@ class Host(StorableModel):
         "updated_at",
         "ip_addrs",
         "hw_addrs",
-        "network_group_id"
+        "network_group_id",
+        "responsibles_usernames_cache"
     )
 
     KEY_FIELD = "fqdn"
@@ -42,6 +43,7 @@ class Host(StorableModel):
     REJECTED_FIELDS = (
         "created_at",
         "updated_at",
+        "responsibles_usernames_cache"
     )
 
     DEFAULTS = {
@@ -52,7 +54,8 @@ class Host(StorableModel):
         "local_custom_data": {},
         "aliases": [],
         "ip_addrs": [],
-        "hw_addrs": []
+        "hw_addrs": [],
+        "responsibles_usernames_cache": []
     }
 
     INDEXES = (
@@ -62,6 +65,7 @@ class Host(StorableModel):
         "network_group_id",
         "tags",
         "aliases",
+        "responsibles_usernames_cache",
         ["custom_fields.key", "custom_fields.value"]
     )
 
@@ -126,11 +130,22 @@ class Host(StorableModel):
         if self.group_id != self._initial_state["group_id"]:
             invalidate_custom_data(self)
 
+        # if group has changed or the host has been just created
+        if self.is_new or self.group_id != self._initial_state["group_id"]:
+            self.reset_responsibles_cache()
+
         # if local custom data has changed
         elif not check_dicts_are_equal(self.local_custom_data, self._initial_state["local_custom_data"]):
             invalidate_custom_data(self)
 
         self.touch()
+
+    def reset_responsibles_cache(self):
+        if self.group_id is None:
+            self.responsibles_usernames_cache = []
+        else:
+            wg = self.group.work_group
+            self.responsibles_usernames_cache = [x.username for x in wg.participants]
 
     @property
     def group(self):
