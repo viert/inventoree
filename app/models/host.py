@@ -141,12 +141,16 @@ class Host(StorableModel):
 
         self.touch()
 
-    def reset_responsibles_cache(self):
-        if self.group_id is None:
-            self.responsibles_usernames_cache = []
+    def reset_responsibles_cache(self, responsibles=None):
+        if responsibles is None:
+            if self.group_id is None:
+                self.responsibles_usernames_cache = []
+            else:
+                wg = self.group.work_group
+                self.responsibles_usernames_cache = [x.username for x in wg.participants]
         else:
-            wg = self.group.work_group
-            self.responsibles_usernames_cache = [x.username for x in wg.participants]
+            # optimization for recursive calls from parent group
+            self.responsibles_usernames_cache = responsibles
 
     @property
     def group(self):

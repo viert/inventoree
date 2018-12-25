@@ -18,13 +18,17 @@ class TestWorkGroupModel(TestCase):
         Group.ensure_indexes()
         User.destroy_all()
         User.ensure_indexes()
-        cls.owner = User(username='viert', password_hash='hash')
+        cls.owner = User(username="viert", password_hash="hash")
         cls.owner.save()
+        cls.user = User(username="someuser")
+        cls.user.save()
         WorkGroup.ensure_indexes()
 
     @classmethod
     def tearDownClass(cls):
+        WorkGroup.destroy_all()
         cls.owner.destroy()
+        cls.user.destroy()
 
     def setUp(self):
         Group.destroy_all()
@@ -75,3 +79,22 @@ class TestWorkGroupModel(TestCase):
         p = WorkGroup(name="TEST_WG_NAME", owner_id="arbitrary")
         self.assertRaises(InvalidOwner, p.save)
 
+    def test_responsibles_cache(self):
+        from app.models import Group, Host
+        wg = WorkGroup(name="TEST_WG_NAME", owner_id=self.owner._id)
+        wg.save()
+
+        g = Group(name="group1", work_group_id=wg._id)
+        g.save()
+
+        h = Host(fqdn="myhost.example.com", group_id=g._id)
+        h.save()
+
+        self.assertItemsEqual(g.responsibles_usernames_cache, [self.owner.username])
+        self.assertItemsEqual(h.responsibles_usernames_cache, [self.owner.username])
+
+        wg.add_member(self.user)
+        g.reload()
+        h.reload()
+        self.assertItemsEqual(g.responsibles_usernames_cache, [self.owner.username, self.user.username])
+        self.assertItemsEqual(h.responsibles_usernames_cache, [self.owner.username, self.user.username])
