@@ -378,6 +378,10 @@ class Group(StorableModel):
             self.__class__._host_class = Host
         return self._host_class
 
+    @property
+    def is_root(self):
+        return len(self.parent_ids) == 0
+
     @classmethod
     def query_by_tags_recursive(cls, tags, query={}):
         if type(tags) == "str":
