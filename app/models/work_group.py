@@ -1,6 +1,6 @@
 from app.models.storable_model import StorableModel, now
 from library.engine.permissions import get_user_from_app_context
-
+from library.engine.utils import check_lists_are_equal
 
 class WorkGroupNotEmpty(Exception):
     pass
@@ -128,13 +128,22 @@ class WorkGroup(StorableModel):
         return self._group_class
 
     def _before_save(self):
-        if not self.is_new:
-            self.touch()
         if self.owner is None:
             raise InvalidOwner("can not save workgroup without an owner")
+        if not self.is_new:
+            self.touch()
+        elif self.owner_id != self._initial_state.get("owner_id") or \
+                not check_lists_are_equal(self.member_ids, self._initial_state.get("member_ids")):
+            self.reset_responsibles_cache()
 
     def touch(self):
         self.updated_at = now()
+
+    def reset_responsibles_cache(self):
+        for group in self.groups:
+            # resetting only root groups, others will be reset recursively anyway
+            if group.is_root:
+                group.reset_responsibles_cache()
 
     def _before_delete(self):
         if self.groups_count > 0:
@@ -148,7 +157,7 @@ class WorkGroup(StorableModel):
 
     @property
     def groups(self):
-        return self.group_class.find({ "work_group_id": self._id })
+        return self.group_class.find({"work_group_id": self._id})
 
     @property
     def network_groups(self):
