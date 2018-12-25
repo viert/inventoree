@@ -4,7 +4,8 @@ from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNo
                                 GroupNotFound, InvalidAliases, InvalidFQDN, \
                                 InvalidIpAddresses, NetworkGroupNotFound, InvalidHardwareAddresses, \
                                 InvalidCustomData
-from library.engine.utils import get_user_from_app_context, merge, check_dicts_are_equal
+from library.engine.permissions import get_user_from_app_context
+from library.engine.utils import merge, check_dicts_are_equal
 from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
@@ -261,11 +262,6 @@ class Host(StorableModel):
         return self._datacenter_class
 
     @property
-    def system_modification_allowed(self):
-        from library.engine.utils import can_assign_system_fields
-        return can_assign_system_fields()
-
-    @property
     def modification_allowed(self):
         if self.group is None:
             return True
@@ -348,7 +344,7 @@ class Host(StorableModel):
     @classmethod
     def unset_datacenter(cls, datacenter_id):
         from library.db import db
-        db.conn[cls.collection].update_many({ "datacenter_id": datacenter_id }, { "$set": { "datacenter_id": None }})
+        db.conn[cls.collection].update_many({"datacenter_id": datacenter_id}, {"$set": {"datacenter_id": None}})
 
     @classmethod
     def unset_location(cls, location_id):

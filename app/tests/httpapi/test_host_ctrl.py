@@ -94,26 +94,48 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertItemsEqual(host.aliases, TEST_HOST_2["aliases"])
 
     def test_update_host_system_fields(self):
-        g = Group(name="test_group", work_group_id=self.work_group1._id)
-        g.save()
-        host = Host(fqdn="host1.example.com", group_id=g._id)
+        g1 = Group(name="test_group1", work_group_id=self.work_group1._id)
+        g1.save()
+        g2 = Group(name="test_group2", work_group_id=self.work_group2._id)
+        g2.save()
+
+        host = Host(fqdn="host1.example.com", group_id=g2._id)
         host.save()
 
         payload = {"description": "description", "ip_addrs": [{"type": "e", "addr": "1.3.5.8"}]}
         r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=True, system=False)
-        self.assertEqual(200, r.status_code)
+        self.assertEqual(403, r.status_code, "ip_addr is a system field!")
+
+        payload = {"description": "description"}
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=True, system=False)
+        self.assertEqual(200, r.status_code, "description is not a system field")
 
         host.reload()
-        self.assertEqual(0, len(host.ip_addrs), "ip addresses should not be assigned by supervisor")
-        self.assertEqual("description", host.description, "host description should have been changed")
+        self.assertEqual(host.description, "description")
 
         payload = {"description": "description2", "ip_addrs": [{"type": "e", "addr": "1.3.5.8"}]}
         r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=False, system=True)
-        self.assertEqual(200, r.status_code)
+        self.assertEqual(403, r.status_code, "description is not a system field")
+
+        payload = {"ip_addrs": [{"type": "e", "addr": "1.3.5.8"}]}
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=False, system=True)
+        self.assertEqual(200, r.status_code, "ip_addrs is a system field")
 
         host.reload()
         self.assertItemsEqual([{"type": "e", "addr": "1.3.5.8"}], host.ip_addrs)
-        self.assertEqual("description", host.description, "host description should have remained unaffected")
+
+        host = Host(fqdn="alienhost.example.com", group_id=g1._id)
+        host.save()
+
+        payload = {"ip_addrs": ["1.9.4.8"]}
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=False, system=True)
+        self.assertEqual(403, r.status_code, "system user doesn't belong to a proper workgroup")
+        r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=True, system=True)
+        self.assertEqual(200, r.status_code,
+                         "system user doesn't belong to a proper workgroup however she's a supervisor")
+
+        host.reload()
+        self.assertItemsEqual(["1.9.4.8"], host.ip_addrs)
 
     def test_host_set_custom_fields(self):
         self.test_create_host()
@@ -390,7 +412,7 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertIn("mine.example.com", fqdns)
         self.assertIn("notmine.example.com", fqdns)
 
-        r = self.get("/api/v1/hosts/?mine=true")
+        r = self.get("/api/v1/hosts/?_mine=true")
         self.assertEqual(200, r.status_code)
         data = json.loads(r.data)
         self.assertIn("data", data)

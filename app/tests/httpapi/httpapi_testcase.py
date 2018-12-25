@@ -20,6 +20,11 @@ class HttpApiTestCase(TestCase):
         "password": "syspassword"
     }
 
+    SYSTEM_SUPERVISOR = {
+        "username": "supersys",
+        "password": "supersyspassword"
+    }
+
     @classmethod
     def setUpClass(cls):
         cls.session = None
@@ -40,9 +45,16 @@ class HttpApiTestCase(TestCase):
                       password_raw=HttpApiTestCase.SYSTEM_USER["password"])
         system.save()
 
+        supersystem = User(username=HttpApiTestCase.SYSTEM_SUPERVISOR["username"],
+                           supervisor=True,
+                           system=True,
+                           password_raw=HttpApiTestCase.SYSTEM_SUPERVISOR["password"])
+        supersystem.save()
+
         supertoken = supervisor.get_auth_token()
         usertoken = user.get_auth_token()
         systemtoken = system.get_auth_token()
+        systemsupertoken = supersystem.get_auth_token()
 
         cls.supervisor = supervisor
         cls.supertoken = supertoken.token
@@ -53,10 +65,14 @@ class HttpApiTestCase(TestCase):
         cls.systemuser = system
         cls.systemtoken = systemtoken.token
 
+        cls.systemsuperuser = supersystem
+        cls.systemsupertoken = systemsupertoken.token
+
         cls.work_group1 = WorkGroup(name="Test WorkGroup 1", owner_id=supervisor._id)
         cls.work_group1.save()
         cls.work_group2 = WorkGroup(name="Test WorkGroup 2", owner_id=user._id)
         cls.work_group2.save()
+        cls.work_group2.add_member(system)
 
     @classmethod
     def tearDownClass(cls):
@@ -71,7 +87,10 @@ class HttpApiTestCase(TestCase):
 
     def get_proper_token(self, supervisor, system):
         if supervisor:
-            return self.supertoken
+            if system:
+                return self.systemsupertoken
+            else:
+                return self.supertoken
         elif system:
             return self.systemtoken
         return self.usertoken

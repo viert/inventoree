@@ -368,7 +368,7 @@ class TestGroupCtrl(HttpApiTestCase):
         self.assertIn("mine", names)
         self.assertIn("notmine", names)
 
-        r = self.get("/api/v1/groups/?mine=true", supervisor=True)
+        r = self.get("/api/v1/groups/?_mine=true", supervisor=True)
         data = json.loads(r.data)
         self.assertIn("data", data)
         data = data["data"]

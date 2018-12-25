@@ -26,7 +26,7 @@ class TestUserCtrl(HttpApiTestCase):
         body = json.loads(r.data)
         self.assertIn("data", body)
         self.assertIsInstance(body["data"], list)
-        self.assertIs(3, len(body["data"]))
+        self.assertIs(4, len(body["data"]))
 
     def test_get_user(self):
         r = self.get("/api/v1/users/%s?_fields=username,auth_token" % self.supervisor._id, supervisor=False)

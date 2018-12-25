@@ -1,6 +1,7 @@
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, json_response, paginated_data, \
-    get_request_fields, json_body_required, filter_query, can_assign_system_fields, get_boolean_request_param
+    get_request_fields, json_body_required, filter_query, get_boolean_request_param
+from library.engine.permissions import current_user_is_system, can_create_hosts
 from library.engine.permutation import expand_pattern_with_vars, apply_vars
 from library.engine.errors import Conflict, HostNotFound, GroupNotFound, DatacenterNotFound, \
     Forbidden, ApiError, NotFound, NetworkGroupNotFound
@@ -62,6 +63,9 @@ def show(host_id=None):
 @logged_action("host_create")
 @json_body_required
 def create():
+    if not can_create_hosts():
+        raise Forbidden("you don't have permissions to create hosts")
+
     from app.models import Host, Group, Datacenter, NetworkGroup
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
     aliases_map = defaultdict(list)
@@ -119,13 +123,16 @@ def update(host_id):
     host_attrs = dict([x for x in request.json.items() if x[0] in Host.FIELDS])
 
     if not host.modification_allowed:
-        if host.system_modification_allowed:
-            # if user is a system user, he still can update SYSTEM_FIELDS
-            # so we cleanup everything but system fields in host_attrs
-            host_attrs = dict([x for x in host_attrs.iteritems() if x[0] in Host.SYSTEM_FIELDS])
-        else:
-            # if user is not a system user he gets the heck out
-            raise Forbidden("You don't have permissions to modify this host")
+        raise Forbidden("you don't have permissions to modify this host")
+
+    if current_user_is_system():
+        for field in host_attrs:
+            if field not in Host.SYSTEM_FIELDS:
+                raise Forbidden("system users can update only system fields")
+    else:
+        for field in host_attrs:
+            if field in Host.SYSTEM_FIELDS:
+                raise Forbidden("only system users can update system fields")
 
     if "group_id" in host_attrs and host_attrs["group_id"] is not None:
         group = Group.get(host_attrs["group_id"], GroupNotFound("group not found"))
@@ -159,7 +166,7 @@ def discover():
     from app import app
     from app.models import Host, Group, WorkGroup
 
-    if not can_assign_system_fields():
+    if not current_user_is_system():
         raise Forbidden("discover handler is accessible only by system users")
 
     tags = []
@@ -225,7 +232,7 @@ def delete(host_id):
     host = Host.get(host_id, HostNotFound("host not found"))
 
     if not host.destruction_allowed:
-        raise Forbidden("You don't have permission to modify this host")
+        raise Forbidden("You don't have permission to delete this host")
 
     host.destroy()
     return json_response({ "data": host.to_dict(get_request_fields()) })
