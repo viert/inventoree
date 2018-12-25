@@ -2,7 +2,7 @@ from datetime import datetime
 from functools import wraps
 from library.engine.errors import FieldRequired, ObjectSaveRequired
 from library.engine.cache import request_time_cache
-from library.engine.utils import can_assign_system_fields
+from library.engine.permissions import current_user_is_system
 from copy import deepcopy
 
 
@@ -97,7 +97,7 @@ class StorableModel(object):
         for field in self.FIELDS:
             if field in data and field not in self.REJECTED_FIELDS and field != "_id":
                 # system fields are silently excluded if the current user is not a system user
-                if field in self.SYSTEM_FIELDS and not can_assign_system_fields():
+                if field in self.SYSTEM_FIELDS and not current_user_is_system():
                     continue
                 self.__setattr__(field, data[field])
         self.save(skip_callback=skip_callback)

@@ -1,5 +1,5 @@
 from storable_model import StorableModel
-from library.engine.utils import get_user_from_app_context
+from library.engine.permissions import get_user_from_app_context
 from library.engine.errors import InvalidWorkGroupId, ServerGroupNotEmpty
 
 

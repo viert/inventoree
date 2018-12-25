@@ -1,6 +1,6 @@
 from storable_model import StorableModel, now
 from library.engine.pbkdf2 import pbkdf2_hex
-from library.engine.utils import get_user_from_app_context
+from library.engine.permissions import get_user_from_app_context
 from library.engine.cache import request_time_cache
 from library.engine.errors import InvalidPassword
 from time import mktime
