@@ -240,6 +240,14 @@ class StorableModel(object):
         db.delete_query(cls.collection, query)
 
     @classmethod
+    def update_many(cls, query, attrs):
+        # warning: being a faster method than traditional model manipulation,
+        # this method doesn't provide any lifecycle callback for independent
+        # objects
+        from library.db import db
+        db.update_query(cls.collection, query, attrs)
+
+    @classmethod
     def ensure_indexes(cls, loud=False, overwrite=False):
 
         if type(cls.INDEXES) != list and type(cls.INDEXES) != tuple:

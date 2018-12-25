@@ -429,8 +429,14 @@ class Group(StorableModel):
             return
         self.tags.remove(tag)
 
-    def reset_responsibles_cache(self):
-        if self.work_group_id is None:
-            self.responsibles_usernames_cache = []
-        else:
-            self.responsibles_usernames_cache = [x.username for x in self.work_group.participants]
+    def reset_responsibles_cache(self, responsibles=None):
+        from app.models import Host
+        # sets responsibles for the group and all of its hosts saving hosts without callbacks
+        if responsibles is None:
+            if self.work_group_id is None:
+                responsibles = []
+            else:
+                responsibles = self.work_group.participant_usernames
+        self.responsibles_usernames_cache = responsibles
+        if self.hosts.count() > 0:
+            Host.update_many({"group_id": self._id}, {"$set": {"responsibles_usernames_cache": responsibles}})

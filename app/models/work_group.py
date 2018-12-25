@@ -132,7 +132,7 @@ class WorkGroup(StorableModel):
             raise InvalidOwner("can not save workgroup without an owner")
         if not self.is_new:
             self.touch()
-        elif self.owner_id != self._initial_state.get("owner_id") or \
+        if self.owner_id != self._initial_state.get("owner_id") or \
                 not check_lists_are_equal(self.member_ids, self._initial_state.get("member_ids")):
             self.reset_responsibles_cache()
 
@@ -141,9 +141,8 @@ class WorkGroup(StorableModel):
 
     def reset_responsibles_cache(self):
         for group in self.groups:
-            # resetting only root groups, others will be reset recursively anyway
-            if group.is_root:
-                group.reset_responsibles_cache()
+            group.reset_responsibles_cache(self.participant_usernames)
+            group.save(skip_callback=True)
 
     def _before_delete(self):
         if self.groups_count > 0:
