@@ -64,6 +64,7 @@ CK_EXPECTED = {
     }
 }
 
+
 class TestMerge(TestCase):
 
     def test_merge_dicts(self):

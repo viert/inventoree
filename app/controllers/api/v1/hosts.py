@@ -510,3 +510,51 @@ def remove_tags(host_id):
 
     data = {"data": host.to_dict(get_request_fields())}
     return json_response(data)
+
+@hosts_ctrl.route("/<host_id>/add_custom_data", methods=["POST"])
+@logged_action("host_add_custom_data")
+@json_body_required
+def add_custom_data(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not host.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this host")
+    if "custom_data" not in request.json:
+        raise ApiError("no custom_data provided")
+
+    cd = request.json["custom_data"]
+    if type(cd) != dict:
+        raise ApiError("custom_data must be a dict")
+
+    host.add_local_custom_data(cd)
+    host.save()
+
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@hosts_ctrl.route("/<host_id>/remove_custom_data", methods=["POST", "DELETE"])
+@logged_action("host_remove_custom_data")
+@json_body_required
+def remove_custom_data(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not host.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this host")
+    if "keys" not in request.json:
+        raise ApiError("no custom data keys provided")
+
+    keys = request.json["keys"]
+    if type(keys) == str or type(keys) == unicode:
+        keys = [keys]
+    elif type(keys) != list:
+        raise ApiError("keys field must be a list or a string type")
+
+    for key in keys:
+        host.remove_local_custom_data(key)
+    host.save()
+
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)

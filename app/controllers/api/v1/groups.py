@@ -397,3 +397,52 @@ def remove_tags(group_id):
 
     data = {"data": group.to_dict(get_request_fields())}
     return json_response(data)
+
+
+@groups_ctrl.route("/<group_id>/add_custom_data", methods=["POST"])
+@logged_action("group_add_custom_data")
+@json_body_required
+def add_custom_data(group_id):
+    from app.models import Group
+    group = Group.get(group_id, GroupNotFound("group not found"))
+
+    if not group.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this group")
+    if "custom_data" not in request.json:
+        raise ApiError("no custom_data provided")
+
+    cd = request.json["custom_data"]
+    if type(cd) != dict:
+        raise ApiError("custom_data must be a dict")
+
+    group.add_local_custom_data(cd)
+    group.save()
+
+    data = {"data": group.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@groups_ctrl.route("/<group_id>/remove_custom_data", methods=["POST", "DELETE"])
+@logged_action("group_remove_custom_data")
+@json_body_required
+def remove_custom_data(group_id):
+    from app.models import Group
+    group = Group.get(group_id, GroupNotFound("group not found"))
+
+    if not group.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this group")
+    if "keys" not in request.json:
+        raise ApiError("no custom data keys provided")
+
+    keys = request.json["keys"]
+    if type(keys) == str or type(keys) == unicode:
+        keys = [keys]
+    elif type(keys) != list:
+        raise ApiError("keys field must be a list or a string type")
+
+    for key in keys:
+        group.remove_local_custom_data(key)
+    group.save()
+
+    data = {"data": group.to_dict(get_request_fields())}
+    return json_response(data)
