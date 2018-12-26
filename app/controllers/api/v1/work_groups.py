@@ -1,7 +1,7 @@
 from flask import request, g
 from app.controllers.auth_controller import AuthController
 from library.engine.utils import resolve_id, paginated_data, \
-    json_response, clear_aux_fields, get_request_fields, json_body_required, filter_query
+    json_response, clear_aux_fields, get_request_fields, json_body_required, filter_query, get_boolean_request_param
 from library.engine.errors import WorkGroupNotFound, Forbidden, ApiError, UserNotFound, Conflict
 from library.engine.action_log import logged_action
 work_groups_ctrl = AuthController("work_groups", __name__, require_auth=True)
@@ -17,6 +17,12 @@ def show(work_group_id=None):
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
                 query["name"] = filter_query(name_filter)
+        if get_boolean_request_param("_mine"):
+            user_id = g.user._id
+            query["$or"] = [
+                {"member_ids": user_id},
+                {"owner_id": user_id}
+            ]
         work_groups = WorkGroup.find(query)
     else:
         work_group_id = resolve_id(work_group_id)
