@@ -275,7 +275,8 @@ def convert_keys(data):
         tokens = key.split(".")
         while len(tokens) > 1:
             key = tokens.pop(0)
-            node[key] = {}
+            if key not in node:
+                node[key] = {}
             node = node[key]
         key = tokens.pop()
 
