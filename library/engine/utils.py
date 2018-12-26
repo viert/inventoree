@@ -261,6 +261,31 @@ def filter_query(flt):
         return {}
 
 
+def convert_keys(data):
+    """
+    convert_keys converts all the keys of data in a way that key "a.b.c" becomes
+    a nested structure {"a":{"b":{"c": value}}}
+
+    all the nested dicts are processed recursively the same way
+    returns a processed copy of data
+    """
+    cdata = {}
+    for key, value in data.iteritems():
+        node = cdata
+        tokens = key.split(".")
+        while len(tokens) > 1:
+            key = tokens.pop(0)
+            node[key] = {}
+            node = node[key]
+        key = tokens.pop()
+
+        if type(value) == dict:
+            value = convert_keys(value)
+
+        node[key] = value
+    return cdata
+
+
 def merge(dict1, dict2):
     """
     merge deeply merges dict1 and dict2, overriding data in dict1 with the data of dict2 in case of conflicts
