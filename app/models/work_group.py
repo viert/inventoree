@@ -2,6 +2,7 @@ from app.models.storable_model import StorableModel, now
 from library.engine.permissions import get_user_from_app_context
 from library.engine.utils import check_lists_are_equal
 
+
 class WorkGroupNotEmpty(Exception):
     pass
 

@@ -5,6 +5,9 @@ DELIMITER = re.compile("[:\.]+")
 
 
 def convert_cf(cf, obj):
+    # eine segments hack
+    if cf["key"] == "eine:segments":
+        cf["value"] = [x.strip() for x in cf["value"].split(",")]
     key_tokens = DELIMITER.split(cf["key"])
     node = obj
     while len(key_tokens) > 1:
