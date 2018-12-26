@@ -61,6 +61,7 @@ class Group(StorableModel):
         "child_ids",
         ["name", { "unique": True }],
         "tags",
+        "local_custom_data",
         ["custom_fields.key", "custom_fields.value"],
         "responsibles_usernames_cache"
     )

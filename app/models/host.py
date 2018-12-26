@@ -66,6 +66,7 @@ class Host(StorableModel):
         "network_group_id",
         "tags",
         "aliases",
+        "local_custom_data",
         "responsibles_usernames_cache",
         ["custom_fields.key", "custom_fields.value"]
     )
