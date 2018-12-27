@@ -660,6 +660,94 @@ class ApiAction(StorableModel):
             "tags_removed": tags_removed
         }
 
+    def _compute_group_add_custom_data(self):
+        from app.models import Group
+        group_name = ""
+        if "group_id" in self.kwargs:
+            group = Group.get(self.kwargs["group_id"])
+            if group is not None:
+                group_name = group.name
+        custom_data = {}
+        if "custom_data" in self.params:
+            custom_data = self.params["custom_data"]
+        self.computed = {
+            "group_name": group_name,
+            "custom_data": custom_data
+        }
+
+    def _compute_group_remove_custom_data(self):
+        from app.models import Group
+        group_name = ""
+        if "group_id" in self.kwargs:
+            group = Group.get(self.kwargs["group_id"])
+            if group is not None:
+                group_name = group.name
+        keys = []
+        if "keys" in self.params:
+            keys = self.params["keys"]
+            if type(keys) == str or type(keys) == unicode:
+                keys = [keys]
+        self.computed = {
+            "group_name": group_name,
+            "removed_keys": keys
+        }
+
+    def _compute_host_add_custom_data(self):
+        from app.models import Host
+        host_fqdn = ""
+        if "host_id" in self.kwargs:
+            host = Host.get(self.kwargs["host_id"])
+            if host is not None:
+                host_fqdn = host.fqdn
+        custom_data = {}
+        if "custom_data" in self.params:
+            custom_data = self.params["custom_data"]
+        self.computed = {
+            "host_fqdn": host_fqdn,
+            "custom_data": custom_data
+        }
+
+    def _compute_host_remove_custom_data(self):
+        from app.models import Host
+        host_fqdn = ""
+        if "host_id" in self.kwargs:
+            host = Host.get(self.kwargs["host_id"])
+            if host is not None:
+                host_fqdn = host.fqdn
+        keys = []
+        if "keys" in self.params:
+            keys = self.params["keys"]
+            if type(keys) == str or type(keys) == unicode:
+                keys = [keys]
+        self.computed = {
+            "host_fqdn": host_fqdn,
+            "removed_keys": keys
+        }
+
+    def _compute_host_discover(self):
+        from app.models import Host
+        create = False
+        host_fqdn = ""
+        host_data = {}
+        if "fqdn" in self.params:
+            host_fqdn = self.params["fqdn"]
+            host = Host.get(host_fqdn)
+            if host is None:
+                create = True
+                host_data = self.params
+            else:
+                for k, v in self.params.iteritems():
+                    if k in Host.FIELDS:
+                        old_value = getattr(host, k)
+                        if v != old_value and unicode(v) != unicode(old_value):
+                            host_data[k] = v
+
+        self.computed = {
+            "host_fqdn": host_fqdn,
+            "create": create,
+            "host_data": host_data
+        }
+
     def _set_computed(self):
         method_name = "_compute_" + self.action_type
         if not hasattr(self, method_name):

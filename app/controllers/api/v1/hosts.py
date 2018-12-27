@@ -200,11 +200,14 @@ def discover():
         # check for workgroup settings
         if "workgroup_name" in request.json:
             wg = WorkGroup.get(request.json["workgroup_name"], NotFound("Workgroup %s not found" % request.json["workgroup_name"]))
+            if not wg.modification_allowed:
+                raise Forbidden("this system user doesn't have permissions to modify or create a host in this workgroup"
+                                " (consider including the user into workgroup or granting supervisor privileges)")
             default_group_postfix = app.config.app.get("DEFAULT_GROUP_POSTFIX", "_unknown")
             group_name = wg.name + default_group_postfix
             group = Group.get(group_name)
             if group is None:
-                group = Group(name=group_name, work_group_id=wg._id, description="default group in %s" % wg.name)
+                group = Group(name=group_name, work_group_id=wg._id, description="default group in %s workgroup" % wg.name)
                 group.save()
             attrs["group_id"] = group._id
         attrs["fqdn"] = fqdn

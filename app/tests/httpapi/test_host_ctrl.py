@@ -208,7 +208,7 @@ class TestHostCtrl(HttpApiTestCase):
         host = Host(**TEST_HOST_1)
         host.group_id = g2._id
         host.save()
-        payload = { "group_id": str(g1._id) }
+        payload = {"group_id": str(g1._id)}
         r = self.put_json("/api/v1/hosts/%s" % host._id, payload, supervisor=False)
         self.assertEqual(r.status_code, 403)
 
