@@ -50,6 +50,13 @@ class App(BaseApp):
         from app.controllers.api.v1.open import open_ctrl
         self.flask.register_blueprint(open_ctrl, url_prefix="/api/v1/open")
 
+        if self.envtype == 'development':
+            from app.models import ApiAction
+            self.logger.info("checking action handlers")
+            failed_types = ApiAction.check_compute_handlers()
+            for atype in failed_types:
+                self.logger.error("action type %s doesn't have a compute handler" % atype)
+
     def after_configured(self):
         self.action_logging = self.config.app.get("ACTION_LOGGING", False)
 

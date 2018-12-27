@@ -50,6 +50,15 @@ class ApiAction(StorableModel):
 
     __slots__ = list(FIELDS)
 
+    @classmethod
+    def check_compute_handlers(cls):
+        from library.engine.action_log import action_types
+        failed_types = []
+        for atype in action_types:
+            if not hasattr(cls, "_compute_" + atype):
+               failed_types.append(atype)
+        return failed_types
+
     def _before_save(self):
         self.updated_at = now()
         if self._id is None:
