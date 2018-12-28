@@ -366,6 +366,7 @@ class Host(StorableModel):
         self.tags.remove(tag)
 
     def add_local_custom_data(self, data):
+        print convert_keys(data)
         self.local_custom_data = merge(self.local_custom_data, convert_keys(data))
 
     def remove_local_custom_data(self, key):

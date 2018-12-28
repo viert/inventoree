@@ -1,5 +1,5 @@
 from storable_model import StorableModel, now
-from library.engine.utils import resolve_id
+from library.engine.utils import resolve_id, convert_keys
 from library.engine.permutation import expand_pattern
 
 
@@ -694,6 +694,11 @@ class ApiAction(StorableModel):
 
     def _compute_host_add_custom_data(self):
         from app.models import Host
+        # an ugly hack to avoid InvalidDocument mongo exception
+        # caused by dots in keys
+        # this handler intends to have dots in keys so this needs to be done
+        self.params = convert_keys(self.params)
+
         host_fqdn = ""
         if "host_id" in self.kwargs:
             host = Host.get(self.kwargs["host_id"])
@@ -701,7 +706,7 @@ class ApiAction(StorableModel):
                 host_fqdn = host.fqdn
         custom_data = {}
         if "custom_data" in self.params:
-            custom_data = self.params["custom_data"]
+            custom_data = convert_keys(self.params["custom_data"])
         self.computed = {
             "host_fqdn": host_fqdn,
             "custom_data": custom_data
@@ -729,6 +734,7 @@ class ApiAction(StorableModel):
         create = False
         host_fqdn = ""
         host_data = {}
+
         if "fqdn" in self.params:
             host_fqdn = self.params["fqdn"]
             host = Host.get(host_fqdn)
