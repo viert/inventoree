@@ -256,7 +256,10 @@ def filter_query(flt):
     try:
         if app.config.app.get("FILTER_MATCH_FROM_START") and not flt.startswith("^"):
             flt = "^" + flt
-        return {"$regex": flt}
+        result = {"$regex": flt}
+        if app.config.app.get("FILTER_MATCH_CASE_INSENSITIVE", True):
+            result["$options"] = "-i"
+        return result
     except:
         return {}
 
