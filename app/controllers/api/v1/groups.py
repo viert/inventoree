@@ -48,6 +48,17 @@ def show(group_id=None):
     return json_response(data)
 
 
+@groups_ctrl.route("/<group_id>/custom_data/<key>", methods=["GET"])
+def get_custom_data(group_id, key):
+    from app.models import Group
+    group_id = resolve_id(group_id)
+    group = Group.get(group_id, GroupNotFound('group not found'))
+    return json_response({
+        "key": key,
+        "data": group.get_custom_data_by_key(key)
+    })
+
+
 @groups_ctrl.route("/<group_id>/structure", methods=["GET"])
 def structure(group_id):
     from app.models import Group

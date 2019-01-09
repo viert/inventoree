@@ -59,6 +59,17 @@ def show(host_id=None):
     return json_response(data)
 
 
+@hosts_ctrl.route("/<host_id>/custom_data/<key>", methods=["GET"])
+def get_custom_data(host_id, key):
+    from app.models import Host
+    host_id = resolve_id(host_id)
+    host = Host.get(host_id, HostNotFound('host not found'))
+    return json_response({
+        "key": key,
+        "data": host.get_custom_data_by_key(key)
+    })
+
+
 @hosts_ctrl.route("/", methods=["POST"])
 @logged_action("host_create")
 @json_body_required

@@ -5,7 +5,7 @@ from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNo
                                 InvalidIpAddresses, NetworkGroupNotFound, InvalidHardwareAddresses, \
                                 InvalidCustomData
 from library.engine.permissions import get_user_from_app_context
-from library.engine.utils import merge, check_dicts_are_equal, convert_keys
+from library.engine.utils import merge, check_dicts_are_equal, convert_keys, get_data_by_key
 from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
@@ -366,8 +366,10 @@ class Host(StorableModel):
         self.tags.remove(tag)
 
     def add_local_custom_data(self, data):
-        print convert_keys(data)
         self.local_custom_data = merge(self.local_custom_data, convert_keys(data))
+
+    def get_custom_data_by_key(self, key):
+        return get_data_by_key(self.custom_data, key)
 
     def remove_local_custom_data(self, key):
         tokens = key.split(".")

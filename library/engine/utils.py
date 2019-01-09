@@ -290,6 +290,22 @@ def convert_keys(data):
     return cdata
 
 
+def get_data_by_key(data, key):
+    """
+    get_data_by_key returns a piece of @data accessible by dot-separated @key
+    i.e. for @data={ a: { b: { c: 5 } } } and @key="a.b" the function returns
+    { c: 5 }
+    """
+    node = data
+    tokens = key.split('.')
+    while len(tokens) > 0:
+        key_token = tokens.pop(0)
+        if key_token not in node:
+            return None
+        node = node[key_token]
+    return node
+
+
 def merge(dict1, dict2):
     """
     merge deeply merges dict1 and dict2, overriding data in dict1 with the data of dict2 in case of conflicts

@@ -2,7 +2,7 @@ from library.engine.errors import ParentDoesNotExist, ParentAlreadyExists, Paren
 from library.engine.errors import InvalidTags, ChildDoesNotExist, ChildAlreadyExists, GroupNotEmpty, GroupNotFound
 from library.engine.errors import InvalidWorkGroupId, InvalidCustomData
 from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
-from library.engine.utils import merge, check_dicts_are_equal, check_lists_are_equal, convert_keys
+from library.engine.utils import merge, check_dicts_are_equal, check_lists_are_equal, convert_keys, get_data_by_key
 from app.models.storable_model import StorableModel, now, save_required
 from bson.objectid import ObjectId, InvalidId
 
@@ -444,6 +444,9 @@ class Group(StorableModel):
 
     def add_local_custom_data(self, data):
         self.local_custom_data = merge(self.local_custom_data, convert_keys(data))
+
+    def get_custom_data_by_key(self, key):
+        return get_data_by_key(self.custom_data, key)
 
     def remove_local_custom_data(self, key):
         tokens = key.split(".")
