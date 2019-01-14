@@ -5,7 +5,7 @@ from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNo
                                 InvalidIpAddresses, NetworkGroupNotFound, InvalidHardwareAddresses, \
                                 InvalidCustomData
 from library.engine.permissions import get_user_from_app_context
-from library.engine.utils import merge, check_dicts_are_equal
+from library.engine.utils import merge, check_dicts_are_equal, convert_keys, get_data_by_key
 from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
@@ -66,6 +66,7 @@ class Host(StorableModel):
         "network_group_id",
         "tags",
         "aliases",
+        "local_custom_data",
         "responsibles_usernames_cache",
         ["custom_fields.key", "custom_fields.value"]
     )
@@ -363,3 +364,21 @@ class Host(StorableModel):
         if tag not in self.tags:
             return
         self.tags.remove(tag)
+
+    def add_local_custom_data(self, data):
+        self.local_custom_data = merge(self.local_custom_data, convert_keys(data))
+
+    def get_custom_data_by_key(self, key):
+        return get_data_by_key(self.custom_data, key)
+
+    def remove_local_custom_data(self, key):
+        tokens = key.split(".")
+        node = self.local_custom_data
+        while len(tokens) > 0:
+            key = tokens.pop(0)
+            if key not in node:
+                return
+            if len(tokens) > 0:
+                node = node[key]
+            else:
+                del(node[key])

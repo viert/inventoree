@@ -114,10 +114,10 @@ def cache_custom_data(func):
     cache_custom_data decorator is used to cache merged custom_data _forever_.
     invalidating custom data cache should be done using recursive calls to invalidate_custom_data(obj)
     """
-    from app import app
 
     @functools.wraps(func)
     def wrapper(self):
+        from app import app
         cache_key = _get_custom_data_cache_key(self)
         if cache_key is None:
             return func(self)

@@ -2,7 +2,7 @@ from library.engine.errors import ParentDoesNotExist, ParentAlreadyExists, Paren
 from library.engine.errors import InvalidTags, ChildDoesNotExist, ChildAlreadyExists, GroupNotEmpty, GroupNotFound
 from library.engine.errors import InvalidWorkGroupId, InvalidCustomData
 from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
-from library.engine.utils import merge, check_dicts_are_equal, check_lists_are_equal
+from library.engine.utils import merge, check_dicts_are_equal, check_lists_are_equal, convert_keys, get_data_by_key
 from app.models.storable_model import StorableModel, now, save_required
 from bson.objectid import ObjectId, InvalidId
 
@@ -61,6 +61,7 @@ class Group(StorableModel):
         "child_ids",
         ["name", { "unique": True }],
         "tags",
+        "local_custom_data",
         ["custom_fields.key", "custom_fields.value"],
         "responsibles_usernames_cache"
     )
@@ -440,3 +441,21 @@ class Group(StorableModel):
         self.responsibles_usernames_cache = responsibles
         if self.hosts.count() > 0:
             Host.update_many({"group_id": self._id}, {"$set": {"responsibles_usernames_cache": responsibles}})
+
+    def add_local_custom_data(self, data):
+        self.local_custom_data = merge(self.local_custom_data, convert_keys(data))
+
+    def get_custom_data_by_key(self, key):
+        return get_data_by_key(self.custom_data, key)
+
+    def remove_local_custom_data(self, key):
+        tokens = key.split(".")
+        node = self.local_custom_data
+        while len(tokens) > 0:
+            key = tokens.pop(0)
+            if key not in node:
+                return
+            if len(tokens) > 0:
+                node = node[key]
+            else:
+                del(node[key])

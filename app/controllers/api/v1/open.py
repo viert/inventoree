@@ -99,7 +99,6 @@ def ansible():
                     hosts = group["all_hosts"].values()
                     hosts.sort(key=lambda x: x["fqdn"])
                     for host in hosts:
-                        print host
                         render += host["fqdn"]
                         for key, value in host["ansible_vars"].iteritems():
                             render += " %s=%s" % (key, value)

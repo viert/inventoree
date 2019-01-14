@@ -256,9 +256,54 @@ def filter_query(flt):
     try:
         if app.config.app.get("FILTER_MATCH_FROM_START") and not flt.startswith("^"):
             flt = "^" + flt
-        return {"$regex": flt}
+        result = {"$regex": flt}
+        if app.config.app.get("FILTER_MATCH_CASE_INSENSITIVE", True):
+            result["$options"] = "-i"
+        return result
     except:
         return {}
+
+
+def convert_keys(data):
+    """
+    convert_keys converts all the keys of data in a way that key "a.b.c" becomes
+    a nested structure {"a":{"b":{"c": value}}}
+
+    all the nested dicts are processed recursively the same way
+    returns a processed copy of data
+    """
+    cdata = {}
+    for key, value in data.iteritems():
+        node = cdata
+        tokens = key.split(".")
+        while len(tokens) > 1:
+            key = tokens.pop(0)
+            if key not in node:
+                node[key] = {}
+            node = node[key]
+        key = tokens.pop()
+
+        if type(value) == dict:
+            value = convert_keys(value)
+
+        node[key] = value
+    return cdata
+
+
+def get_data_by_key(data, key):
+    """
+    get_data_by_key returns a piece of @data accessible by dot-separated @key
+    i.e. for @data={ a: { b: { c: 5 } } } and @key="a.b" the function returns
+    { c: 5 }
+    """
+    node = data
+    tokens = key.split('.')
+    while len(tokens) > 0:
+        key_token = tokens.pop(0)
+        if key_token not in node:
+            return None
+        node = node[key_token]
+    return node
 
 
 def merge(dict1, dict2):

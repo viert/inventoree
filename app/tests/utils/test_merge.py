@@ -1,5 +1,5 @@
 from unittest import TestCase
-from library.engine.utils import merge
+from library.engine.utils import merge, convert_keys
 
 D1 = {
     "field1": 3,
@@ -44,9 +44,32 @@ EXPECTED = {
     "field8": "bye"
 }
 
+CK_INPUT = {
+    "key0": "value0",
+    "key1.key1_1.key1_1_1": "value1_1_1",
+    "key1.key1_2": "value1_2",
+    "key2.key1": "value_test"
+}
+
+CK_EXPECTED = {
+    "key0": "value0",
+    "key1": {
+        "key1_1": {
+            "key1_1_1": "value1_1_1",
+        },
+        "key1_2": "value1_2",
+    },
+    "key2": {
+        "key1": "value_test"
+    }
+}
+
 
 class TestMerge(TestCase):
 
     def test_merge_dicts(self):
         result = merge(D1, D2)
         self.assertDictEqual(result, EXPECTED)
+
+    def test_convert_keys(self):
+        self.assertDictEqual(convert_keys(CK_INPUT), CK_EXPECTED)

@@ -264,3 +264,24 @@ class TestHostModel(TestCase):
         h.group_id = g._id
         h.save()
         self.assertItemsEqual(h.responsibles_usernames_cache, ['viert', 'member'])
+
+    def test_add_remove_custom_data(self):
+        h = Host(fqdn="host.example.com", local_custom_data={"key1": {"key1_1": True}, "key2": "value2"})
+        h.save()
+
+        h.add_local_custom_data({"key1.key1_2": False, "key2": "override"})
+        self.assertDictEqual(h.local_custom_data, {
+            "key1": {
+                "key1_1": True,
+                "key1_2": False
+            },
+            "key2": "override"
+        })
+
+        h.remove_local_custom_data("key1.key1_1")
+        self.assertDictEqual(h.local_custom_data, {
+            "key1": {
+                "key1_2": False
+            },
+            "key2": "override"
+        })

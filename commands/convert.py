@@ -66,7 +66,6 @@ class Convert(Command):
             g.reset_responsibles_cache()
             g.save(skip_callback=True)
 
-
     def run(self):
         if self.args.action == 'custom':
             return self.convert_custom()

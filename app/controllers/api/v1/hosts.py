@@ -59,6 +59,17 @@ def show(host_id=None):
     return json_response(data)
 
 
+@hosts_ctrl.route("/<host_id>/custom_data/<key>", methods=["GET"])
+def get_custom_data(host_id, key):
+    from app.models import Host
+    host_id = resolve_id(host_id)
+    host = Host.get(host_id, HostNotFound('host not found'))
+    return json_response({
+        "key": key,
+        "data": host.get_custom_data_by_key(key)
+    })
+
+
 @hosts_ctrl.route("/", methods=["POST"])
 @logged_action("host_create")
 @json_body_required
@@ -200,11 +211,14 @@ def discover():
         # check for workgroup settings
         if "workgroup_name" in request.json:
             wg = WorkGroup.get(request.json["workgroup_name"], NotFound("Workgroup %s not found" % request.json["workgroup_name"]))
+            if not wg.modification_allowed:
+                raise Forbidden("this system user doesn't have permissions to modify or create a host in this workgroup"
+                                " (consider including the user into workgroup or granting supervisor privileges)")
             default_group_postfix = app.config.app.get("DEFAULT_GROUP_POSTFIX", "_unknown")
             group_name = wg.name + default_group_postfix
             group = Group.get(group_name)
             if group is None:
-                group = Group(name=group_name, work_group_id=wg._id, description="default group in %s" % wg.name)
+                group = Group(name=group_name, work_group_id=wg._id, description="default group in %s workgroup" % wg.name)
                 group.save()
             attrs["group_id"] = group._id
         attrs["fqdn"] = fqdn
@@ -506,6 +520,54 @@ def remove_tags(host_id):
     for tag in tags:
         host.remove_tag(tag)
 
+    host.save()
+
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)
+
+@hosts_ctrl.route("/<host_id>/add_custom_data", methods=["POST"])
+@logged_action("host_add_custom_data")
+@json_body_required
+def add_custom_data(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not host.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this host")
+    if "custom_data" not in request.json:
+        raise ApiError("no custom_data provided")
+
+    cd = request.json["custom_data"]
+    if type(cd) != dict:
+        raise ApiError("custom_data must be a dict")
+
+    host.add_local_custom_data(cd)
+    host.save()
+
+    data = {"data": host.to_dict(get_request_fields())}
+    return json_response(data)
+
+
+@hosts_ctrl.route("/<host_id>/remove_custom_data", methods=["POST", "DELETE"])
+@logged_action("host_remove_custom_data")
+@json_body_required
+def remove_custom_data(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not host.modification_allowed:
+        raise Forbidden("You don't have permissions to modify this host")
+    if "keys" not in request.json:
+        raise ApiError("no custom data keys provided")
+
+    keys = request.json["keys"]
+    if type(keys) == str or type(keys) == unicode:
+        keys = [keys]
+    elif type(keys) != list:
+        raise ApiError("keys field must be a list or a string type")
+
+    for key in keys:
+        host.remove_local_custom_data(key)
     host.save()
 
     data = {"data": host.to_dict(get_request_fields())}

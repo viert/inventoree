@@ -1,5 +1,5 @@
 from library.engine.utils import resolve_id, paginated_data, json_response, \
-    get_request_fields, json_body_required
+    get_request_fields, json_body_required, filter_query
 from library.engine.permissions import get_user_from_app_context
 from library.engine.errors import NetworkGroupNotFound, WorkGroupNotFound, IntegrityError, Forbidden, InputDataError
 from app.controllers.auth_controller import AuthController
@@ -18,7 +18,7 @@ def show(network_group_id=None):
         if "_filter" in request.values:
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
-                query["name"] = { "$regex": "^%s" % name_filter }
+                query["name"] = filter_query(name_filter)
         if "work_group_id" in request.values:
             work_group_id = resolve_id(request.values["work_group_id"])
             query["work_group_id"] = work_group_id
