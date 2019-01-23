@@ -381,7 +381,7 @@ class TestHostCtrl(HttpApiTestCase):
         from app import app
         payload = deepcopy(DISCOVERED_HOST)
         payload["workgroup_name"] = self.work_group1.name
-        r = self.post_json("/api/v1/hosts/discover", payload, supervisor=False, system=True)
+        r = self.post_json("/api/v1/hosts/discover", payload, supervisor=True, system=True)
         self.assertEqual(201, r.status_code)
         h = Host.get(payload["fqdn"])
         self.assertIsNotNone(h)
