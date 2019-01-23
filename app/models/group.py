@@ -195,7 +195,9 @@ class Group(StorableModel):
 
     @property
     def hosts(self):
-        return self.host_class.find({ "group_id": self._id })
+        if self.is_new:
+            return []
+        return self.host_class.find({"group_id": self._id})
 
     @property
     def host_ids(self):
@@ -203,8 +205,10 @@ class Group(StorableModel):
 
     @property
     def all_hosts(self):
-        group_ids = [ self._id ] + [x._id for x in self.get_all_children()]
-        return self.host_class.find({ "group_id": { "$in": group_ids } })
+        if self.is_new:
+            return []
+        group_ids = [self._id] + [x._id for x in self.get_all_children()]
+        return self.host_class.find({"group_id": {"$in": group_ids}})
 
     @property
     def empty(self):
