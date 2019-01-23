@@ -59,9 +59,7 @@ class TestGroupModel(TestCase):
         cls.twork_group2.save()
 
     def setUp(self):
-        Group.destroy_all()
-
-    def tearDown(self):
+        Host.destroy_all()
         Group.destroy_all()
 
     @classmethod
@@ -304,3 +302,8 @@ class TestGroupModel(TestCase):
             }
         )
 
+    def test_hosts_of_new_group(self):
+        Host(fqdn="host1.example.com").save()
+        Host(fqdn="host2.example.com").save()
+        g = Group(name="test_group")
+        self.assertEqual(g.hosts.count(), 0)
