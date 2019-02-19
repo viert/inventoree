@@ -3,6 +3,7 @@ import pkgutil
 import inspect
 from argparse import ArgumentParser, REMAINDER
 
+
 class Command(object):
     """Base class for CLI commands
     You should override at least run() method
@@ -67,6 +68,12 @@ def load_commands():
 
     if this_module.__package__:
         commands = load_commands_from_package(sys.modules[this_module.__package__])
+
+    try:
+        import plugins.commands
+        commands.extend(load_commands_from_package(plugins.commands))
+    except ImportError:
+        pass
 
     commands.extend(load_commands_from_module(this_module))
     return commands
