@@ -53,6 +53,8 @@ cleanup_buildroot() {
     rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/sys_authorizer.py
     rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/vk_authorizer.py
 
+    echo "Removing unused plugins"
+    rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/commands/example.py
     popd
 }
 
