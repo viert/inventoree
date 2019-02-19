@@ -55,6 +55,18 @@ copy_sources() {
     popd
 }
 
+cleanup_buildroot() {
+    pushd ${BUILD_ROOT}
+
+    echo "Removing *.pyc files"
+    find . -name '*.pyc' -delete
+    echo "Removing unused authorizers"
+    rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/sys_authorizer.py
+    rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/vk_authorizer.py
+
+    popd
+}
+
 copy_virtualenv() {
     echo "Copying virtualenv"
     mkdir -p ${BUILD_ROOT}${VIRTUALENV_DIR}
@@ -122,6 +134,7 @@ prepare_virtualenv
 install_dependencies
 copy_sources
 copy_virtualenv
+cleanup_buildroot
 paste_executable
 build_rpm
 push_rpm
