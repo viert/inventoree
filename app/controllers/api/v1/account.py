@@ -1,7 +1,7 @@
 from app.controllers.auth_controller import AuthController
 from flask import session, g
 from library.engine.utils import json_response
-from plugins.local_authorizer import LocalAuthorizer
+from plugins.authorizers.local_authorizer import LocalAuthorizer
 
 account_ctrl = AuthController("auth", __name__, require_auth=False)
 

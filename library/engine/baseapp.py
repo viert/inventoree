@@ -50,6 +50,7 @@ class BaseApp(object):
         self.__set_request_id()
         self.__set_request_times()
         self.__set_cache()
+        self.__init_plugins()
 
     def __set_cache(self):
         self.logger.debug("Setting up the cache")
@@ -59,43 +60,60 @@ class BaseApp(object):
             self.cache = SimpleCache()
 
     def __load_plugins(self):
-        self.plugins = []
+        self.plugins = {
+            "authorizers": [],
+            "extend": {}
+        }
         plugin_directory = os.path.abspath(os.path.join(self.BASE_DIR, 'plugins'))
-        plugin_files = get_py_files(plugin_directory)
+
+        # load authorizers
+        directory = os.path.join(plugin_directory, "authorizers")
+        plugin_files = get_py_files(directory)
+        module_names = [x[:-3] for x in plugin_files if not x.startswith("__")]
+        for module_name in module_names:
+            try:
+                self.logger.debug("Loading authorizer %s" % module_name)
+                module = importlib.import_module("plugins.authorizers.%s" % module_name)
+                self.plugins["authorizers"].append(module)
+            except ImportError as e:
+                self.logger.error("Error loading module %s: %s" % (module_name, e.message))
+
+        # load extenders
+        directory = os.path.join(plugin_directory, "extend")
+        plugin_files = get_py_files(directory)
         module_names = [x[:-3] for x in plugin_files if not x.startswith("__")]
         for module_name in module_names:
             try:
                 self.logger.debug("Loading plugin %s" % module_name)
-                module = importlib.import_module("plugins.%s" % module_name)
+                module = importlib.import_module("plugins.extend.%s" % module_name)
+                self.plugins["extend"][module_name] = module
             except ImportError as e:
                 self.logger.error("Error loading module %s: %s" % (module_name, e.message))
-            self.plugins.append(module)
+
+    def __init_plugins(self):
+        for module_name, module in self.plugins["extend"].iteritems():
+            try:
+                main = getattr(module, "main")
+            except:
+                self.logger.error("no main() function found in plugin %s, skipping" % module_name)
+                continue
+            main(self)
 
     def __set_authorizer(self):
         authorizer_name = self.config.app.get("AUTHORIZER", "LocalAuthorizer")
         self.authorizer = None
         authorizer_class = None
-        for plugin in self.plugins:
+
+        for auth_module in self.plugins["authorizers"]:
             try:
-                authorizer_class = getattr(plugin, authorizer_name)
+                authorizer_class = getattr(auth_module, authorizer_name)
             except AttributeError:
                 continue
         if authorizer_class is None:
-            raise RuntimeError("No authorizer '%s' found in plugins" % authorizer_name)
+            raise RuntimeError("No authorizer '%s' found in authorizers" % authorizer_name)
         else:
             self.authorizer = authorizer_class(self.flask)
             self.logger.debug("Authorizer '%s' registered" % authorizer_name)
-
-    def __set_csrf_protection(self):
-        if 'CSRF_PROTECTION' in self.config.app and self.config.app['CSRF_PROTECTION']:
-            from library.engine.utils import json_response
-            # CSRF Protection
-            @self.flask.before_request
-            def csrf_protect():
-                if request.method != "GET":
-                    token = session.get('_csrf_token', None)
-                    if not token or token != request.form.get('_csrf_token'):
-                        return json_response({'errors': ['request is not authorized: csrf token is invalid']}, 403)
 
     def __set_session_expiration(self):
         e_time = self.config.app.get("SESSION_EXPIRATION_TIME", DEFAULT_SESSION_EXPIRATION_TIME)
