@@ -50,8 +50,8 @@ cleanup_buildroot() {
     find . -name '.git*' -delete
 
     echo "Removing unused authorizers"
-    rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/sys_authorizer.py
-    rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/vk_authorizer.py
+    rm -f ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/sys_authorizer.py
+    rm -f ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/vk_authorizer.py
 
     echo "Removing unused plugins"
     rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/commands/example.py
@@ -127,4 +127,3 @@ cleanup_buildroot
 paste_executable
 build_rpm
 push_rpm
-bash
