@@ -10,21 +10,6 @@ export ETCDIR=/etc/inventoree
 export PROJECT_SOURCE_ITEMS="app commands library plugins micro.py wsgi.py"
 export REPO=c7-mntdev-x64
 
-prepare_virtualenv() {
-    echo "Creating virtualenv in $VIRTUALENV_DIR"
-    mkdir -p $USRLIB_DIR
-    virtualenv $VIRTUALENV_DIR
-    source $VIRTUALENV_DIR/bin/activate
-}
-
-install_dependencies() {
-    echo "Installing python requirements"
-    pushd $PROJECT_DIR
-    pip install -r requirements.txt
-    pip install ipython==5.3
-    popd
-}
-
 copy_sources() {
     echo "Copying project sources"
 
@@ -52,6 +37,24 @@ copy_sources() {
     mkdir -p ${BUILD_ROOT}/etc/uwsgi.d
     cp extconf/nginx/nginx.conf ${BUILD_ROOT}/etc/nginx/conf.d/$APPNAME.conf
     cp extconf/uwsgi/inventoree.ini ${BUILD_ROOT}/etc/uwsgi.d/$APPNAME.ini
+    popd
+}
+
+cleanup_buildroot() {
+    pushd ${BUILD_ROOT}
+
+    echo "Removing *.pyc files"
+    find . -name '*.pyc' -delete
+
+    echo "Removing .git* files"
+    find . -name '.git*' -delete
+
+    echo "Removing unused authorizers"
+    rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/sys_authorizer.py
+    rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/authorizers/vk_authorizer.py
+
+    echo "Removing unused plugins"
+    rm ${BUILD_ROOT}${USRLIB_DIR}/plugins/commands/example.py
     popd
 }
 
@@ -118,10 +121,9 @@ push_rpm() {
     rsync "$PKG" mntdev@pkg.corp.mail.ru::$REPO/ && echo $REPO | nc pkg.corp.mail.ru 15222
 }
 
-prepare_virtualenv
-install_dependencies
 copy_sources
 copy_virtualenv
+cleanup_buildroot
 paste_executable
 build_rpm
 push_rpm
