@@ -20,6 +20,7 @@ class Host(StorableModel):
     FIELDS = (
         "_id",
         "fqdn",
+        "ext_id",
         "group_id",
         "datacenter_id",
         "description",
@@ -61,6 +62,7 @@ class Host(StorableModel):
 
     INDEXES = (
         ["fqdn", {"unique": True}],
+        "ext_id",
         "group_id",
         "datacenter_id",
         "network_group_id",
@@ -73,7 +75,8 @@ class Host(StorableModel):
 
     SYSTEM_FIELDS = (
         "ip_addrs",
-        "hw_addrs"
+        "hw_addrs",
+        "ext_id",
     )
 
     __slots__ = FIELDS
