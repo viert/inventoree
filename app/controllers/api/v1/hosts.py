@@ -23,15 +23,24 @@ def show(host_id=None):
             name_filter = request.values["_filter"]
             if len(name_filter) > 0:
                 query["fqdn"] = filter_query(name_filter)
-        if "group_id" in request.values:
+
+        if "group_ids" in request.values:
+            group_ids = request.values["group_ids"].split(",")
+            group_ids = [resolve_id(x) for x in group_ids]
+            query["group_id"] = {"$in": group_ids}
+
+        elif "group_id" in request.values:
             group_id = resolve_id(request.values["group_id"])
             query["group_id"] = group_id
+
         if "network_group_id" in request.values:
             sg_id = resolve_id(request.values["network_group_id"])
             query["network_group_id"] = sg_id
+
         if "tags" in request.values:
             tags = request.values["tags"].split(",")
             query["tags"] = {"$in": tags}
+
         if get_boolean_request_param("_mine"):
             query["responsibles_usernames_cache"] = g.user.username
 
