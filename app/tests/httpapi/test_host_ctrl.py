@@ -422,3 +422,30 @@ class TestHostCtrl(HttpApiTestCase):
         fqdns = [x["fqdn"] for x in data]
         self.assertIn("mine.example.com", fqdns)
         self.assertNotIn("notmine.example.com", fqdns)
+
+    def test_list_by_group_ids(self):
+        g1 = Group(name="g1", work_group_id=self.work_group1._id)
+        g1.save()
+        h1 = Host(fqdn="host1", group_id=g1._id)
+        h1.save()
+        h2 = Host(fqdn="host2", group_id=g1._id)
+        h2.save()
+
+        g2 = Group(name="g2", work_group_id=self.work_group1._id)
+        g2.save()
+        h3 = Host(fqdn="host3", group_id=g2._id)
+        h3.save()
+        h4 = Host(fqdn="host4", group_id=g2._id)
+        h4.save()
+
+        group_ids = ','.join([str(g1._id), str(g2._id)])
+        r = self.get("/api/v1/hosts/?group_ids=%s" % group_ids)
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+
+        self.assertEqual(4, data.get("count"))
+        self.assertIn("data", data)
+        data = data["data"]
+        self.assertIs(type(data), list)
+        fqdns = [x["fqdn"] for x in data]
+        self.assertItemsEqual(fqdns, [h1.fqdn, h2.fqdn, h3.fqdn, h4.fqdn])
