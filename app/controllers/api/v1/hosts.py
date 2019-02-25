@@ -54,18 +54,12 @@ def show(host_id=None):
                 {"group_id": {"$in": group_ids}}
             ]
         hosts = Host.find(query)
+        return json_response(paginated_data(hosts.sort("fqdn")))
     else:
-        host_id = resolve_id(host_id)
-        hosts = Host.find({ "$or": [
-            { "_id": host_id },
-            { "fqdn": host_id }
-        ]})
-        if hosts.count() == 0:
-            hosts = Host.find({"aliases": host_id})
-            if hosts.count() == 0:
-                raise HostNotFound("host not found")
-    data = paginated_data(hosts.sort("fqdn"))
-    return json_response(data)
+        host = Host.get(host_id)
+        if host is None:
+            raise HostNotFound("host not found")
+        return json_response(paginated_data([host]))
 
 
 @hosts_ctrl.route("/<host_id>/custom_data/<key>", methods=["GET"])
