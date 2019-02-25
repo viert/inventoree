@@ -156,6 +156,36 @@ class Host(StorableModel):
             # optimization for recursive calls from parent group
             self.responsibles_usernames_cache = responsibles
 
+    @classmethod
+    def get(cls, expression, raise_if_none=None):
+        from bson.objectid import ObjectId
+        from library.engine.utils import resolve_id
+
+        expression = resolve_id(expression)
+        if expression is None:
+            res = None
+        else:
+            if type(expression) == ObjectId:
+                query = {"_id": expression}
+            else:
+                expression = str(expression)
+                query = {"$or": [
+                    {"fqdn": expression},
+                    {"ext_id": expression},
+                    {"aliases": expression},
+                ]}
+            res = cls.find_one(query)
+
+        if res is None and raise_if_none is not None:
+            if isinstance(raise_if_none, Exception):
+                raise raise_if_none
+            else:
+                from library.engine.errors import NotFound
+                raise NotFound(cls.__name__ + " not found")
+        else:
+            return res
+
+
     @property
     def group(self):
         if self.group_id is None:
