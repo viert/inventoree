@@ -6,3 +6,6 @@
 .vscode
 .venv
 webui
+
+/build.sh
+/Dockerfile
