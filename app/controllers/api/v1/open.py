@@ -1,8 +1,8 @@
 from flask import request, make_response
 from datetime import datetime
 from app.controllers.auth_controller import AuthController
-from library.engine.utils import json_response, cursor_to_list, get_app_version
-from library.engine.errors import ApiError
+from library.engine.utils import json_response, cursor_to_list, get_app_version, get_boolean_request_param
+from library.engine.errors import ApiError, WorkGroupNotFound
 
 open_ctrl = AuthController("open", __name__, require_auth=False)
 
@@ -47,26 +47,13 @@ def executer_data():
     if "work_groups" in request.values:
         work_group_names = [x for x in request.values["work_groups"].split(",") if x != ""]
         if len(work_group_names) > 0:
-            query["name"] = { "$in": work_group_names }
+            query["name"] = {"$in": work_group_names}
 
-    recursive = False
-    include_unattached = False
-    if "recursive" in request.values:
-        recursive = request.values["recursive"].lower()
-        if recursive in ["1","yes","true"]:
-            recursive = True
-        else:
-            recursive = False
-
-    if "include_unattached" in request.values:
-        include_unattached = request.values["include_unattached"].lower()
-        if include_unattached in ["1", "yes", "true"]:
-            include_unattached = True
-        else:
-            include_unattached = False
+    recursive = get_boolean_request_param("recursive")
+    include_unattached = get_boolean_request_param("include_unattached")
 
     results = get_executer_data(query, recursive, include_unattached)
-    return json_response({ "data": results })
+    return json_response({"data": results})
 
 
 @open_ctrl.route("/ansible")
@@ -74,19 +61,20 @@ def ansible():
     from app.models import WorkGroup
     from library.engine.utils import full_group_structure, ansible_group_structure
 
-    query = {}
-    if "work_groups" in request.values:
-        work_group_names = [x for x in request.values["work_groups"].split(",") if x != ""]
-        if len(work_group_names) > 0:
-            query["name"] = {"$in": work_group_names}
-    work_group_ids = [x._id for x in WorkGroup.find(query).all()]
+    if "work_groups" not in request.values:
+        raise ApiError("work_groups query param is mandatory")
 
-    include_vars = request.values.get("vars") in ("yes", "true", "1")
+    work_group_names = [x for x in request.values["work_groups"].split(",") if x != ""]
+    query = {"name": {"$in": work_group_names}}
+    work_group_ids = [x._id for x in WorkGroup.find(query)]
+    if not work_group_ids:
+        raise WorkGroupNotFound("can't find any workgroup on your request")
+
+    include_vars = get_boolean_request_param("vars")
     if include_vars:
-        from app.models import Host
-        host_fields = list(Host.FIELDS) + ["ansible_vars"]
+        host_fields = ["fqdn", "group_id", "ansible_vars"]
     else:
-        host_fields = None
+        host_fields = ["fqdn", "group_id"]
 
     fmt = request.values.get("format", "plain")
     if fmt == "plain":
@@ -100,8 +88,9 @@ def ansible():
                     hosts.sort(key=lambda x: x["fqdn"])
                     for host in hosts:
                         render += host["fqdn"]
-                        for key, value in host["ansible_vars"].iteritems():
-                            render += " %s=%s" % (key, value)
+                        if host["ansible_vars"] is not None:
+                            for key, value in host["ansible_vars"].iteritems():
+                                render += " %s=%s" % (key, value)
                         render += "\n"
                 else:
                     host_names = [x["fqdn"] for x in group["all_hosts"].values()]
