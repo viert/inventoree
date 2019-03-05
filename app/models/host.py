@@ -9,7 +9,7 @@ from library.engine.utils import merge, check_dicts_are_equal, convert_keys, get
 from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
-ANSIBLE_CF_PREFIX = "ansible:"
+ANSIBLE_CD_KEY = "ansible_vars"
 
 
 class Host(StorableModel):
@@ -350,13 +350,8 @@ class Host(StorableModel):
 
     @property
     def ansible_vars(self):
-        cfs = self.all_custom_fields
-        vars = {}
-        cut = len(ANSIBLE_CF_PREFIX)
-        for cf in cfs:
-            if cf["key"].startswith(ANSIBLE_CF_PREFIX):
-                vars[cf["key"][cut:]] = cf["value"]
-        return vars
+        cd = self.custom_data
+        return cd.get(ANSIBLE_CD_KEY, None)
 
     def set_custom_field(self, key, value):
         i = -1

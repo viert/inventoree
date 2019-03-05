@@ -159,19 +159,27 @@ def uuid4_string():
 
 
 def full_group_structure(work_group_ids=None, group_fields=None, host_fields=None):
+    from datetime import datetime
+    from app.models import Group, Host
+    from app import app
+
+    t1 = datetime.now()
     query = {}
 
     if work_group_ids is not None:
-        if not hasattr(work_group_ids, '__iter__'):
+        if not isinstance(work_group_ids, list):
             work_group_ids = [work_group_ids]
         work_group_ids = [resolve_id(x) for x in work_group_ids]
-        query["work_group_id"] = { "$in": work_group_ids }
+        query["work_group_id"] = {"$in": work_group_ids}
 
-
-    from app.models import Group, Host
     groups = Group.find(query)
-    groups = dict([(str(group._id), group.to_dict(fields=group_fields)) for group in groups])
-    hosts = Host.find({})
+    groups_index = {}
+    group_ids = []
+    for group in groups:
+        group_ids.append(group._id)
+        groups_index[str(group._id)] = group.to_dict(fields=group_fields)
+    groups = groups_index
+    hosts = Host.find({"group_id": {"$in": group_ids}})
     hosts = dict([(str(host._id), host.to_dict(fields=host_fields)) for host in hosts])
 
     for group in groups.values():
@@ -197,6 +205,8 @@ def full_group_structure(work_group_ids=None, group_fields=None, host_fields=Non
     for group in groups.values():
         group["all_hosts"] = get_all_hosts(group)
 
+    t2 = datetime.now()
+    app.logger.debug("full_group_structure complete in %.3f seconds", (t2-t1).total_seconds())
     return groups
 
 
@@ -223,7 +233,8 @@ def ansible_group_structure(work_group_ids=None, include_vars=True):
     if include_vars:
         result["_meta"] = {"hostvars": {}}
         for host in hosts:
-            result["_meta"]["hostvars"][host.fqdn] = host.ansible_vars
+            if host.ansible_vars:
+                result["_meta"]["hostvars"][host.fqdn] = host.ansible_vars
     return result
 
 
