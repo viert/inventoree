@@ -100,6 +100,8 @@ build_rpm() {
         --depends uwsgi \
         --depends uwsgi-plugin-python \
         --depends python \
+        --depends inventoree-auth-sys \
+        --depends inventoree-plugin-cmdb-import \
         --category "Admin/Inventory" \
         --url https://github.com/viert/inventoree \
         --description "Inventoree leads you through the chaos of your infrastructure" \
