@@ -122,6 +122,10 @@ class Host(StorableModel):
             raise InvalidHardwareAddresses("hardware addresses must be of array type")
         if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
             raise InvalidAliases("aliases must be of array type")
+        for hw_addr in self.hw_addrs:
+            if not isinstance(hw_addr, dict) or "hw_addr" not in hw_addr or "iface_name" not in hw_addr:
+                raise InvalidHardwareAddresses("hw_addrs must be a list of objects with fields 'iface_name'"
+                                               " and 'hw_addr'")
 
         # Custom fields validation
         if type(self.custom_fields) is not list:

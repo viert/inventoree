@@ -28,7 +28,7 @@ DISCOVERED_HOST = {
 
 SYSTEM_FIELDS = {
     "ip_addrs": ["127.0.0.1"],
-    "hw_addrs": ["ab:cd:ef:01:23:45"]
+    "hw_addrs": [{"iface_name": "eth0", "hw_addr": "ab:cd:ef:01:23:45"}]
 }
 
 
