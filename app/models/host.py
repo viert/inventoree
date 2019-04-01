@@ -10,6 +10,7 @@ from library.engine.cache import request_time_cache, cache_custom_data, invalida
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
 ANSIBLE_CD_KEY = "ansible_vars"
+DEFAULT_PROVISION_STATE = "unknown"
 
 
 class Host(StorableModel):
@@ -32,6 +33,7 @@ class Host(StorableModel):
         "updated_at",
         "ip_addrs",
         "hw_addrs",
+        "provision_state",
         "network_group_id",
         "responsibles_usernames_cache"
     )
@@ -77,6 +79,7 @@ class Host(StorableModel):
         "ip_addrs",
         "hw_addrs",
         "ext_id",
+        "provision_state",
     )
 
     __slots__ = FIELDS
