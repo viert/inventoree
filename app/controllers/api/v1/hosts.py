@@ -575,3 +575,19 @@ def remove_custom_data(host_id):
 
     data = {"data": host.to_dict(get_request_fields())}
     return json_response(data)
+
+
+@hosts_ctrl.route("/<host_id>/security_key", methods=["GET"])
+def security_key(host_id):
+    from app.models import Host
+    host = Host.get(host_id, HostNotFound("host not found"))
+
+    if not current_user_is_system():
+        raise Forbidden("only system users are allowed to generate security keys")
+
+    if not host.modification_allowed:
+        raise Forbidden("you don't have permissions to generate security key for this host")
+
+    key = host.generate_security_key()
+
+    return json_response({"key": key})
