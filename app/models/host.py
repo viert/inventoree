@@ -1,16 +1,18 @@
 import re
-from storable_model import StorableModel, now
+from datetime import timedelta, datetime
+from storable_model import StorableModel, now, save_required
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
                                 GroupNotFound, InvalidAliases, InvalidFQDN, \
                                 InvalidIpAddresses, NetworkGroupNotFound, InvalidHardwareAddresses, \
                                 InvalidCustomData
 from library.engine.permissions import get_user_from_app_context
-from library.engine.utils import merge, check_dicts_are_equal, convert_keys, get_data_by_key
+from library.engine.utils import merge, check_dicts_are_equal, convert_keys, get_data_by_key, uuid4_string
 from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
 
 FQDN_EXPR = re.compile('^[_a-z0-9\-.]+$')
 ANSIBLE_CD_KEY = "ansible_vars"
 DEFAULT_PROVISION_STATE = "unknown"
+DEFAULTsecurity_key_TTL = 600  # in seconds
 
 
 class Host(StorableModel):
@@ -35,7 +37,9 @@ class Host(StorableModel):
         "hw_addrs",
         "provision_state",
         "network_group_id",
-        "responsibles_usernames_cache"
+        "responsibles_usernames_cache",
+        "security_key",
+        "security_key_expires_at",
     )
 
     KEY_FIELD = "fqdn"
@@ -47,7 +51,14 @@ class Host(StorableModel):
     REJECTED_FIELDS = (
         "created_at",
         "updated_at",
+        "security_key",
+        "security_key_expires_at",
         "responsibles_usernames_cache"
+    )
+
+    RESTRICTED_FIELDS = (
+        "security_key",
+        "security_key_expires_at",
     )
 
     DEFAULTS = {
@@ -72,6 +83,7 @@ class Host(StorableModel):
         "aliases",
         "local_custom_data",
         "responsibles_usernames_cache",
+        "security_key",
         ["custom_fields.key", "custom_fields.value"]
     )
 
@@ -159,6 +171,22 @@ class Host(StorableModel):
             # optimization for recursive calls from parent group
             self.responsibles_usernames_cache = responsibles
 
+    def security_key_expired(self):
+        return self.security_key_expires_at is None or self.security_key_expires_at < now()
+
+    @save_required
+    def generate_security_key(self):
+        from app import app
+        if self.security_key_expired():
+            self.security_key = uuid4_string()
+
+            expiration = app.config.app.get("SECURITY_KEY_TTL", DEFAULTsecurity_key_TTL)
+            expiration = timedelta(seconds=expiration)
+            self.security_key_expires_at = now() + expiration
+            self.save()
+
+        return self.security_key
+
     @classmethod
     def get(cls, expression, raise_if_none=None):
         from bson.objectid import ObjectId
@@ -179,15 +207,18 @@ class Host(StorableModel):
                 ]}
             res = cls.find_one(query)
 
+        if res is None:
+            res = cls.find_one({"security_key": expression})
+            if res is not None and res.security_key_expired():
+                res = None
+
         if res is None and raise_if_none is not None:
             if isinstance(raise_if_none, Exception):
                 raise raise_if_none
             else:
                 from library.engine.errors import NotFound
                 raise NotFound(cls.__name__ + " not found")
-        else:
-            return res
-
+        return res
 
     @property
     def group(self):

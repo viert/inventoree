@@ -1,7 +1,10 @@
 from unittest import TestCase
 from app.models import WorkGroup, Group, Host, Datacenter, User, NetworkGroup
+from app.models.storable_model import ObjectSaveRequired, now
 from library.engine.errors import GroupNotFound, DatacenterNotFound, InvalidTags, InvalidAliases, NetworkGroupNotFound
 from pymongo.errors import DuplicateKeyError
+from datetime import timedelta
+
 
 TEST_CUSTOM_FIELDS_G1 = [
     { "key": "field1", "value": "1" },
@@ -28,18 +31,22 @@ TEST_CUSTOM_FIELDS_RESULT2 = [
     {"key": "field3", "value": "host overriden 3"}
 ]
 
-ANSIBLE_CF1 = [
-    {"key": "ansible:port", "value": "5335"},
-    {"key": "ansible:proto", "value": "udp"}
-]
+ANSIBLE_DATA1 = {
+    "ansible_vars": {
+        "port": 5335,
+        "proto": "udp"
+    }
+}
 
-ANSIBLE_CF2 = [
-    {"key": "ansible:port", "value": "8080"},
-    {"key": "ansible:description", "value": "this is a test host"}
-]
+ANSIBLE_DATA2 = {
+    "ansible_vars": {
+        "port": 8080,
+        "description": "this is a test host"
+    }
+}
 
 ANSIBLE_RESULT = {
-    "port": "8080",
+    "port": 8080,
     "proto": "udp",
     "description": "this is a test host"
 }
@@ -161,21 +168,10 @@ class TestHostModel(TestCase):
         h1 = Host.find_one({"aliases": "host.i.example.com"})
         self.assertIsNotNone(h1)
 
-    def test_custom_fields(self):
-        g1 = Group(name="g1", work_group_id=self.twork_group._id, custom_fields=TEST_CUSTOM_FIELDS_G1)
-        g1.save()
-        g2 = Group(name="g2", work_group_id=self.twork_group._id, custom_fields=TEST_CUSTOM_FIELDS_G2)
-        g2.save()
-        h = Host(fqdn="host.example.com", group_id=g2._id, custom_fields=TEST_CUSTOM_FIELDS_H)
-        h.save()
-        self.assertItemsEqual(h.all_custom_fields, TEST_CUSTOM_FIELDS_RESULT1)
-        g1.add_child(g2)
-        self.assertItemsEqual(h.all_custom_fields, TEST_CUSTOM_FIELDS_RESULT2)
-
     def test_ansible_vars(self):
-        g1 = Group(name="g1", work_group_id=self.twork_group._id, custom_fields=ANSIBLE_CF1)
+        g1 = Group(name="g1", work_group_id=self.twork_group._id, local_custom_data=ANSIBLE_DATA1)
         g1.save()
-        h = Host(fqdn="host.example.com", group_id=g1._id, custom_fields=ANSIBLE_CF2)
+        h = Host(fqdn="host.example.com", group_id=g1._id, local_custom_data=ANSIBLE_DATA2)
         h.save()
         self.assertDictEqual(h.ansible_vars, ANSIBLE_RESULT)
 
@@ -285,3 +281,22 @@ class TestHostModel(TestCase):
             },
             "key2": "override"
         })
+
+    def test_security_key(self):
+        h = Host(fqdn="host.example.com", local_custom_data={"key1": {"key1_1": True}, "key2": "value2"})
+        self.assertRaises(ObjectSaveRequired, h.generate_security_key)
+        self.assertTrue(h.security_key_expired())
+
+        h.save()
+        key = h.generate_security_key()
+        self.assertIsNotNone(Host.get(key))
+
+        h.security_key_expires_at = now() - timedelta(seconds=10)
+        h.save()
+
+        self.assertIsNone(Host.get(key))
+
+        key2 = h.generate_security_key()
+        self.assertNotEqual(key, key2)
+
+        self.assertIsNotNone(Host.get(key2))
