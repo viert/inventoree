@@ -1,10 +1,10 @@
 import re
-from datetime import timedelta, datetime
+from datetime import timedelta
 from storable_model import StorableModel, now, save_required
 from library.engine.errors import InvalidTags, InvalidCustomFields, DatacenterNotFound, \
                                 GroupNotFound, InvalidAliases, InvalidFQDN, \
                                 InvalidIpAddresses, NetworkGroupNotFound, InvalidHardwareAddresses, \
-                                InvalidCustomData
+                                InvalidCustomData, InvalidNetInterfaces
 from library.engine.permissions import get_user_from_app_context
 from library.engine.utils import merge, check_dicts_are_equal, convert_keys, get_data_by_key, uuid4_string
 from library.engine.cache import request_time_cache, cache_custom_data, invalidate_custom_data
@@ -35,6 +35,7 @@ class Host(StorableModel):
         "updated_at",
         "ip_addrs",
         "hw_addrs",
+        "net_interfaces",
         "provision_state",
         "network_group_id",
         "responsibles_usernames_cache",
@@ -70,6 +71,7 @@ class Host(StorableModel):
         "aliases": [],
         "ip_addrs": [],
         "hw_addrs": [],
+        "net_interfaces": [],
         "responsibles_usernames_cache": []
     }
 
@@ -90,6 +92,7 @@ class Host(StorableModel):
     SYSTEM_FIELDS = (
         "ip_addrs",
         "hw_addrs",
+        "net_interfaces",
         "ext_id",
         "provision_state",
     )
@@ -120,6 +123,8 @@ class Host(StorableModel):
             raise InvalidIpAddresses("ip addresses must be of array type")
         if not hasattr(self.hw_addrs, "__getitem__") or type(self.hw_addrs) is str:
             raise InvalidHardwareAddresses("hardware addresses must be of array type")
+        if not hasattr(self.net_interfaces, "__getitem__") or type(self.net_interfaces) is str:
+            raise InvalidNetInterfaces("net_interfaces must be of array type")
         if not hasattr(self.aliases, "__getitem__") or type(self.aliases) is str:
             raise InvalidAliases("aliases must be of array type")
         for hw_addr in self.hw_addrs:

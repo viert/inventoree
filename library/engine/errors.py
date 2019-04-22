@@ -94,6 +94,10 @@ class InvalidHardwareAddresses(IntegrityError):
     pass
 
 
+class InvalidNetInterfaces(IntegrityError):
+    pass
+
+
 class InvalidFQDN(IntegrityError):
     pass
 
