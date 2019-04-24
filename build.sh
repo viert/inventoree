@@ -37,6 +37,7 @@ copy_sources() {
     mkdir -p ${BUILD_ROOT}/etc/uwsgi.d
     cp extconf/nginx/nginx.conf ${BUILD_ROOT}/etc/nginx/conf.d/$APPNAME.conf
     cp extconf/uwsgi/inventoree.ini ${BUILD_ROOT}/etc/uwsgi.d/$APPNAME.ini
+    cp extconf/logrotate.conf ${BUILD_ROOT}/etc/logrotate.d/$APPNAME
     popd
 }
 
@@ -114,6 +115,7 @@ build_rpm() {
         --config-files etc/$APPNAME/log.py \
         --config-files etc/nginx/conf.d/$APPNAME.conf \
         --config-files etc/uwsgi.d/$APPNAME.ini \
+        --config-files etc/logrotate.d/$APPNAME \
         --after-install /postinst.sh \
         -C ${BUILD_ROOT}
 }

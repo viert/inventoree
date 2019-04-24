@@ -1,4 +1,5 @@
-from storable_model import StorableModel, now
+from copy import deepcopy
+from storable_model import StorableModel, now, FieldRequired
 from library.engine.utils import resolve_id, convert_keys
 from library.engine.permutation import expand_pattern
 
@@ -762,3 +763,17 @@ class ApiAction(StorableModel):
             return
         method = getattr(self, method_name)
         method()
+
+    def save(self, skip_callback=False):
+        for field in self.missing_fields:
+            raise FieldRequired(field)
+        if not skip_callback:
+            self._before_save()
+
+        from app import app
+        app.alogger.info("Action[%s] by %s (%s): params=%s kwargs=%s computed=%s errors=%s",
+                         self.action_type, self.username, self.status,
+                         self.params, self.kwargs, self.computed, self.errors)
+
+        setattr(self, '_initial_state', deepcopy(self.to_dict(self.FIELDS)))
+        return self
