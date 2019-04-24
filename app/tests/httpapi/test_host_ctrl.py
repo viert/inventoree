@@ -28,7 +28,7 @@ DISCOVERED_HOST = {
 
 SYSTEM_FIELDS = {
     "ip_addrs": ["127.0.0.1"],
-    "hw_addrs": ["ab:cd:ef:01:23:45"]
+    "hw_addrs": [{"iface_name": "eth0", "hw_addr": "ab:cd:ef:01:23:45"}]
 }
 
 
@@ -449,3 +449,24 @@ class TestHostCtrl(HttpApiTestCase):
         self.assertIs(type(data), list)
         fqdns = [x["fqdn"] for x in data]
         self.assertItemsEqual(fqdns, [h1.fqdn, h2.fqdn, h3.fqdn, h4.fqdn])
+
+    def test_security_keys(self):
+        h1 = Host(fqdn="host1")
+        h1.save()
+
+        r = self.get("/api/v1/hosts/%s/security_key" % h1.fqdn)
+        self.assertEqual(403, r.status_code)
+
+        r = self.get("/api/v1/hosts/%s/security_key" % h1.fqdn, system=True)
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        self.assertIn("key", data)
+        key = data["key"]
+
+        r = self.get("/api/v1/hosts/%s" % key)
+        self.assertEqual(200, r.status_code)
+        data = json.loads(r.data)
+        data = data["data"]
+        self.assertEqual(1, len(data))
+        data = data[0]
+        self.assertEqual(data["fqdn"], h1.fqdn)

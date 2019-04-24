@@ -57,8 +57,5 @@ class App(BaseApp):
             for atype in failed_types:
                 self.logger.error("action type %s doesn't have a compute handler" % atype)
 
-    def after_configured(self):
-        self.action_logging = self.config.app.get("ACTION_LOGGING", False)
-
 
 app = App()

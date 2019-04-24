@@ -1,3 +1,4 @@
+from flask import g
 import functools
 import json
 import copy
@@ -43,8 +44,7 @@ def logged_action(action_type):
                 params=action_args,
                 status="requested"
             )
-            action.save()
-            app.logger.debug("action '%s' created" % action.action_type)
+            app.logger.debug("action '%s' created in request context" % action.action_type)
 
             action.status = "error"
             try:

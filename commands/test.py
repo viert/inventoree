@@ -21,6 +21,7 @@ class Test(Command):
         ApiAction._collection = 'test_api_actions'
         Token._collection = 'test_tokens'
         NetworkGroup._collection = 'test_network_groups'
+        app.action_logging = False
 
         argv = ['micro.py test'] + self.raw_args
         test_program = main(argv=argv, module=tests, exit=False)

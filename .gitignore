@@ -9,3 +9,4 @@ webui
 
 /build.sh
 /Dockerfile
+/*.log
