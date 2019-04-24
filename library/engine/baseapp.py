@@ -4,6 +4,7 @@ import sys
 import importlib
 import logging
 import time
+from logging.handlers import WatchedFileHandler
 from flask import Flask, request, session
 from datetime import timedelta
 from collections import namedtuple
@@ -26,6 +27,7 @@ DEFAULT_SESSION_EXPIRATION_TIME = 86400 * 7 * 2 # 2 weeks
 class BaseApp(object):
 
     DEFAULT_LOG_FORMAT = "[%(asctime)s] %(levelname)s %(filename)s:%(lineno)d %(message)s"
+    ACTION_LOG_FORMAT = "[%(asctime)s] %(message)s"
     DEFAULT_LOG_LEVEL = "debug"
     CTRL_MODULES_PREFIX = "app.controllers"
 
@@ -181,6 +183,7 @@ class BaseApp(object):
         self.config = namedtuple('Configuration', data.keys())(*data.values())
 
     def __prepare_logger(self):
+
         self.logger = logging.getLogger('app')
         self.logger.propagate = False
 
@@ -189,7 +192,6 @@ class BaseApp(object):
         log_level = getattr(logging, log_level)
 
         if "LOG_FILE" in self.config.log:
-            from logging.handlers import WatchedFileHandler
             handler = WatchedFileHandler(self.config.log["LOG_FILE"])
             self.logger.addHandler(handler)
         if self.config.log.get("DEBUG"):
@@ -209,6 +211,32 @@ class BaseApp(object):
             handler.setLevel(log_level)
             handler.setFormatter(log_format)
         self.logger.info("Logger created. Environment type set to %s" % self.envtype)
+
+        if not self.config.app.get("ACTION_LOGGING"):
+            self.logger.warn("Action logging is off")
+            self.action_logging = False
+            return
+
+        self.action_logging = True
+        self.alogger = logging.getLogger('actions')
+        self.alogger.propagate = False
+
+        if "ACTION_LOG_FILE" in self.config.log:
+            handler = WatchedFileHandler(self.config.log.get("ACTION_LOG_FILE"))
+            self.alogger.addHandler(handler)
+
+        if self.config.log.get("DEBUG"):
+            handler = logging.StreamHandler(stream=sys.stdout)
+            self.alogger.addHandler(handler)
+
+        log_format = self.ACTION_LOG_FORMAT
+        log_format = logging.Formatter(log_format)
+
+        self.alogger.setLevel(log_level)
+        for handler in self.alogger.handlers:
+            handler.setLevel(log_level)
+            handler.setFormatter(log_format)
+        self.logger.info("Action Logger created.")
 
     def test_config(self):
         pass
