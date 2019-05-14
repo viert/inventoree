@@ -1,4 +1,4 @@
-from flask import make_response, request
+from flask import make_response, request, has_request_context, g
 from bson.objectid import ObjectId, InvalidId
 from collections import namedtuple
 from uuid import uuid4
@@ -70,6 +70,13 @@ def get_page():
 def get_limit():
     from app import app
     default_limit = app.config.app.get('DOCUMENTS_PER_PAGE', DEFAULT_DOCUMENTS_PER_PAGE)
+    if has_request_context():
+        try:
+            user = g.user
+            if user.documents_per_page:
+                default_limit = user.documents_per_page
+        except AttributeError:
+            pass
     if '_limit' in request.values:
         limit = request.values['_limit']
         try:

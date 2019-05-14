@@ -2,7 +2,7 @@ from storable_model import StorableModel, now
 from library.engine.pbkdf2 import pbkdf2_hex
 from library.engine.permissions import get_user_from_app_context
 from library.engine.cache import request_time_cache
-from library.engine.errors import InvalidPassword
+from library.engine.errors import InvalidPassword, InvalidDocumentsPerPage
 from time import mktime
 from flask import g
 import bcrypt
@@ -29,7 +29,8 @@ class User(StorableModel):
         "updated_at",
         "supervisor",
         "system",
-        "custom_data"
+        "custom_data",
+        "documents_per_page",
     )
 
     KEY_FIELD = "username"
@@ -43,7 +44,8 @@ class User(StorableModel):
         "custom_data": {},
         "ext_id": None,
         "supervisor": False,
-        "system": False
+        "system": False,
+        "documents_per_page": 20
     }
 
     RESTRICTED_FIELDS = [
@@ -126,6 +128,8 @@ class User(StorableModel):
         self.updated_at = now()
 
     def _before_save(self):
+        if not isinstance(self.documents_per_page, int):
+            raise InvalidDocumentsPerPage("documents_per_page must be int")
         self.touch()
 
     def _before_delete(self):
