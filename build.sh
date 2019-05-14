@@ -35,6 +35,7 @@ copy_sources() {
     echo "Copying ext software configs"
     mkdir -p ${BUILD_ROOT}/etc/nginx/conf.d
     mkdir -p ${BUILD_ROOT}/etc/uwsgi.d
+    mkdir -p ${BUILD_ROOT}/etc/logrotate.d
     cp extconf/nginx/nginx.conf ${BUILD_ROOT}/etc/nginx/conf.d/$APPNAME.conf
     cp extconf/uwsgi/inventoree.ini ${BUILD_ROOT}/etc/uwsgi.d/$APPNAME.ini
     cp extconf/logrotate.conf ${BUILD_ROOT}/etc/logrotate.d/$APPNAME
