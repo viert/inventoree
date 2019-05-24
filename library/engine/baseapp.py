@@ -39,6 +39,8 @@ class BaseApp(object):
         # detecting environment type
         self.envtype = os.environ.get("MICROENG_ENV")
         self.action_types = []
+        self.auth_token_ttl = None
+        self.auth_token_ttr = None
         if not self.envtype in ENVIRONMENT_TYPES:
             self.envtype = DEFAULT_ENVIRONMENT_TYPE
         self.__read_config()
@@ -52,7 +54,23 @@ class BaseApp(object):
         self.__set_request_id()
         self.__set_request_times()
         self.__set_cache()
+        self.__set_token_expiration()
         self.__init_plugins()
+
+    def __set_token_expiration(self):
+        ttl = self.config.app.get("AUTH_TOKEN_TTL")
+        if ttl is None:
+            return
+        try:
+            self.auth_token_ttl = timedelta(seconds=ttl)
+        except TypeError:
+            self.logger.error("AUTH_TOKEN_TTL configuration is invalid, token expiration is turned off")
+
+        ttr = self.config.app.get("AUTH_TOKEN_TTR", ttl * 0.9)
+        try:
+            self.auth_token_ttr = timedelta(seconds=ttr)
+        except TypeError:
+            self.logger.error("AUTH_TOKEN_TTR configuration is invalid, token expiration is turned off")
 
     def __set_cache(self):
         self.logger.debug("Setting up the cache")
