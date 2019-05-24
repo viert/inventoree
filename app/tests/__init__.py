@@ -4,6 +4,7 @@ from app.tests.models.test_host_model import TestHostModel
 from app.tests.models.test_work_group_model import TestWorkGroupModel
 from app.tests.models.test_storable_model import TestStorableModel
 from app.tests.models.test_network_group_model import TestNetworkGroupModel
+from app.tests.models.test_user_model import TestUserModel
 
 from app.tests.httpapi.test_account_ctrl import TestAccountCtrl
 from app.tests.httpapi.test_group_ctrl import TestGroupCtrl

@@ -2,9 +2,9 @@ from storable_model import StorableModel, now
 from library.engine.pbkdf2 import pbkdf2_hex
 from library.engine.permissions import get_user_from_app_context
 from library.engine.cache import request_time_cache
-from library.engine.errors import InvalidPassword
+from library.engine.errors import InvalidPassword, InvalidDocumentsPerPage
 from time import mktime
-from flask import g
+from flask import g, has_request_context
 import bcrypt
 
 
@@ -29,7 +29,8 @@ class User(StorableModel):
         "updated_at",
         "supervisor",
         "system",
-        "custom_data"
+        "custom_data",
+        "documents_per_page",
     )
 
     KEY_FIELD = "username"
@@ -43,12 +44,12 @@ class User(StorableModel):
         "custom_data": {},
         "ext_id": None,
         "supervisor": False,
-        "system": False
+        "system": False,
+        "documents_per_page": 20
     }
 
     RESTRICTED_FIELDS = [
         "password_hash",
-        "tokens",
         "salt"
     ]
 
@@ -126,6 +127,8 @@ class User(StorableModel):
         self.updated_at = now()
 
     def _before_save(self):
+        if not isinstance(self.documents_per_page, int):
+            raise InvalidDocumentsPerPage("documents_per_page must be int")
         self.touch()
 
     def _before_delete(self):
@@ -159,7 +162,13 @@ class User(StorableModel):
 
     @property
     def tokens(self):
-        return self.token_class.find({ "user_id": self._id })
+        if not has_request_context():
+            return self.token_class.find({"user_id": self._id})
+        else:
+            current_user = g.user
+            if current_user and (current_user.supervisor or current_user._id == self._id):
+                return self.token_class.find({"user_id": self._id})
+        return []
 
     @property
     def avatar(self):
@@ -177,23 +186,29 @@ class User(StorableModel):
         return "%s/%s.jpg" % (gravatar_path, gravatar_hash)
 
     def get_auth_token(self):
-        tokens = self.token_class.find({ "type": "auth", "user_id": self._id })
+        tokens = self.token_class.find({"type": "auth", "user_id": self._id})
+        suitable_token = None
         for token in tokens:
-            if not token.expired:
-                return token
-        token = self.token_class(type="auth", user_id=self._id)
-        token.save()
-        return token
+            if token.expired():
+                token.destroy()
+            elif token.close_to_expiration():
+                continue
+            else:
+                suitable_token = token
+        if suitable_token is None:
+            suitable_token = self.token_class(type="auth", user_id=self._id)
+            suitable_token.save()
+        return suitable_token
 
     @property
     def auth_token(self):
-        try:
+        if has_request_context():
             current_user = g.user
-        except RuntimeError:
-            return None
-        if current_user.supervisor or current_user._id == self._id:
-            return self.get_auth_token().token
-        return None
+            if not current_user:
+                return None
+            if not current_user.supervisor and not current_user._id == self._id:
+                return None
+        return self.get_auth_token().token
 
     @property
     @request_time_cache()

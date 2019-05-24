@@ -166,6 +166,10 @@ class InvalidPassword(ApiError):
     pass
 
 
+class InvalidDocumentsPerPage(ApiError):
+    pass
+
+
 def handle_api_error(error):
     return json_response(error.to_dict(), error.status_code)
 

@@ -1,5 +1,6 @@
 from storable_model import StorableModel, now
 from library.engine.utils import uuid4_string
+from datetime import datetime, timedelta
 
 
 class Token(StorableModel):
@@ -36,7 +37,7 @@ class Token(StorableModel):
 
     @property
     def user(self):
-        return self.user_class.find_one({ "_id": self.user_id })
+        return self.user_class.find_one({"_id": self.user_id})
 
     @property
     def user_class(self):
@@ -45,7 +46,18 @@ class Token(StorableModel):
             self.__class__._user_class = User
         return self._user_class
 
-    @property
     def expired(self):
-        # TODO token expiration
-        return False
+        from app import app
+        if app.auth_token_ttl is None:
+            # No token expiration
+            return False
+        expires_at = self.created_at + app.auth_token_ttl
+        return expires_at < now()
+
+    def close_to_expiration(self):
+        from app import app
+        if app.auth_token_ttr is None:
+            # No time to renew
+            return False
+        renew_at = self.created_at + app.auth_token_ttr
+        return renew_at < now()

@@ -16,8 +16,8 @@ class AuthController(Blueprint):
             auth = request.headers["Authorization"].split()
             if len(auth) == 2 and auth[0] == "Token":
                 from app.models import Token
-                token = Token.find_one({ "token": auth[1] })
-                if token is not None and not token.expired:
+                token = Token.find_one({"token": auth[1]})
+                if token is not None and not token.expired():
                     return token.user
         return None
 
@@ -29,13 +29,12 @@ class AuthController(Blueprint):
             user = User.find_one({"_id": user_id})
             return user
 
-
     @staticmethod
     def _get_user_from_x_api_auth_token():
         if "X-Api-Auth-Token" in request.headers:
             from app.models import Token
-            token = Token.find_one({ "token": request.headers["X-Api-Auth-Token"] })
-            if token is not None and not token.expired:
+            token = Token.find_one({"token": request.headers["X-Api-Auth-Token"]})
+            if token is not None and not token.expired():
                 return token.user
             else:
                 return None
